@@ -1,0 +1,47 @@
+name: devotionals
+description: A new Flutter project.
+publish_to: none
+version: 1.0.0+1
+environment:
+  sdk: '>=3.1.5 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  google_fonts: ^6.1.0
+  csv: ^5.1.1
+  page_transition: ^2.1.0
+  intl: ^0.19.0
+  material_design_icons_flutter: ^7.0.7296
+  palette_generator: ^0.3.3+3
+  faker: ^2.1.0
+  scrollable_positioned_list: ^0.3.8
+  flutter_tts: ^3.8.5
+  provider: ^6.1.1
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.15.3
+  firebase_storage: ^11.5.6
+  cloud_firestore: ^4.13.6
+  firebase_database: ^10.3.8
+  firebase_messaging: ^14.7.9
+  flutter_animate: ^4.3.0
+  shared_preferences: ^2.2.2
+  step_progress_indicator: ^1.0.2
+  loading_animation_widget: ^1.2.0+4
+  chat_bubbles: ^0.8.1
+  sembast: ^3.5.0+1
+  path_provider: ^2.1.1
+  path: ^1.8.3
+  image_picker: ^1.0.5
+  image_cropper: ^5.0.1
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/bibles/
+    - assets/images/

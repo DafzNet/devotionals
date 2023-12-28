@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1096040991582",
+    "project_id": "cric-4c410",
+    "storage_bucket": "cric-4c410.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1096040991582:android:5d8e021386733b9c339dcf",
+        "android_client_info": {
+          "package_name": "com.cric.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDY6ZPCgR20tqAsWyzP3TBgCW_Z4wLxNqs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
