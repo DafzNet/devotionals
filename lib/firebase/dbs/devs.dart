@@ -26,8 +26,6 @@ class DevotionalService {
     List<DevotionalModel> devotionals = snapshot.docs
         .map((doc) => DevotionalModel.fromMap(doc.data() as Map<String, dynamic>))
         .toList();
-
-    // Return the last DocumentSnapshot instead of DevotionalModel
     return [devotionals, snapshot.docs.isNotEmpty ? snapshot.docs.last : null];
   }
 
@@ -35,5 +33,10 @@ class DevotionalService {
   // Delete
   Future<void> deleteDevotional(DevotionalModel dev) async {
     await _devotionalCollection.doc(dev.id).delete();
+  }
+
+
+  Future<void> updateDevotional(DevotionalModel dev) async {
+    await _devotionalCollection.doc(dev.id).update(dev.toMap());
   }
 }

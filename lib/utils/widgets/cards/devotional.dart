@@ -1,3 +1,4 @@
+import 'package:devotionals/screens/devotional/add_dev.dart';
 import 'package:devotionals/screens/devotional/detail.dart';
 import 'package:devotionals/screens/profile/screens/notes/note_taker.dart';
 import 'package:devotionals/utils/constants/constants.dart';
@@ -176,6 +177,24 @@ class _DevotionalCardState extends State<DevotionalCard> {
                               PageTransition(
                                 child: NoteTaker(
 
+                                ), 
+                                type: PageTransitionType.fade)
+                            );
+                          },
+                          icon: Icon(
+                            MdiIcons.notebookPlusOutline
+                          )
+                        ),
+
+
+
+                        IconButton(
+                          onPressed: (){
+                            Navigator.push(
+                              context,
+                              PageTransition(
+                                child: AddDev(
+                                  model: widget.model,
                                 ), 
                                 type: PageTransitionType.fade)
                             );

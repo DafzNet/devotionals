@@ -4,6 +4,7 @@ import 'package:page_transition/page_transition.dart';
 
 import 'bible_view.dart';
 
+
 class ClickableText extends StatelessWidget {
   final String text;
   final TextStyle? matchTextStyle;
@@ -39,8 +40,10 @@ class ClickableText extends StatelessWidget {
   TextSpan _buildTextSpan() {
     final List<TextSpan> spans = [];
 
-    final RegExp referenceRegExp = RegExp(r'\b(?:\d\s?(?:[ivxlc]+)?|[ivxlc]+(?:\s?\d)?)?\s?[A-Za-z]+\s?\d{1,3}(?::\d{1,3})?(?:\s?[,-]\s?(?:\d\s?(?:[ivxlc]+)?|[ivxlc]+(?:\s?\d)?)?(?::\d{1,3})?(?:-?\d{1,3})?)?\b',
-   );
+   RegExp referenceRegExp = RegExp(
+    r'(?:\b(?:Genesis|Gen|Exodus|Exo|Leviticus|Lev|Numbers|Num|Deuteronomy|Deut|Joshua|Josh|Judges|Jdg|Ruth|1\sSamuel|1\sSam|2\sSamuel|2\sSam|1\sKings|1\sKin|2\sKings|2\sKin|1\sChronicles|1\sChr|2\sChronicles|2\sChr|Ezra|Nehemiah|Neh|Esther|Est|Job|Psalms|Psalm|Proverbs|Prov|Ecclesiastes|Eccles|Song\sof\sSolomon|Song\sSol|Isaiah|Isa|Jeremiah|Jer|Lamentations|Lam|Ezekiel|Ezek|Daniel|Dan|Hosea|Hos|Joel|Jl|Amos|Obadiah|Obad|Jonah|Jon|Micah|Mic|Nahum|Nah|Habakkuk|Hab|Zephaniah|Zeph|Haggai|Hag|Zechariah|Zech|Malachi|Mal|Matthew|Matt|Mark|Mk|Luke|Lk|John|Jn|Acts|Romans|Rom|1\sCorinthians|1\sCor|2\sCorinthians|2\sCor|Galatians|Gal|Ephesians|Eph|Philippians|Phil|Colossians|Col|1\sThessalonians|1\sThes|2\sThessalonians|2\sThes|1\sTimothy|1\sTim|2\sTimothy|2\sTim|Titus|Tt|Philemon|Philem|Hebrews|Heb|James|Jas|1\sPeter|1\sPet|2\sPeter|2\sPet|1\sJohn|1\sJn|2\sJohn|2\sJn|3\sJohn|3\sJn|Jude|Jd|Revelation|Rev)\b(?:\s\d+(?::\d+)?(?:-\d+(?::\d+)?)?|\s\d+(?::\d+)?)?)\b',
+    caseSensitive: false,
+  );
 
     int currentIndex = 0;
     referenceRegExp.allMatches(text).forEach((match) {

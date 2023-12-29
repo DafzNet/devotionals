@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
+import 'package:devotionals/firebase/file_storage.dart';
 import 'package:devotionals/utils/constants/constants.dart';
 import 'package:devotionals/utils/models/user.dart';
 import 'package:devotionals/utils/widgets/images/selector.dart';
@@ -51,6 +53,23 @@ class _ProfileState extends State<Profile> {
           PopupMenuItem<String>(
             onTap: ()async {
               final _file = await _imagePickerCrop.imgFromGallery();
+
+              if (_file != null) {
+                String? dl = await uploadFileToFirebaseStorage(_file, 'profile');
+                 dlink = dl;
+                final u = widget.user.copyWith(
+                  photoUrl: dl
+                 
+                );
+
+                await UserService().updateUser(widget.user.userID, u);
+                setState(() {
+                  
+                });
+
+              }
+
+
             },
             value: '',
             child: Row(
@@ -67,6 +86,14 @@ class _ProfileState extends State<Profile> {
     }
 
   final _imagePickerCrop = ImagePickerCropper();
+
+  String? dlink;
+
+  @override
+  void initState() {
+    dlink = widget.user.photoUrl;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +134,12 @@ class _ProfileState extends State<Profile> {
                                 borderRadius: BorderRadius.circular(100),
                                 border: Border.all(
                                   color: cricColor.shade800
+                                )
+                              ),
+
+                              child: Image(
+                                image: CachedNetworkImageProvider(
+                                  dlink ?? "https://images.pexels.com/photos/67639"
                                 )
                               ),
                             ),

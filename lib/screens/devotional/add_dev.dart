@@ -9,7 +9,10 @@ import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class AddDev extends StatefulWidget {
-  const AddDev({super.key});
+  final DevotionalModel? model;
+  const AddDev({
+    this.model,
+    super.key});
 
   @override
   State<AddDev> createState() => _AddDevState();
@@ -31,6 +34,44 @@ class _AddDevState extends State<AddDev> {
 
   DateTime? _selected;
   bool loading = false;
+
+
+  @override
+  void initState() {
+    if (widget.model!=null) {
+      titleController .text = widget.model!.title;
+      openTextController .text = widget.model!.openingScriptureText;
+      openRefController .text = widget.model!.openingScriptureReference;
+      bodyController     .text = widget.model!.body;
+      furtherController   .text = widget.model!.furtherScriptures!;
+      doingController     .text = widget.model!.doingTheWord!;
+      dailyController     .text = widget.model!.dailyScriptureReading!;
+      dateController.text = DateFormat('E d, MMM yyyy').format(widget.model!.date);
+
+      _selected = widget.model!.date;
+      
+      if (widget.model!.confession!=null && widget.model!.confession!.length >5 ) {
+        confesionController.text = widget.model!.confession!;
+      } else {
+        confesionController.text = '';
+      }
+
+
+      if (widget.model!.prayer!=null && widget.model!.prayer!.length >5 ) {
+        prayerController.text = widget.model!.prayer!;
+      } else {
+        prayerController.text = '';
+      }
+
+
+      if (widget.model!.instruction!=null && widget.model!.instruction!.length >5 ) {
+        instructionController.text = widget.model!.instruction!;
+      } else {
+        instructionController.text = '';
+      }
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +221,25 @@ class _AddDevState extends State<AddDev> {
 
                   final _dev = DevotionalService();
 
-                  await _dev.createDevotional(
+                  if(widget.model != null){
+                    DevotionalModel _model = widget.model!.copyWith( 
+                      title: titleController.text, 
+                      openingScriptureText: openTextController.text, 
+                      openingScriptureReference: openRefController.text, 
+                      body: bodyController.text, 
+                      date: _selected!,
+                      instruction: instructionController.text,
+                      prayer: prayerController.text,
+                      confession: confesionController.text,
+                      doingTheWord: doingController.text,
+                      dailyScriptureReading: dailyController.text,
+                      furtherScriptures: furtherController.text
+                    );
+                    await _dev.updateDevotional(
+                      _model
+                  );
+                  }else{
+                    await _dev.createDevotional(
                     DevotionalModel(
                       id: _selected!.millisecondsSinceEpoch.toString(), 
                       title: titleController.text, 
@@ -196,6 +255,7 @@ class _AddDevState extends State<AddDev> {
                       furtherScriptures: furtherController.text
                     )
                   );
+                  }
 
                   setState(() {
                     loading = false;

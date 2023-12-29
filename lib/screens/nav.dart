@@ -48,6 +48,15 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
 
   int _currentIndex = 0;
 
+  User? _user;
+
+  void getUser()async{
+    _user = await UserService().getUser(widget.uid);
+    setState(() {
+      
+    });
+  }
+
 
   void getCurrentPage(index){
     _currentIndex = index;
@@ -60,19 +69,12 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
 
   @override
   void initState() {
+    getUser();
     _pages = [
     HomeScreen(uid: widget.uid,),
     ChatScreen(uid: widget.uid,),
     const Center(child: Text('3rd Screen')),
-    Profile(user: User(
-      userID: widget.uid,
-      dateOfBirth: DateTime.now(),
-      firstName: 'Daniel',
-      lastName: 'Ebiondo',
-      email: 'dafz.daniel@gmail.com',
-      phone: '08098989898'
-
-    )),
+    Profile(user: _user!),
   ];
     super.initState();
     WidgetsBinding.instance.addObserver(this);
