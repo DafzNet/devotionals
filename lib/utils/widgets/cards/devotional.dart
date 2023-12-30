@@ -1,3 +1,4 @@
+import 'package:devotionals/firebase/dbs/devs.dart';
 import 'package:devotionals/screens/devotional/add_dev.dart';
 import 'package:devotionals/screens/devotional/detail.dart';
 import 'package:devotionals/screens/profile/screens/notes/note_taker.dart';
@@ -8,11 +9,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DevotionalCard extends StatefulWidget {
   final DevotionalModel model;
+  final String uid;
   const DevotionalCard({
     required this.model,
+    required this.uid,
     super.key});
 
   @override
@@ -20,6 +24,14 @@ class DevotionalCard extends StatefulWidget {
 }
 
 class _DevotionalCardState extends State<DevotionalCard> {
+
+  Map<String, bool> reactions = {};
+
+  @override
+  void initState() {
+    reactions = widget.model.reactions;
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -27,7 +39,7 @@ class _DevotionalCardState extends State<DevotionalCard> {
         Navigator.push(
           context,
           PageTransition(
-            child: DevotionalDetailScreen(model: widget.model), 
+            child: DevotionalDetailScreen(model: widget.model, uid: widget.uid,), 
             type: PageTransitionType.rightToLeft
           )
         );
@@ -53,7 +65,7 @@ class _DevotionalCardState extends State<DevotionalCard> {
                   Row(
                     children: [
                       Icon(
-                        MdiIcons.circle,
+                        MdiIcons.notebook,
                         color: cricColor,
                         size: 10,
                       ),
@@ -162,11 +174,40 @@ class _DevotionalCardState extends State<DevotionalCard> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
-                          onPressed: (){
+                          onPressed: ()async{
 
+                            Map<String, bool> _l = widget.model.reactions;
+                            if (widget.model.reactions.containsKey(widget.uid)) {
+                              _l.remove(widget.uid);
+                              
+                            } else {
+                              _l[widget.uid] = true;
+                            }
+
+                            final dev = widget.model.copyWith(
+                              reactions: _l
+                            );
+
+                            await DevotionalService().updateDevotional(dev);
+
+                            reactions = _l;
+
+                            setState(() {
+                              
+                            });
                           },
-                          icon: Icon(
-                            MdiIcons.heartOutline
+
+                          icon: Row(
+                            children: [
+                              Icon(
+                                reactions.containsKey(widget.uid)? MdiIcons.heart: MdiIcons.heartOutline,
+                                color: reactions.containsKey(widget.uid)?Colors.redAccent: null
+                              ),
+
+                              Text(
+                                reactions.isNotEmpty? reactions.length.toString():''
+                              )
+                            ],
                           )
                         ),
 
@@ -176,7 +217,7 @@ class _DevotionalCardState extends State<DevotionalCard> {
                               context,
                               PageTransition(
                                 child: NoteTaker(
-
+                                  devotional: widget.model,
                                 ), 
                                 type: PageTransitionType.fade)
                             );
@@ -185,8 +226,6 @@ class _DevotionalCardState extends State<DevotionalCard> {
                             MdiIcons.notebookPlusOutline
                           )
                         ),
-
-
 
                         IconButton(
                           onPressed: (){
@@ -205,8 +244,32 @@ class _DevotionalCardState extends State<DevotionalCard> {
                         ),
 
                         IconButton(
-                          onPressed: (){
+                          onPressed: ()async{
+                            await Share.share(
+                              widget.model.instruction != null && widget.model.instruction!.length>5?"A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
+                                  "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
+                                  "\n\n"+widget.model.body+
+                                  '\n\nInstruction\n'+widget.model.instruction!+
+                                  '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
+                                  '\n\nDoing the word\n'+widget.model.doingTheWord!+
+                                  '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!:
 
+                                  widget.model.confession != null && widget.model.confession!.length>5?"A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
+                                  "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
+                                  "\n\n"+widget.model.body+
+                                  '\n\nConfession\n'+widget.model.confession!+
+                                  '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
+                                  '\n\nDoing the word\n'+widget.model.doingTheWord!+
+                                  '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!:
+
+                                  "A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
+                                  "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
+                                  "\n\n"+widget.model.body+
+                                  '\n\nPrayer\n'+widget.model.prayer!+
+                                  '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
+                                  '\n\nDoing the word\n'+widget.model.doingTheWord!+
+                                  '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!
+                            );
                           },
                           icon: Icon(
                             MdiIcons.shareVariantOutline

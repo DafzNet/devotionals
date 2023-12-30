@@ -119,6 +119,8 @@ class _SignUpPage2State extends State<SignUpPage2> {
                 'Password',
                 controller: pwdController,
                 password: true,
+                minLines: 1,
+                maxLines: 1,
 
                 onChanged: () {
                   setState(() {
@@ -137,6 +139,8 @@ class _SignUpPage2State extends State<SignUpPage2> {
                 'Confirm password',
                 controller: confitmPwdController,
                 password: true,
+                minLines: 1,
+                maxLines: 1,
 
                 onChanged: () {
                   setState(() {

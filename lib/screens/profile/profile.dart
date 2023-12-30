@@ -1,7 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/firebase/file_storage.dart';
+import 'package:devotionals/screens/profile/screens/testimony/testimony.dart';
 import 'package:devotionals/utils/constants/constants.dart';
 import 'package:devotionals/utils/models/user.dart';
 import 'package:devotionals/utils/widgets/images/selector.dart';
@@ -14,7 +15,7 @@ import 'screens/edit.dart';
 import 'screens/notes/note.dart';
 
 class Profile extends StatefulWidget {
-  final User user;
+  final String user;
   const Profile({
     required this.user,
     super.key});
@@ -24,6 +25,16 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+
+  User? _user;
+
+  void getUser()async{
+    _user = await UserService().getUser(widget.user);
+    setState(() {
+      
+    });
+  }
+
 
   void _showPopupMenu(BuildContext context, Offset position) async {
       double yOffset = position.dy - 20.0;
@@ -37,7 +48,29 @@ class _ProfileState extends State<Profile> {
         items: [
           PopupMenuItem<String>(
             onTap: () async{
-             await _imagePickerCrop.imgFromCamera();
+             final _file= await _imagePickerCrop.imgFromCamera();
+
+            
+              if (_file != null) {
+                String? dl = await uploadFileToFirebaseStorage(_file, 'profile');
+                 dlink = dl;
+                final u = _user!.copyWith(
+                  photoUrl: dl
+                 
+                );
+
+                await UserService().updateUser(_user!.userID, u);
+
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully uploaded file')));
+
+
+                setState(() {
+                  
+                });
+
+              }
+
+             
             },
             value: '',
             child: Row(
@@ -57,12 +90,14 @@ class _ProfileState extends State<Profile> {
               if (_file != null) {
                 String? dl = await uploadFileToFirebaseStorage(_file, 'profile');
                  dlink = dl;
-                final u = widget.user.copyWith(
+                final u = _user!.copyWith(
                   photoUrl: dl
                  
                 );
+                await UserService().updateUser(_user!.userID, u);
 
-                await UserService().updateUser(widget.user.userID, u);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully uploaded file')));
+
                 setState(() {
                   
                 });
@@ -91,7 +126,7 @@ class _ProfileState extends State<Profile> {
 
   @override
   void initState() {
-    dlink = widget.user.photoUrl;
+    getUser();
     super.initState();
   }
 
@@ -110,7 +145,7 @@ class _ProfileState extends State<Profile> {
       ),
 
 
-      body: Column(
+      body: _user != null? Column(
         children: [
 
           Expanded(
@@ -137,10 +172,12 @@ class _ProfileState extends State<Profile> {
                                 )
                               ),
 
-                              child: Image(
-                                image: CachedNetworkImageProvider(
-                                  dlink ?? "https://images.pexels.com/photos/67639"
-                                )
+                              child: ClipOval(
+                                child: Image(
+                                  image: NetworkImage(
+                                    _user!.photoUrl !=null && _user!.photoUrl!.isNotEmpty ? _user!.photoUrl!:"https://www.flaticon.com/free-icon/user_9131529"
+                                  )
+                                ),
                               ),
                             ),
                           ),
@@ -176,7 +213,7 @@ class _ProfileState extends State<Profile> {
                     ),
               
                     Text(
-                      '${widget.user.firstName} ${widget.user.lastName}',
+                      '${_user!.firstName} ${_user!.lastName}',
               
                       style: const TextStyle(
                         fontSize: 18,
@@ -195,7 +232,7 @@ class _ProfileState extends State<Profile> {
                     ),
               
                     Text(
-                      widget.user.email,
+                      _user!.email,
               
                       textAlign: TextAlign.center,
                       style: const TextStyle(
@@ -250,7 +287,7 @@ class _ProfileState extends State<Profile> {
                               Navigator.push(
                                 context,
                                 PageTransition(
-                                  child: EditProfile(),
+                                  child: Testimony(),
                                   type: PageTransitionType.fade
                                 )
                               );
@@ -437,7 +474,7 @@ class _ProfileState extends State<Profile> {
                           TextButton.icon(
                             onPressed: ()async{
                               final _auth = AuthService();
-                              UserService().setPresence(widget.user.userID, false);
+                              UserService().setPresence(_user!.userID, false);
                               
                               await _auth.signOut();
 
@@ -461,6 +498,11 @@ class _ProfileState extends State<Profile> {
               ),
             ),
           )
+        ],
+      ):Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(child: CircularProgressIndicator()),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:devotionals/dbs/init_db.dart';
 import 'package:devotionals/dbs/note.dart';
 import 'package:devotionals/utils/constants/db_consts.dart';
+import 'package:devotionals/utils/models/devotional.dart';
 import 'package:devotionals/utils/models/note_model.dart';
 import 'package:devotionals/utils/widgets/default.dart';
 import 'package:devotionals/utils/widgets/loading.dart';
@@ -10,8 +11,10 @@ import 'package:sembast/sembast.dart';
 
 class NoteTaker extends StatefulWidget {
   final Note? note;
+  final DevotionalModel? devotional;
   const NoteTaker({
     this.note,
+    this.devotional,
     super.key});
 
   @override
@@ -46,6 +49,11 @@ class _NoteTakerState extends State<NoteTaker> {
       value: (element) => false,
     );
 
+    if (widget.devotional!=null) {
+      catC.text = 'Devotional Comment';
+      
+    }
+
      if (widget.note != null) {
        titleC.text = widget.note!.title;
        bodyC.text = widget.note!.body;
@@ -65,7 +73,7 @@ class _NoteTakerState extends State<NoteTaker> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.note != null? widget.note!.title: 'Add Note'),
+        title: Text(widget.note != null? widget.note!.title: widget.devotional != null? widget.devotional!.title: 'Add Note'),
       ),
 
       body: LoadingIndicator(
@@ -120,7 +128,7 @@ class _NoteTakerState extends State<NoteTaker> {
                       headerText: '',
                       makeButton: true,
       
-                      onTap: widget.note != null? null: () {
+                      onTap: widget.note != null || widget.devotional != null? null: () {
                         showModalBottomSheet(
                           context: context, 
                           builder: (context){
@@ -202,6 +210,20 @@ class _NoteTakerState extends State<NoteTaker> {
                           body: bodyC.text
                         );
 
+                        if (widget.devotional != null) {
+                          _note = Note(
+                            id: DateTime.now().millisecondsSinceEpoch, 
+                            title: titleC.text,
+                            devId: widget.devotional!.id,
+                            category: catC.text, 
+                            date: DateTime.now(), 
+                            lastUpdated: DateTime.now(), 
+                            tags: k.join(','),
+                            body: bodyC.text
+                          );
+                          
+                        }
+
                         if (widget.note != null) {
                           _note = widget.note!.copyWith(
                             title: titleC.text,
@@ -227,7 +249,7 @@ class _NoteTakerState extends State<NoteTaker> {
                         });
 
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: 
-                        Text( widget.note != null?'Note Updated':'Note added successfully')));
+                        Text( widget.note != null?'Note Updated': widget.devotional != null?'Devotional comment successfully added': 'Note added successfully')));
 
                         Navigator.pop(context);
                       },

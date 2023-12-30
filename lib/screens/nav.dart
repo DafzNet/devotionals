@@ -1,5 +1,6 @@
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/chat/chat.dart';
+import 'package:devotionals/screens/media/media.dart';
 import 'package:devotionals/screens/profile/profile.dart';
 import 'package:devotionals/utils/models/models.dart';
 import 'package:flutter/material.dart';
@@ -48,14 +49,6 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
 
   int _currentIndex = 0;
 
-  User? _user;
-
-  void getUser()async{
-    _user = await UserService().getUser(widget.uid);
-    setState(() {
-      
-    });
-  }
 
 
   void getCurrentPage(index){
@@ -69,12 +62,11 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
 
   @override
   void initState() {
-    getUser();
     _pages = [
     HomeScreen(uid: widget.uid,),
     ChatScreen(uid: widget.uid,),
-    const Center(child: Text('3rd Screen')),
-    Profile(user: _user!),
+    MediaScreen(),
+    Profile(user: widget.uid),
   ];
     super.initState();
     WidgetsBinding.instance.addObserver(this);

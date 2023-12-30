@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/foundation.dart';
 
@@ -17,6 +18,7 @@ class DevotionalModel {
   String? furtherScriptures;
   String? dailyScriptureReading;
   String? doingTheWord;
+  Map<String, bool> reactions;
 
   DevotionalModel({
     required this.id,
@@ -31,6 +33,7 @@ class DevotionalModel {
     this.furtherScriptures,
     this.dailyScriptureReading,
     this.doingTheWord,
+    this.reactions = const {},
   });
 
 
@@ -49,6 +52,7 @@ class DevotionalModel {
     String? furtherScriptures,
     String? dailyScriptureReading,
     String? doingTheWord,
+    Map<String, bool>? reactions,
   }) {
     return DevotionalModel(
       id: id ?? this.id,
@@ -63,6 +67,7 @@ class DevotionalModel {
       furtherScriptures: furtherScriptures ?? this.furtherScriptures,
       dailyScriptureReading: dailyScriptureReading ?? this.dailyScriptureReading,
       doingTheWord: doingTheWord ?? this.doingTheWord,
+      reactions: reactions ?? this.reactions,
     );
   }
 
@@ -80,10 +85,12 @@ class DevotionalModel {
       'furtherScriptures': furtherScriptures,
       'dailyScriptureReading': dailyScriptureReading,
       'doingTheWord': doingTheWord,
+      'reactions': reactions,
     };
   }
 
   factory DevotionalModel.fromMap(Map<String, dynamic> map) {
+    Map<String, bool> r = {};
     return DevotionalModel(
       id: map['id'] as dynamic,
       title: map['title'] as String,
@@ -97,6 +104,7 @@ class DevotionalModel {
       furtherScriptures: map['furtherScriptures'] != null ? map['furtherScriptures'] as String : null,
       dailyScriptureReading: map['dailyScriptureReading'] != null ? map['dailyScriptureReading'] as String : null,
       doingTheWord: map['doingTheWord'] != null ? map['doingTheWord'] as String : null,
+      reactions: Map<String, bool>.from((map.containsKey('reactions')?  Map<String, bool>.from(map['reactions']) : r)),
     );
   }
 
@@ -106,12 +114,13 @@ class DevotionalModel {
 
   @override
   String toString() {
-    return 'DevotionalModel(id: $id, title: $title, openingScriptureText: $openingScriptureText, openingScriptureReference: $openingScriptureReference, body: $body, date: $date, instruction: $instruction, confession: $confession, prayer: $prayer, furtherScriptures: $furtherScriptures, dailyScriptureReading: $dailyScriptureReading, doingTheWord: $doingTheWord)';
+    return 'DevotionalModel(id: $id, title: $title, openingScriptureText: $openingScriptureText, openingScriptureReference: $openingScriptureReference, body: $body, date: $date, instruction: $instruction, confession: $confession, prayer: $prayer, furtherScriptures: $furtherScriptures, dailyScriptureReading: $dailyScriptureReading, doingTheWord: $doingTheWord, reactions: $reactions)';
   }
 
   @override
   bool operator ==(covariant DevotionalModel other) {
     if (identical(this, other)) return true;
+    final mapEquals = const DeepCollectionEquality().equals;
   
     return 
       other.id == id &&
@@ -125,7 +134,8 @@ class DevotionalModel {
       other.prayer == prayer &&
       other.furtherScriptures == furtherScriptures &&
       other.dailyScriptureReading == dailyScriptureReading &&
-      other.doingTheWord == doingTheWord;
+      other.doingTheWord == doingTheWord &&
+      mapEquals(other.reactions, reactions);
   }
 
   @override
@@ -141,7 +151,8 @@ class DevotionalModel {
       prayer.hashCode ^
       furtherScriptures.hashCode ^
       dailyScriptureReading.hashCode ^
-      doingTheWord.hashCode;
+      doingTheWord.hashCode ^
+      reactions.hashCode;
   }
 }
 

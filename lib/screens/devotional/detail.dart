@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:devotionals/firebase/dbs/devs.dart';
+import 'package:devotionals/screens/devotional/add_dev.dart';
 import 'package:devotionals/utils/constants/constants.dart';
 import 'package:devotionals/utils/models/devotional.dart';
 import 'package:devotionals/utils/widgets/click_text.dart';
@@ -9,13 +11,16 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../profile/screens/notes/note_taker.dart';
 
 class DevotionalDetailScreen extends StatefulWidget {
   final DevotionalModel model;
+  final String uid;
   const DevotionalDetailScreen(
     {
+      required this.uid,
       required this.model,
       super.key});
 
@@ -127,6 +132,9 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
     await flutterTts.setPitch(0.8);
 
 
+    setState(() {
+      _isPlaying = true;
+    });
 
     await flutterTts.speak(
      widget.model.instruction != null && widget.model.instruction!.length>5?"topic: "+widget.model.title+
@@ -154,8 +162,10 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
       '.....daily scripture reading.........'+widget.model.dailyScriptureReading!
     );
 
+    // flutterTts.setProgressHandler((text, start, end, word) { });
+
     setState(() {
-      _isPlaying = true;
+      _isPlaying = false;
     });
   }
 
@@ -164,10 +174,13 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
 
   double _height=300;
 
+  Map<String, bool> reactions = {};
+
 
   @override
   void initState() {
     super.initState();
+    reactions = widget.model.reactions;
     
     initTts();
     _scrollController.addListener(() {
@@ -198,60 +211,11 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                   onPressed: ()async{
                     await _speak();
 
-                    await showModalBottomSheet(
-                      isDismissible: false,
-                      context: context, 
-                      builder: (ctx){
 
-                        return Container(
-                          height: 250,
-
-                          child: Stack(
-                            children: [
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    children: [
-                                      IconButton(
-                                        onPressed: ()async{
-                                          _isPlaying? await flutterTts.pause():await _speak();
-                                            
-                                          setState(() {
-                                            _isPlaying = !_isPlaying;
-                                          });
-                                        }, 
-                                        icon: Icon(
-                                          _isPlaying? MdiIcons.pause:MdiIcons.play,
-                                          size: 40,
-                                          color: cricColor,
-                                        )
-                                      )
-                                    ],
-                                  ),                                  
-                                ],
-                              ),
-
-                              Positioned(
-                                right: 5,
-                                top: 5,
-                                child: IconButton(
-                                  onPressed: ()async{
-                                    await flutterTts.stop();
-                                    Navigator.pop(ctx);}, 
-                                  icon: Icon(
-                                    MdiIcons.close
-                                  ))
-                              )
-                            ],
-                          ),
-                        );
-                      }
-                    );
                   }, 
                   icon: Icon(
-                    MdiIcons.headset
+                    _isPlaying? MdiIcons.stop: MdiIcons.play,
+                    color: _isPlaying? Colors.redAccent:cricColor
                   )
                 ),
                 IconButton(
@@ -457,7 +421,7 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                               widget.model.openingScriptureText,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: devotionalFontSize
+                                fontSize: devotionalFontSize+2
                               ),
                             ),
                           ),
@@ -859,47 +823,6 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 20,),
-
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                              onPressed: (){
-
-                              },
-                              icon: Icon(
-                                MdiIcons.heartOutline
-                              )
-                            ),
-
-                            IconButton(
-                              onPressed: (){
-                                Navigator.push(
-                                  context,
-                                  PageTransition(
-                                    child: NoteTaker(
-
-                                    ), 
-                                    type: PageTransitionType.fade)
-                                );
-                              },
-                              icon: Icon(
-                                MdiIcons.pencilPlusOutline
-                              )
-                            ),
-
-                            IconButton(
-                              onPressed: (){
-
-                              },
-                              icon: Icon(
-                                MdiIcons.shareVariantOutline
-                              )
-                            ),
-                          ],
-                        ),
-
                     const SizedBox(height: 100,)
                   ],
                 ),
@@ -913,30 +836,118 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                   borderRadius: BorderRadius.circular(30),
                   child: Container(
                     height: 50,
-                    width: 200,
+                    width: MediaQuery.sizeOf(context).width-50,
                     color: Colors.white,
                     
     
                     child: Center(
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Icon(
-                            MdiIcons.calendar,
-                            color: Color.fromARGB(255, 228, 179, 3),
-                          ),
-                          Text(
-                            ' '+DateFormat('EEE d, MMM y').format(widget.model.date),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: cricColor,
-                            ),
-                          ),
-    
-                          
-                        ],
-                      ),
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: ()async{
+
+                            Map<String, bool> _l = widget.model.reactions;
+                            if (widget.model.reactions.containsKey(widget.uid)) {
+                              _l.remove(widget.uid);
+                              
+                            } else {
+                              _l[widget.uid] = true;
+                            }
+
+                            final dev = widget.model.copyWith(
+                              reactions: _l
+                            );
+
+                            await DevotionalService().updateDevotional(dev);
+
+                            reactions = _l;
+
+                            setState(() {
+                              
+                            });
+                          },
+
+                          icon: Row(
+                            children: [
+                              Icon(
+                                reactions.containsKey(widget.uid)? MdiIcons.heart: MdiIcons.heartOutline,
+                                color: reactions.containsKey(widget.uid)?Colors.redAccent: null
+                              ),
+
+                              Text(
+                                reactions.isNotEmpty? reactions.length.toString():''
+                              )
+                            ],
+                          )
+                        ),
+
+                        IconButton(
+                          onPressed: (){
+                            Navigator.push(
+                              context,
+                              PageTransition(
+                                child: NoteTaker(
+                                  devotional: widget.model,
+                                ), 
+                                type: PageTransitionType.fade)
+                            );
+                          },
+                          icon: Icon(
+                            MdiIcons.notebookPlusOutline
+                          )
+                        ),
+
+                        IconButton(
+                          onPressed: (){
+                            Navigator.push(
+                              context,
+                              PageTransition(
+                                child: AddDev(
+                                  model: widget.model,
+                                ), 
+                                type: PageTransitionType.fade)
+                            );
+                          },
+                          icon: Icon(
+                            MdiIcons.pencilPlusOutline
+                          )
+                        ),
+
+                        IconButton(
+                          onPressed: ()async{
+                            await Share.share(
+                              widget.model.instruction != null && widget.model.instruction!.length>5?"A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
+                                  "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
+                                  "\n\n"+widget.model.body+
+                                  '\n\nInstruction\n'+widget.model.instruction!+
+                                  '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
+                                  '\n\nDoing the word\n'+widget.model.doingTheWord!+
+                                  '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!:
+
+                                  widget.model.confession != null && widget.model.confession!.length>5?"A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
+                                  "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
+                                  "\n\n"+widget.model.body+
+                                  '\n\nConfession\n'+widget.model.confession!+
+                                  '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
+                                  '\n\nDoing the word\n'+widget.model.doingTheWord!+
+                                  '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!:
+
+                                  "A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
+                                  "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
+                                  "\n\n"+widget.model.body+
+                                  '\n\nPrayer\n'+widget.model.prayer!+
+                                  '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
+                                  '\n\nDoing the word\n'+widget.model.doingTheWord!+
+                                  '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!
+                            );
+                          },
+                          icon: Icon(
+                            MdiIcons.shareVariantOutline
+                          )
+                        ),
+                      ],
+                    ),
                     ),
                   ),
                 )),

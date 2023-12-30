@@ -67,13 +67,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               DevotionalCard(
                 model: todayDevetional(),
+                uid: widget.uid,
               ),
 
               TextButton(
                 onPressed: (){
                   Navigator.push(
                     context,
-                    PageTransition(child: AllDevotionals(), type: PageTransitionType.fade)
+                    PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
                   );
                 },
                 child: Text('All Devotionals')

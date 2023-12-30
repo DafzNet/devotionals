@@ -127,6 +127,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 SingleLineField(
                   'Password',
                   controller: pwd,
+                  maxLines: 1,
+                  minLines: 1,
           
                   password: true,
 

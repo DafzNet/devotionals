@@ -13,38 +13,38 @@ class ImagePickerCropper{
   final ImagePicker _picker = ImagePicker();
   File? _photo;
 
-  // Future<File?> _cropImage(File? photo) async {
-  //     final croppedFile = await ImageCropper().cropImage(
-  //       sourcePath: photo!.path,
-  //       compressFormat: ImageCompressFormat.jpg,
-  //       compressQuality: 100,
-  //       uiSettings: [
-  //         AndroidUiSettings(
-  //             toolbarTitle: 'CRIC',
-  //             toolbarColor: cricColor.shade200,
-  //             toolbarWidgetColor: Colors.white,
-  //             initAspectRatio: CropAspectRatioPreset.square,
-  //             lockAspectRatio: true),
-  //         IOSUiSettings(
-  //           title: 'CRIC',
-  //         ),
-  //       ],
-  //     );
+  Future<File?> _cropImage(File? photo) async {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: photo!.path,
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 100,
+        uiSettings: [
+          AndroidUiSettings(
+              toolbarTitle: 'CRIC',
+              toolbarColor: cricColor.shade200,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.square,
+              lockAspectRatio: true),
+          IOSUiSettings(
+            title: 'CRIC',
+          ),
+        ],
+      );
       
-  //     return File(croppedFile!.path);
-  // }
+      return File(croppedFile!.path);
+  }
 
-  Future<File?> imgFromGallery({int quality=100, bool crop=true}) async {
+  Future<File?> imgFromGallery({int quality=50, bool crop=true}) async {
     final pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: quality,
       );
 
       if (pickedFile != null) {
-        // if (crop==true){
-        //  _photo = await _cropImage(File(pickedFile.path));
-        //  return _photo;
-        // }
+        if (crop==true){
+         _photo = await _cropImage(File(pickedFile.path));
+         return _photo;
+        }
         _photo = File(pickedFile.path);
         return _photo;
       }
@@ -52,17 +52,17 @@ class ImagePickerCropper{
     }
 
 
-  Future<File?> imgFromCamera({int quality=100, bool crop = true}) async {
+  Future<File?> imgFromCamera({int quality=50, bool crop = true}) async {
     final pickedFile = await _picker.pickImage(
       source: ImageSource.camera,
       imageQuality: quality,
     );
 
         if (pickedFile != null) {
-          // if (crop){
-          //   _photo = await _cropImage(File(pickedFile.path));
-          //   return _photo;
-          // }
+          if (crop){
+            _photo = await _cropImage(File(pickedFile.path));
+            return _photo;
+          }
         _photo = File(pickedFile.path);
         return _photo;
       }

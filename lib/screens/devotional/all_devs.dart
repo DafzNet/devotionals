@@ -7,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
 class AllDevotionals extends StatefulWidget {
-  const AllDevotionals({super.key});
+  final String uid;
+  const AllDevotionals({
+    required this.uid,
+    super.key});
 
   @override
   State<AllDevotionals> createState() => _AllDevotionalsState();
@@ -104,7 +107,7 @@ class _AllDevotionalsState extends State<AllDevotionals> {
               return CircularProgressIndicator();
             } else {
               DevotionalModel devotional = devotionals[index];
-              return DevotionalCard(model: devotional);
+              return DevotionalCard(model: devotional,uid: widget.uid,);
             }
           },
 
