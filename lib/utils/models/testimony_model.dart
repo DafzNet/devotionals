@@ -8,14 +8,14 @@ import 'package:devotionals/utils/models/user.dart';
 
 class TestimonyModel {
   dynamic id;
-  User user;
-  Timestamp timestamp;
+  String user;
+  Timestamp? timestamp;
   String testimony;
   Map<String, dynamic> reactions;
   TestimonyModel({
     required this.id,
     required this.user,
-    required this.timestamp,
+    this.timestamp,
     required this.testimony,
     this.reactions = const {},
   });
@@ -26,7 +26,7 @@ class TestimonyModel {
 
   TestimonyModel copyWith({
     dynamic? id,
-    User? user,
+    String? user,
     Timestamp? timestamp,
     String? testimony,
     Map<String, dynamic>? reactions,
@@ -43,7 +43,7 @@ class TestimonyModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'user': user.toMap(),
+      'user': user,
       'timestamp': timestamp,
       'testimony': testimony,
       'reactions': reactions,
@@ -53,10 +53,10 @@ class TestimonyModel {
   factory TestimonyModel.fromMap(Map<String, dynamic> map) {
     return TestimonyModel(
       id: map['id'] as dynamic,
-      user: User.fromMap(map['user'] as Map<String,dynamic>),
-      timestamp: map['timestamp'],
+      user: map['user'] as String,
+      timestamp: map['timestamp'] != null ? map['timestamp'] : null,
       testimony: map['testimony'] as String,
-      reactions: Map<String, dynamic>.from(Map<String, dynamic>.from(map['reactions'])),
+      reactions: Map<String, dynamic>.from((map['reactions'])),
     );
   }
 

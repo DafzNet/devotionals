@@ -48,7 +48,7 @@ class _BibleViewScreenState extends State<BibleViewScreen> {
 
       String verseC = ref.sublist(2).join('');
 
-      if(int.tryParse(verseC.trim()) != null || RegExp(r'\d+-\d+').hasMatch(verseC.trim())){
+      if(int.tryParse(verseC.trim()) != null || RegExp(r'(?<!:)\b(\d+-\d+)\b').hasMatch(verseC.trim())){
         chapter = verseC;
         print(chapter);
       }
@@ -70,7 +70,7 @@ class _BibleViewScreenState extends State<BibleViewScreen> {
       book = ref[0];
       String verseC = ref.sublist(1).join('');
 
-      if(int.tryParse(verseC.trim()) != null || RegExp(r'\d+-\d+').hasMatch(verseC.trim())){
+      if(int.tryParse(verseC.trim()) != null || RegExp(r'(?<!:)\b(\d+-\d+)\b').hasMatch(verseC.trim())){
         chapter = verseC;
       }
       else{
@@ -179,11 +179,6 @@ class _BibleViewScreenState extends State<BibleViewScreen> {
     } else {
       String n = chapter!.split('-')[0];
       String m = chapter!.split('-')[1];
-
-
-      // myScriptures = bibleList.where((element){
-      //   return element[0] == bookNumber && element[1] >= int.parse(n) && element[1] <= int.parse(m);
-      // }).toList();
 
       for (var i = int.parse(n); i <= int.parse(m); i++) {
         myScriptures = bibleList.where((element){

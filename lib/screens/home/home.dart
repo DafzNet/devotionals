@@ -4,6 +4,7 @@ import 'package:devotionals/screens/devotional/add_dev.dart';
 import 'package:devotionals/screens/devotional/all_devs.dart';
 import 'package:devotionals/utils/models/models.dart';
 import 'package:devotionals/utils/widgets/cards/devotional.dart';
+import 'package:devotionals/utils/widgets/cards/next_event.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
@@ -59,27 +60,89 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Column(
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+          
+                SizedBox(
+                  height: 10,
+                ),
+          
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('A Word in Due Season'),
+                    TextButton(
+                      onPressed: (){
+                        Navigator.push(
+                          context,
+                          PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
+                        );
+                      },
+                      child: Text('See all')
+                    ),
+                  ],
+                ),
+          
+                SizedBox(
+                  height: 10,
+                ),
+          
+                DevotionalCard(
+                  model: todayDevetional(),
+                  uid: widget.uid,
+                ),
+          
+                
+                SizedBox(
+                  height: 15,
+                ),
 
-              SizedBox(
-                height: 20,
-              ),
-              DevotionalCard(
-                model: todayDevetional(),
-                uid: widget.uid,
-              ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Next Meetings'),
+                    TextButton(
+                      onPressed: (){
+                        /// `Navigator.push()` is a method in Flutter that allows you to navigate to a
+                        /// new screen or page in your app. It takes two parameters: `context` and
+                        /// `route`.
+                        // Navigator.push(
+                        //   context,
+                        //   PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
+                        // );
+                      },
+                      child: Text('See all')
+                    ),
+                  ],
+                ),
 
-              TextButton(
-                onPressed: (){
-                  Navigator.push(
-                    context,
-                    PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
-                  );
-                },
-                child: Text('All Devotionals')
-              ),
-            ],
+                SizedBox(height: 10,),
+
+                NextEventDate(
+          
+                ),
+
+
+                SizedBox(
+                  height: 10,
+                ),
+          
+                NextMoHDate(
+          
+                ),
+
+                SizedBox(
+                  height: 10,
+                ),
+          
+                NextEquipDate(
+          
+                )
+          
+          
+              ],
+            ),
           ),
         ),
       ),
@@ -95,6 +158,49 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class HomeFlexiblebar extends StatefulWidget {
   const HomeFlexiblebar({
@@ -156,12 +262,20 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Container(
-                        height: 60,
                         width: 60,
+                        height: 60,
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(100)
-                        )
+                          color: Color(0xFFE0E5EC), // Background color
+                          borderRadius: BorderRadius.circular(100),
+                          
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.event_note,
+                            color: cricColor,
+                            size: 30,
+                          ),
+                        ),
                       ),
 
 
@@ -171,18 +285,7 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
                         decoration: BoxDecoration(
                           color: Color(0xFFE0E5EC), // Background color
                           borderRadius: BorderRadius.circular(100),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white,
-                              offset: Offset(-3, -3),
-                              blurRadius: 3,
-                            ),
-                            BoxShadow(
-                              color: Color(0xFFB0B5C1),
-                              offset: Offset(3, 3),
-                              blurRadius: 3,
-                            ),
-                          ],
+                          
                         ),
                         child: Center(
                           child: Icon(
@@ -194,13 +297,21 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
                       ),
 
                       Container(
-                        height: 60,
                         width: 60,
+                        height: 60,
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(100)
-                        )
-                      )
+                          color: Color(0xFFE0E5EC), // Background color
+                          borderRadius: BorderRadius.circular(100),
+                          
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.event_note,
+                            color: cricColor,
+                            size: 30,
+                          ),
+                        ),
+                      ),
                     ]
                   ),
                 )
