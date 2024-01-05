@@ -75,7 +75,7 @@ class _AllDevotionalsState extends State<AllDevotionals> {
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return [
             SliverAppBar(
-              expandedHeight: 200,
+              expandedHeight: 300,
               floating: true,
               pinned: true,
 
@@ -88,7 +88,7 @@ class _AllDevotionalsState extends State<AllDevotionals> {
               background: SizedBox(
                 width: MediaQuery.of(context).size.width,
                 child: Image.asset(
-                  'assets/images/adwf.png',
+                  'assets/images/dev.jpg',
                   fit: BoxFit.cover,
                 ),
               )

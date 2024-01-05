@@ -1,6 +1,5 @@
 
 import 'package:csv/csv.dart';
-import 'package:csv/csv_settings_autodetection.dart';
 
 
 

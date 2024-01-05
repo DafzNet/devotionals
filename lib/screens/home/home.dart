@@ -1,10 +1,13 @@
+import 'package:card_loading/card_loading.dart';
 import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
+import 'package:devotionals/firebase/dbs/video.dart';
 import 'package:devotionals/screens/devotional/add_dev.dart';
 import 'package:devotionals/screens/devotional/all_devs.dart';
 import 'package:devotionals/utils/models/models.dart';
 import 'package:devotionals/utils/widgets/cards/devotional.dart';
 import 'package:devotionals/utils/widgets/cards/next_event.dart';
+import 'package:devotionals/utils/widgets/cards/video_card.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
@@ -53,6 +56,15 @@ class _HomeScreenState extends State<HomeScreen> {
               expandedHeight: 300.0,
               floating: true,
               pinned: true,
+
+              actions: [
+                IconButton(onPressed: (){
+
+                }, icon: Icon(
+                  MdiIcons.bell,
+                  color: Colors.white,
+                ))
+              ],
               
               flexibleSpace: HomeFlexiblebar(isTitleVisible: _isTitleVisible),
             ),
@@ -63,6 +75,38 @@ class _HomeScreenState extends State<HomeScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+
+                SizedBox(
+                  height: 10,
+                ),
+          
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Latest Video'),
+                    TextButton(
+                      onPressed: (){
+                        Navigator.push(
+                          context,
+                          PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
+                        );
+                      },
+                      child: Text('See all')
+                    ),
+                  ],
+                ),
+     
+
+                FutureBuilder(
+                  future: VideoService().getMostRecentVideos(1),
+                  builder: (context, snapshot){
+                    if (snapshot.hasError || snapshot.connectionState == ConnectionState.waiting) {
+                      return CardLoading(
+                        height: 200);
+                    }
+
+                    return VideoCard(videoId: snapshot.data!.first.id, vids: []);
+                  }),
           
                 SizedBox(
                   height: 10,
@@ -128,17 +172,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 10,
                 ),
           
-                NextMoHDate(
+                // NextMoHDate(
           
-                ),
+                // ),
 
-                SizedBox(
-                  height: 10,
-                ),
+                // SizedBox(
+                //   height: 10,
+                // ),
           
-                NextEquipDate(
+                // NextEquipDate(
           
-                )
+                // )
           
           
               ],
@@ -233,7 +277,7 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
         fit: StackFit.expand,
         children: [
           Image.asset(
-            'assets/images/adwf.png',
+            'assets/images/welcome.png',
             fit: BoxFit.cover,
             
           ),
@@ -245,16 +289,18 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
               children: [
                 Container(
                   height: 100,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       
                       colors: [
-                        cricColor, 
-                        Color.fromARGB(52, 18, 107, 57),
-                        Color.fromARGB(43, 0, 0, 0),
-                        Color.fromARGB(23, 0, 0, 0),                        
+                        Colors.white, 
+                        Color.fromARGB(52, 244, 246, 245),
+                        Color.fromARGB(43, 238, 233, 233),
+                        Color.fromARGB(4, 226, 221, 221),
+                        Color.fromARGB(4, 226, 221, 221),   
+                        Color.fromARGB(4, 226, 221, 221),                        
                       ])
                   ),
 
@@ -271,8 +317,8 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
                         ),
                         child: Center(
                           child: Icon(
-                            Icons.event_note,
-                            color: cricColor,
+                            MdiIcons.lightFloodDown,
+                            color: Colors.amber,
                             size: 30,
                           ),
                         ),
@@ -319,10 +365,16 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
             ),
           ),
       
-          Icon(
-            MdiIcons.playCircle,
-            color: Colors.white,
-            size: 50,
+          Center(
+            child: Text(
+              'Welcome To CRIC',
+
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Colors.white
+              ),
+            ),
           )
         ],
       ),
