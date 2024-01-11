@@ -1,6 +1,7 @@
 import 'package:devotionals/screens/media/player.dart';
 import 'package:devotionals/utils/constants/db_consts.dart';
 import 'package:devotionals/utils/models/vid.dart';
+import 'package:devotionals/utils/widgets/images/cached_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -72,7 +73,10 @@ class _VideoCardState extends State<VideoCard> {
           }
 
           final data = snapshot.data;
-          Hive.box(videoIdsBox).put(widget.videoId, {'title': data!.title, 'thumbNail':data.thumbnails.mediumResUrl, 'duration':data.duration});
+          Hive.box(videoIdsBox).put(widget.videoId, {'title': data!.title, 'thumbNail':data.thumbnails.mediumResUrl, 'duration':data.duration!.inSeconds
+          
+          
+          });
 
           return GestureDetector(
             onTap: () {
@@ -85,10 +89,11 @@ class _VideoCardState extends State<VideoCard> {
                   children: [
                     AspectRatio(
                       aspectRatio: 16/9,
-                      child: Image.network(
-                        data.thumbnails.mediumResUrl,
-                        fit: BoxFit.cover,
-                      ),
+                      child: SizedBox(width: MediaQuery.sizeOf(context).width, child: CachedNetworkImage(imageUrl: data.thumbnails.mediumResUrl)),
+                      // child: Image.network(
+                      //   data.thumbnails.mediumResUrl,
+                      //   fit: BoxFit.cover,
+                      // ),
                     ),
 
                     Positioned(
@@ -213,7 +218,7 @@ class _VideoCardState extends State<VideoCard> {
                           color: Colors.white,
                           borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
-                        child: Text(formatDuration(Hive.box(videoIdsBox).get(widget.videoId)['duration'].inSeconds,))),
+                        child: Text(formatDuration(Hive.box(videoIdsBox).get(widget.videoId)['duration'],))),
                     ],
                                       ),
                   ),

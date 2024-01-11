@@ -1,5 +1,6 @@
 import 'package:card_loading/card_loading.dart';
 import 'package:devotionals/firebase/auth.dart';
+import 'package:devotionals/firebase/dbs/devs.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/firebase/dbs/video.dart';
 import 'package:devotionals/screens/devotional/add_dev.dart';
@@ -32,11 +33,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _getDev();
 
     _scrollController.addListener(() {
       setState(() {
         _isTitleVisible = _scrollController.offset > 100; // Adjust the offset as needed
       });
+    });
+  }
+
+  DevotionalModel? _model;
+
+  void _getDev()async{
+    _model = await DevotionalService().getLastDevotional();
+    setState(() {
+      
     });
   }
 
@@ -107,6 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     return VideoCard(videoId: snapshot.data!.first.id, vids: []);
                   }),
+
+              if(_model != null)...
+                [
           
                 SizedBox(
                   height: 10,
@@ -133,9 +147,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
           
                 DevotionalCard(
-                  model: todayDevetional(),
+                  model: _model!,
                   uid: widget.uid,
-                ),
+                ),],
           
                 
                 SizedBox(

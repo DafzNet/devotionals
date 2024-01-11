@@ -11,6 +11,22 @@ class DevotionalService {
     await _devotionalCollection.doc(devotional.id).set(devotional.toMap());
   }
 
+
+  // Read
+  Future<DevotionalModel?> getLastDevotional() async {
+    Query query = _devotionalCollection
+        .orderBy('date', descending: true)
+        .limit(1);
+
+    QuerySnapshot snapshot = await query.get();
+
+    if (snapshot.docs.isNotEmpty) {
+      return DevotionalModel.fromMap(snapshot.docs.first.data() as Map<String, dynamic>);
+    } else {
+      return null; // No devotional found
+    }
+  }
+
   // Read
   Future<List> getDevotionals({DocumentSnapshot? lastDocument}) async {
     Query query = _devotionalCollection
