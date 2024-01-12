@@ -19,6 +19,7 @@ class DevotionalModel {
   String? dailyScriptureReading;
   String? doingTheWord;
   Map<String, bool> reactions;
+  int numberOfComment;
 
   DevotionalModel({
     required this.id,
@@ -34,6 +35,7 @@ class DevotionalModel {
     this.dailyScriptureReading,
     this.doingTheWord,
     this.reactions = const {},
+    this.numberOfComment = 0,
   });
 
 
@@ -53,6 +55,7 @@ class DevotionalModel {
     String? dailyScriptureReading,
     String? doingTheWord,
     Map<String, bool>? reactions,
+    int? numberOfComments,
   }) {
     return DevotionalModel(
       id: id ?? this.id,
@@ -68,6 +71,7 @@ class DevotionalModel {
       dailyScriptureReading: dailyScriptureReading ?? this.dailyScriptureReading,
       doingTheWord: doingTheWord ?? this.doingTheWord,
       reactions: reactions ?? this.reactions,
+      numberOfComment: numberOfComments ?? this.numberOfComment,
     );
   }
 
@@ -86,6 +90,7 @@ class DevotionalModel {
       'dailyScriptureReading': dailyScriptureReading,
       'doingTheWord': doingTheWord,
       'reactions': reactions,
+      'numberOfComment':numberOfComment
     };
   }
 
@@ -105,6 +110,7 @@ class DevotionalModel {
       dailyScriptureReading: map['dailyScriptureReading'] != null ? map['dailyScriptureReading'] as String : null,
       doingTheWord: map['doingTheWord'] != null ? map['doingTheWord'] as String : null,
       reactions: Map<String, bool>.from((map.containsKey('reactions')?  Map<String, bool>.from(map['reactions']) : r)),
+      numberOfComment: map['numberOfComment']??0
     );
   }
 
@@ -127,15 +133,7 @@ class DevotionalModel {
       other.title == title &&
       other.openingScriptureText == openingScriptureText &&
       other.openingScriptureReference == openingScriptureReference &&
-      other.body == body &&
-      other.date == date &&
-      other.instruction == instruction &&
-      other.confession == confession &&
-      other.prayer == prayer &&
-      other.furtherScriptures == furtherScriptures &&
-      other.dailyScriptureReading == dailyScriptureReading &&
-      other.doingTheWord == doingTheWord &&
-      mapEquals(other.reactions, reactions);
+      other.body == body;
   }
 
   @override

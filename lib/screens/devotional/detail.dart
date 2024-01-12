@@ -1,9 +1,15 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings, prefer_const_constructors
+
 import 'dart:io';
 
 import 'package:devotionals/firebase/dbs/devs.dart';
+import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/devotional/add_dev.dart';
 import 'package:devotionals/utils/constants/constants.dart';
+import 'package:devotionals/utils/models/comment.dart';
 import 'package:devotionals/utils/models/devotional.dart';
+import 'package:devotionals/utils/models/models.dart';
+import 'package:devotionals/utils/widgets/cards/comment_card.dart';
 import 'package:devotionals/utils/widgets/click_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -173,13 +179,18 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
 
 
   double _height=300;
-
   Map<String, bool> reactions = {};
 
 
   @override
   void initState() {
     super.initState();
+    devScrollController.addListener(() {
+      if (devScrollController.position.pixels ==
+          devScrollController.position.maxScrollExtent) {
+        loadComments();
+      }
+    });
     reactions = widget.model.reactions;
     
     initTts();
@@ -190,518 +201,301 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
     });
   }
 
+  List<CommentModel> _comments = [];
+
+  void loadComments()async{
+    _comments = await DevotionalService().getComments(widget.model.id);
+
+    setState(() {
+      
+    });
+  }
+
+
+  double commentTextFieldHeight = 0;
+  bool _autoFocus = false;
+  final commentController = TextEditingController();
+  final devScrollController = ScrollController();
+
+
   @override
   Widget build(BuildContext context){
     
     return Scaffold(
 
       backgroundColor: bgColor,
-      body: NestedScrollView(
-        controller: _scrollController,
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-          return [
-            SliverAppBar.medium(
-              backgroundColor: bgColor,
-              floating: true,
-              pinned: true,
-              title: Text(widget.model.title),
-
-              actions: [
-                IconButton(
-                  onPressed: ()async{
-                    await _speak();
-
-
-                  }, 
-                  icon: Icon(
-                    _isPlaying? MdiIcons.stop: MdiIcons.play,
-                    color: _isPlaying? Colors.redAccent:cricColor
-                  )
-                ),
-                IconButton(
-                  onPressed: ()async{
-                    await showModalBottomSheet(
-                      context: context, 
-                      builder: (ctx){
-                        return Container(
-                          padding: EdgeInsets.all(15),
-                          height: MediaQuery.of(context).size.height/2.5,
-                          decoration: BoxDecoration(
-
-                          ),
-
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Font Size',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold
-                                    ),
-                                  ),
-
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        onPressed: (){
-                                          if (devotionalFontSize > 10) {
-                                            devotionalFontSize -= 2;
-                                            setState(() {
-                                              
-                                            });
-                                          }
-                                        },
-                                        icon: Icon(
-                                          MdiIcons.minusCircleOutline
-                                        )),
-
-                                      IconButton(
-                                        onPressed: (){
-                                          if (devotionalFontSize < 24) {
-                                            devotionalFontSize += 2;
-                                            setState(() {
-                                              
-                                            });
-                                          }
-                                        },
-                                        icon: Icon(
-                                          MdiIcons.plusCircleOutline
-                                        )),
-                                    ],
-                                  )
-                                ],
-                              ),
-
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Background Color',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold
-                                        ),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: NestedScrollView(
+          controller: _scrollController,
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return [
+              SliverAppBar.medium(
+                backgroundColor: bgColor,
+                floating: true,
+                pinned: true,
+                title: Text(widget.model.title),
+      
+                actions: [
+                  IconButton(
+                    onPressed: ()async{
+                      await _speak();
+      
+      
+                    }, 
+                    icon: Icon(
+                      _isPlaying? MdiIcons.stop: MdiIcons.play,
+                      color: _isPlaying? Colors.redAccent:cricColor
+                    )
+                  ),
+                  IconButton(
+                    onPressed: ()async{
+                      await showModalBottomSheet(
+                        context: context, 
+                        builder: (ctx){
+                          return Container(
+                            padding: const EdgeInsets.all(15),
+                            height: MediaQuery.of(context).size.height/2.5,
+                            decoration: const BoxDecoration(
+      
+                            ),
+      
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Font Size',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold
                                       ),
-                                    ],
-                                  ),
-
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    ),
+      
+                                    Row(
                                       children: [
-                                        GestureDetector(
-                                          onTap: (){
-                                            bgColor = cricColor;
-
-                                            setState(() {
-                                              
-                                            });
+                                        IconButton(
+                                          onPressed: (){
+                                            if (devotionalFontSize > 10) {
+                                              devotionalFontSize -= 2;
+                                              setState(() {
+                                                
+                                              });
+                                            }
                                           },
-                                          child: Container(
-                                            width: 50,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              color: cricColor,
-                                              borderRadius: BorderRadius.circular(5)
-                                            ),
-                                          )
-                                        ),
-                                                                    
-                                                                    
-                                        GestureDetector(
-                                          onTap: (){
-                                            bgColor = Colors.black;
-
-                                            setState(() {
-                                              
-                                            });
+                                          icon: Icon(
+                                            MdiIcons.minusCircleOutline
+                                          )),
+      
+                                        IconButton(
+                                          onPressed: (){
+                                            if (devotionalFontSize < 24) {
+                                              devotionalFontSize += 2;
+                                              setState(() {
+                                                
+                                              });
+                                            }
                                           },
-                                          child: Container(
-                                            width: 50,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              color: Colors.black,
-                                              borderRadius: BorderRadius.circular(5)
-                                            ),
-                                          )
-                                        ),
-                                                                    
-                                                                    
-                                        GestureDetector(
-                                          onTap: (){
-                                            bgColor = Colors.white;
-
-                                            setState(() {
-                                              
-                                            });
-                                          },
-                                          child: Container(
-                                            width: 50,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              border: Border.all(width: .2),
-                                              borderRadius: BorderRadius.circular(5)
-                                            ),
-                                          )
-                                        ),
-                                                                    
-                                                                    
-                                        GestureDetector(
-                                          onTap: (){
-                                            bgColor = Colors.amber;
-
-                                            setState(() {
-                                              
-                                            });
-                                          },
-                                          child: Container(
-                                            width: 50,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              color: Colors.amber,
-                                              borderRadius: BorderRadius.circular(5)
-                                            ),
-                                          )
-                                        ),
-                                                                    
-                                                                    
-                                        GestureDetector(
-                                          onTap: (){
-                                            bgColor = Colors.blue;
-
-                                            setState(() {
-                                              
-                                            });
-                                          },
-                                          child: Container(
-                                            width: 50,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              color: Colors.blue,
-                                              borderRadius: BorderRadius.circular(5)
-                                            ),
-                                          )
+                                          icon: Icon(
+                                            MdiIcons.plusCircleOutline
+                                          )),
+                                      ],
+                                    )
+                                  ],
+                                ),
+      
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Row(
+                                      children: [
+                                        Text(
+                                          'Background Color',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold
+                                          ),
                                         ),
                                       ],
                                     ),
+      
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: (){
+                                              bgColor = cricColor;
+      
+                                              setState(() {
+                                                
+                                              });
+                                            },
+                                            child: Container(
+                                              width: 50,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                color: cricColor,
+                                                borderRadius: BorderRadius.circular(5)
+                                              ),
+                                            )
+                                          ),
+                                                                      
+                                                                      
+                                          GestureDetector(
+                                            onTap: (){
+                                              bgColor = Colors.black;
+      
+                                              setState(() {
+                                                
+                                              });
+                                            },
+                                            child: Container(
+                                              width: 50,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius: BorderRadius.circular(5)
+                                              ),
+                                            )
+                                          ),
+                                                                      
+                                                                      
+                                          GestureDetector(
+                                            onTap: (){
+                                              bgColor = Colors.white;
+      
+                                              setState(() {
+                                                
+                                              });
+                                            },
+                                            child: Container(
+                                              width: 50,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                border: Border.all(width: .2),
+                                                borderRadius: BorderRadius.circular(5)
+                                              ),
+                                            )
+                                          ),
+                                                                      
+                                                                      
+                                          GestureDetector(
+                                            onTap: (){
+                                              bgColor = Colors.amber;
+      
+                                              setState(() {
+                                                
+                                              });
+                                            },
+                                            child: Container(
+                                              width: 50,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                color: Colors.amber,
+                                                borderRadius: BorderRadius.circular(5)
+                                              ),
+                                            )
+                                          ),
+                                                                      
+                                                                      
+                                          GestureDetector(
+                                            onTap: (){
+                                              bgColor = Colors.blue;
+      
+                                              setState(() {
+                                                
+                                              });
+                                            },
+                                            child: Container(
+                                              width: 50,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue,
+                                                borderRadius: BorderRadius.circular(5)
+                                              ),
+                                            )
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
+                          );
+                        });
+                    }, icon: const Icon(Icons.settings)
+                  )
+                ],
+                
+                
+              ),
+            ];
+          },
+          body: Column(
+            children: [
+              Expanded(
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: SingleChildScrollView(
+                        controller: devScrollController,
+                        physics: AlwaysScrollableScrollPhysics(),
+                        child: Column(
+                          children: [
+                            Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 10, right: 10),
+                                    child: Text(
+                                      widget.model.openingScriptureText,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: devotionalFontSize+2
+                                      ),
+                                    ),
+                                  ),
+                    
+                    
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
+                                    child: Text(
+                                      widget.model.openingScriptureReference,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: devotionalFontSize
+                                      ),
+                                    ),
                                   )
                                 ],
-                              )
-                            ],
-                          ),
-                        );
-                      });
-                  }, icon: const Icon(Icons.settings)
-                )
-              ],
-              
-              
-            ),
-          ];
-        },
-        body: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10, right: 10),
-                            child: Text(
-                              widget.model.openingScriptureText,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: devotionalFontSize+2
                               ),
-                            ),
-                          ),
-
-
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
-                            child: Text(
-                              widget.model.openingScriptureReference,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: devotionalFontSize
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10,),
-                      child: ClickableText(
-                        context: context,
-                        text: widget.model.body,
-
-                        defaultTextStyle: TextStyle(
-                          fontSize: devotionalFontSize,
-                          color: Colors.black,
-                          height: 1.5
-                        ),
-
-                        matchTextStyle: TextStyle(
-                          fontSize: devotionalFontSize,
-                          color: Colors.black,
-                          decorationStyle: TextDecorationStyle.dotted,
-                          decorationColor: Colors.black,
-
-                          height: 1.5
-                        ),
-                        // onTap: (p0) {
-                        //   BibleReference r = parseBibleReference(p0);
-                        //   print(r);
-                        // },
-                        // textAlign: TextAlign.left,
-                        // style: TextStyle(
-                        //   height: 1.8
-                        // ),
-                      ),
-                    ),
-
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10,),
+                              child: ClickableText(
+                                context: context,
+                                text: widget.model.body,
                     
-
-                    if(widget.model.instruction != null && widget.model.instruction!.length>5)...[
-                      const SizedBox(
-                        height: 10,
-                      ),
-
-                      Padding(
-                        padding: EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Instruction',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                height: 1.5,
-                                fontSize: devotionalFontSize*1.3,
-                                fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: ClickableText(
-                                text: widget.model.instruction!,
-                                context: context,
                                 defaultTextStyle: TextStyle(
-                                fontSize: devotionalFontSize,
-                                color: Colors.black,
-                                height: 1.5
-                              ),
-                            
-                              matchTextStyle: TextStyle(
-                                fontSize: devotionalFontSize,
-                                color: Colors.black,
-                                decorationStyle: TextDecorationStyle.dotted,
-                                decorationColor: Colors.black,
-                            
-                                height: 1.5
-                              ),
-                                // onTap: (p0) {
-                                //   print(p0);
-                                // },
-                                // textAlign: TextAlign.left,
-                                // style: TextStyle(
-                                //   height: 1.8
-                                // ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-
-                    ////////////////////////////////////
-                    /////////////////////////////////////
-
-                    if(widget.model.confession != null && widget.model.confession!.length>5)...[
-                      const SizedBox(
-                        height: 10,
-                      ),
-
-                      Padding(
-                        padding: EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Confession',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                height: 1.5,
-                                fontSize: devotionalFontSize*1.3,
-                                fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: ClickableText(
-                                text: widget.model.confession!,
-                                context: context,
-                            
-                                defaultTextStyle: TextStyle(
-                                fontSize: devotionalFontSize,
-                                color: Colors.black,
-                                height: 1.5
-                              ),
-                            
-                              matchTextStyle: TextStyle(
-                                fontSize: devotionalFontSize,
-                                color: Colors.black,
-                                decorationStyle: TextDecorationStyle.dotted,
-                                decorationColor: Colors.black,
-                            
-                                height: 1.5
-                              ),
-                                // onTap: (p0) {
-                                //   print(p0);
-                                // },
-                                // textAlign: TextAlign.left,
-                                // style: TextStyle(
-                                //   height: 1.8
-                                // ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-
-                    /////////////////////////////////
-                    ///
-                    if(widget.model.prayer != null && widget.model.prayer!.length>5)...[
-                      const SizedBox(
-                        height: 10,
-                      ),
-
-                      Padding(
-                        padding: EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Prayer',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                height: 1.5,
-                                fontSize: devotionalFontSize*1.3,
-                                fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: ClickableText(
-                                text: widget.model.prayer!,
-                                context: context,
-                            
-                                defaultTextStyle: TextStyle(
-                                fontSize: devotionalFontSize,
-                                color: Colors.black,
-                                height: 1.5
-                              ),
-                            
-                              matchTextStyle: TextStyle(
-                                fontSize: devotionalFontSize,
-                                color: Colors.black,
-                                decorationStyle: TextDecorationStyle.dotted,
-                                decorationColor: Colors.black,
-                            
-                                height: 1.5
-                              ),
-                                // onTap: (p0) {
-                                //   print(p0);
-                                // },
-                                // textAlign: TextAlign.left,
-                                // style: TextStyle(
-                                //   height: 1.8
-                                // ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-
+                                  fontSize: devotionalFontSize,
+                                  color: Colors.black,
+                                  height: 1.5
+                                ),
                     
-
-                    const SizedBox(
-                        height: 10,
-                      ),
-
-                      Padding(
-                        padding: EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Further Study',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                height: 1.5,
-                                fontSize: devotionalFontSize*1.3,
-                                fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: ClickableText(
-                                text: widget.model.furtherScriptures!,
-                                context: context,
-                            
-                                defaultTextStyle: TextStyle(
-                                fontSize: devotionalFontSize,
-                                color: Colors.black,
-                                height: 1.5
-                              ),
-                            
-                              matchTextStyle: TextStyle(
-                                fontSize: devotionalFontSize,
-                                color: Colors.black,
-                                decorationStyle: TextDecorationStyle.dotted,
-                                decorationColor: Colors.black,
-                            
-                                height: 1.5
-                              ),
+                                matchTextStyle: TextStyle(
+                                  fontSize: devotionalFontSize,
+                                  color: Colors.black,
+                                  decorationStyle: TextDecorationStyle.dotted,
+                                  decorationColor: Colors.black,
+                    
+                                  height: 1.5
+                                ),
                                 // onTap: (p0) {
-                                //   print(p0);
                                 //   BibleReference r = parseBibleReference(p0);
                                 //   print(r);
                                 // },
@@ -711,247 +505,615 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                 // ),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(
-                        height: 10,
-                      ),
-
-                      Padding(
-                        padding: EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Doing the Word',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                height: 1.5,
-                                fontSize: devotionalFontSize*1.3,
-                                fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: ClickableText(
-                                text: widget.model.doingTheWord!,
-                                context: context,
-
-                                defaultTextStyle: TextStyle(
-                          fontSize: devotionalFontSize,
-                          color: Colors.black,
-                          height: 1.5
-                        ),
-
-                        matchTextStyle: TextStyle(
-                          fontSize: devotionalFontSize,
-                          color: Colors.black,
-                          decorationStyle: TextDecorationStyle.dotted,
-                          decorationColor: Colors.black,
-
-                          height: 1.5
-                        ),
-                                // onTap: (p0) {
-                                //   print(p0);
+                    
                             
-                                // },
-                                // textAlign: TextAlign.left,
-                                // style: TextStyle(
-                                //   height: 1.8
-                                // ),
+                    
+                            if(widget.model.instruction != null && widget.model.instruction!.length>5)...[
+                              const SizedBox(
+                                height: 10,
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(
-                        height: 10,
-                      ),
-
-                      Padding(
-                        padding: EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Daily Scripture',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                height: 1.5,
-                                fontSize: devotionalFontSize*1.3,
-                                fontWeight: FontWeight.bold
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Instruction',
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        height: 1.5,
+                                        fontSize: devotionalFontSize*1.3,
+                                        fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10,),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: ClickableText(
-                                text: widget.model.dailyScriptureReading!,
-                                context: context,
-                                defaultTextStyle: TextStyle(
-                                                  fontSize: devotionalFontSize,
-                                                  color: Colors.black,
-                                                  height: 1.5
-                                                ),
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: ClickableText(
+                                        text: widget.model.instruction!,
+                                        context: context,
+                                        defaultTextStyle: TextStyle(
+                                        fontSize: devotionalFontSize,
+                                        color: Colors.black,
+                                        height: 1.5
+                                      ),
+                                    
+                                      matchTextStyle: TextStyle(
+                                        fontSize: devotionalFontSize,
+                                        color: Colors.black,
+                                        decorationStyle: TextDecorationStyle.dotted,
+                                        decorationColor: Colors.black,
+                                    
+                                        height: 1.5
+                                      ),
+                                        // onTap: (p0) {
+                                        //   print(p0);
+                                        // },
+                                        // textAlign: TextAlign.left,
+                                        // style: TextStyle(
+                                        //   height: 1.8
+                                        // ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                    
+                            ////////////////////////////////////
+                            /////////////////////////////////////
+                    
+                            if(widget.model.confession != null && widget.model.confession!.length>5)...[
+                              const SizedBox(
+                                height: 10,
+                              ),
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Confession',
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        height: 1.5,
+                                        fontSize: devotionalFontSize*1.3,
+                                        fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: ClickableText(
+                                        text: widget.model.confession!,
+                                        context: context,
+                                    
+                                        defaultTextStyle: TextStyle(
+                                        fontSize: devotionalFontSize,
+                                        color: Colors.black,
+                                        height: 1.5
+                                      ),
+                                    
+                                      matchTextStyle: TextStyle(
+                                        fontSize: devotionalFontSize,
+                                        color: Colors.black,
+                                        decorationStyle: TextDecorationStyle.dotted,
+                                        decorationColor: Colors.black,
+                                    
+                                        height: 1.5
+                                      ),
+                                        // onTap: (p0) {
+                                        //   print(p0);
+                                        // },
+                                        // textAlign: TextAlign.left,
+                                        // style: TextStyle(
+                                        //   height: 1.8
+                                        // ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                    
+                            /////////////////////////////////
+                            ///
+                            if(widget.model.prayer != null && widget.model.prayer!.length>5)...[
+                              const SizedBox(
+                                height: 10,
+                              ),
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Prayer',
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        height: 1.5,
+                                        fontSize: devotionalFontSize*1.3,
+                                        fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: ClickableText(
+                                        text: widget.model.prayer!,
+                                        context: context,
+                                    
+                                        defaultTextStyle: TextStyle(
+                                        fontSize: devotionalFontSize,
+                                        color: Colors.black,
+                                        height: 1.5
+                                      ),
+                                    
+                                      matchTextStyle: TextStyle(
+                                        fontSize: devotionalFontSize,
+                                        color: Colors.black,
+                                        decorationStyle: TextDecorationStyle.dotted,
+                                        decorationColor: Colors.black,
+                                    
+                                        height: 1.5
+                                      ),
+                                        // onTap: (p0) {
+                                        //   print(p0);
+                                        // },
+                                        // textAlign: TextAlign.left,
+                                        // style: TextStyle(
+                                        //   height: 1.8
+                                        // ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                    
                             
-                                                matchTextStyle: TextStyle(
-                                                  fontSize: devotionalFontSize,
-                                                  color: Colors.black,
-                                                  decorationStyle: TextDecorationStyle.dotted,
-                                                  decorationColor: Colors.black,
-                            
-                                                  height: 1.5
-                                                ),
-                                
+                    
+                            const SizedBox(
+                                height: 10,
                               ),
-                            ),
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Further Study',
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        height: 1.5,
+                                        fontSize: devotionalFontSize*1.3,
+                                        fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: ClickableText(
+                                        text: widget.model.furtherScriptures!,
+                                        context: context,
+                                    
+                                        defaultTextStyle: TextStyle(
+                                        fontSize: devotionalFontSize,
+                                        color: Colors.black,
+                                        height: 1.5
+                                      ),
+                                    
+                                      matchTextStyle: TextStyle(
+                                        fontSize: devotionalFontSize,
+                                        color: Colors.black,
+                                        decorationStyle: TextDecorationStyle.dotted,
+                                        decorationColor: Colors.black,
+                                    
+                                        height: 1.5
+                                      ),
+                                        // onTap: (p0) {
+                                        //   print(p0);
+                                        //   BibleReference r = parseBibleReference(p0);
+                                        //   print(r);
+                                        // },
+                                        // textAlign: TextAlign.left,
+                                        // style: TextStyle(
+                                        //   height: 1.8
+                                        // ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                    
+                              const SizedBox(
+                                height: 10,
+                              ),
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Doing the Word',
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        height: 1.5,
+                                        fontSize: devotionalFontSize*1.3,
+                                        fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: ClickableText(
+                                        text: widget.model.doingTheWord!,
+                                        context: context,
+                    
+                                        defaultTextStyle: TextStyle(
+                                  fontSize: devotionalFontSize,
+                                  color: Colors.black,
+                                  height: 1.5
+                                ),
+                    
+                                matchTextStyle: TextStyle(
+                                  fontSize: devotionalFontSize,
+                                  color: Colors.black,
+                                  decorationStyle: TextDecorationStyle.dotted,
+                                  decorationColor: Colors.black,
+                    
+                                  height: 1.5
+                                ),
+                                        // onTap: (p0) {
+                                        //   print(p0);
+                                    
+                                        // },
+                                        // textAlign: TextAlign.left,
+                                        // style: TextStyle(
+                                        //   height: 1.8
+                                        // ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                    
+                              const SizedBox(
+                                height: 10,
+                              ),
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Daily Scripture',
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        height: 1.5,
+                                        fontSize: devotionalFontSize*1.3,
+                                        fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                    
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10,),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: ClickableText(
+                                        text: widget.model.dailyScriptureReading!,
+                                        context: context,
+                                        defaultTextStyle: TextStyle(
+                                                          fontSize: devotionalFontSize,
+                                                          color: Colors.black,
+                                                          height: 1.5
+                                                        ),
+                                    
+                                                        matchTextStyle: TextStyle(
+                                                          fontSize: devotionalFontSize,
+                                                          color: Colors.black,
+                                                          decorationStyle: TextDecorationStyle.dotted,
+                                                          decorationColor: Colors.black,
+                                    
+                                                          height: 1.5
+                                                        ),
+                                        
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(height: 20,),
+
+                              ...List.generate(
+                                _comments.length,
+                                (index){
+                                  return CommentCard(comment: _comments[index]);
+                                }
+                              ),
+
+                            const SizedBox(height: 100,),
+
+                            
                           ],
                         ),
                       ),
+                    ),
+                    if(commentTextFieldHeight == 0)...
+                    [Positioned(
+                        right: 0,
+                        bottom: 2,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            height: 50,
+                            width: MediaQuery.sizeOf(context).width-10,
+                            color: Colors.white,
+                            
+                
+                            child: Center(
+                              child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  onPressed: ()async{
+                    
+                                    Map<String, bool> _l = widget.model.reactions;
+                                    if (widget.model.reactions.containsKey(widget.uid)) {
+                                      _l.remove(widget.uid);
+                                      
+                                    } else {
+                                      _l[widget.uid] = true;
+                                    }
+                    
+                                    final dev = widget.model.copyWith(
+                                      reactions: _l
+                                    );
+                    
+                                    await DevotionalService().updateDevotional(dev);
+                    
+                                    reactions = _l;
+                    
+                                    setState(() {
+                                      
+                                    });
+                                  },
+                    
+                                  icon: Row(
+                                    children: [
+                                      Icon(
+                                        reactions.containsKey(widget.uid)? MdiIcons.heart: MdiIcons.heartOutline,
+                                        color: reactions.containsKey(widget.uid)?Colors.redAccent: null
+                                      ),
+                    
+                                      Text(
+                                        reactions.isNotEmpty? reactions.length.toString():''
+                                      )
+                                    ],
+                                  )
+                                ),
 
-                    const SizedBox(height: 100,)
+
+                                IconButton(
+                                  onPressed: ()async{
+                                    commentTextFieldHeight = 70;
+                                    Future.delayed(Duration(milliseconds: 100), (){
+                                      _autoFocus = true;
+                                    });
+                                    setState(() {
+                                      
+                                    });
+                                  },
+                                  icon: Row(
+                                    children: [
+                                      Icon(
+                                        MdiIcons.commentOutline
+                                      ),
+
+                                      Text(
+                                        widget.model.numberOfComment>0?' '+widget.model.numberOfComment.toString():'',
+                                        style: TextStyle(
+                                          fontSize: 16
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ),
+                    
+                                IconButton(
+                                  onPressed: (){
+                                    Navigator.push(
+                                      context,
+                                      PageTransition(
+                                        child: NoteTaker(
+                                          devotional: widget.model,
+                                        ), 
+                                        type: PageTransitionType.fade)
+                                    );
+                                  },
+                                  icon: Icon(
+                                    MdiIcons.notebookPlusOutline
+                                  )
+                                ),
+                    
+                                IconButton(
+                                  onPressed: (){
+                                    Navigator.push(
+                                      context,
+                                      PageTransition(
+                                        child: AddDev(
+                                          model: widget.model,
+                                        ), 
+                                        type: PageTransitionType.fade)
+                                    );
+                                  },
+                                  icon: Icon(
+                                    MdiIcons.pencilPlusOutline
+                                  )
+                                ),
+                    
+                                IconButton(
+                                  onPressed: ()async{
+                                    await Share.share(
+                                      widget.model.instruction != null && widget.model.instruction!.length>5?"A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
+                                          "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
+                                          "\n\n"+widget.model.body+
+                                          '\n\nInstruction\n'+widget.model.instruction!+
+                                          '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
+                                          '\n\nDoing the word\n'+widget.model.doingTheWord!+
+                                          '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!:
+                    
+                                          widget.model.confession != null && widget.model.confession!.length>5?"A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
+                                          "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
+                                          "\n\n"+widget.model.body+
+                                          '\n\nConfession\n'+widget.model.confession!+
+                                          '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
+                                          '\n\nDoing the word\n'+widget.model.doingTheWord!+
+                                          '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!:
+                    
+                                          "A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
+                                          "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
+                                          "\n\n"+widget.model.body+
+                                          '\n\nPrayer\n'+widget.model.prayer!+
+                                          '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
+                                          '\n\nDoing the word\n'+widget.model.doingTheWord!+
+                                          '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!
+                                    );
+                                  },
+                                  icon: Icon(
+                                    MdiIcons.shareVariantOutline
+                                  )
+                                ),
+                              ],
+                            ),
+                            ),
+                          ),
+                        )),]
                   ],
                 ),
               ),
-            ),
 
-            Positioned(
-                right: 14,
-                bottom: 10,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: Container(
-                    height: 50,
-                    width: MediaQuery.sizeOf(context).width-50,
-                    color: Colors.white,
+
+              Focus(
+                onFocusChange: (focus){
+                  if(focus){
+                     setState(() {
+                       commentTextFieldHeight = 70;
+                       _autoFocus = true;
+                     });
+                  }else{
                     
-    
-                    child: Center(
-                      child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    setState(() {
+                      commentTextFieldHeight = 0;
+                    });
+                  }
+                },
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 100),
+                    padding: const EdgeInsets.all(5),
+                    height: commentTextFieldHeight,
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 243, 247, 244)
+                    ),
+                    child: Row(
                       children: [
+                        Icon(
+                          MdiIcons.lightbulbOutline,
+                          color: Colors.amber,
+                          size: 25,
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(3.0),
+                            decoration: BoxDecoration(
+                              border: Border.all(width: .4),
+                              borderRadius: BorderRadius.circular(10)
+                            ),
+                            child: TextField(
+                                textCapitalization: TextCapitalization.sentences,
+                                maxLines: 5,
+                                minLines: 2,
+                                autofocus: _autoFocus,
+                                autocorrect: true,
+                                controller: commentController,
+                                
+                                decoration: InputDecoration.collapsed(
+                                  hintText: 'share your insight on ${widget.model.title}',
+                                  hintStyle: TextStyle(
+                                    
+                                  )
+                                  
+                                ),
+                              ),
+                          ),
+                        ),
+
                         IconButton(
-                          onPressed: ()async{
-
-                            Map<String, bool> _l = widget.model.reactions;
-                            if (widget.model.reactions.containsKey(widget.uid)) {
-                              _l.remove(widget.uid);
-                              
-                            } else {
-                              _l[widget.uid] = true;
-                            }
-
-                            final dev = widget.model.copyWith(
-                              reactions: _l
-                            );
-
-                            await DevotionalService().updateDevotional(dev);
-
-                            reactions = _l;
-
+                          onPressed:()async{
+                            commentTextFieldHeight = 0;
+                            _autoFocus = false;
                             setState(() {
                               
                             });
-                          },
 
-                          icon: Row(
-                            children: [
-                              Icon(
-                                reactions.containsKey(widget.uid)? MdiIcons.heart: MdiIcons.heartOutline,
-                                color: reactions.containsKey(widget.uid)?Colors.redAccent: null
-                              ),
+                            
 
-                              Text(
-                                reactions.isNotEmpty? reactions.length.toString():''
-                              )
-                            ],
-                          )
-                        ),
+                            if (commentController.text.isNotEmpty && commentController.text.trim().length>4) {
+                              User? user = await UserService().getUser(widget.uid);
+                              final comment = CommentModel(id: DateTime.now().millisecondsSinceEpoch.toString()+widget.uid, comment: commentController.text, user: user!, date: DateTime.now());
+                              await DevotionalService().createComment(widget.model.id, comment);
+                              await DevotionalService().updateDevotional(widget.model.copyWith(
+                                numberOfComments: widget.model.numberOfComment+1
+                              ));
+                            }
 
-                        IconButton(
-                          onPressed: (){
-                            Navigator.push(
-                              context,
-                              PageTransition(
-                                child: NoteTaker(
-                                  devotional: widget.model,
-                                ), 
-                                type: PageTransitionType.fade)
-                            );
-                          },
+                            commentController.text = '';
+                          } , 
                           icon: Icon(
-                            MdiIcons.notebookPlusOutline
-                          )
-                        ),
+                            MdiIcons.sendVariantOutline
+                          ))
 
-                        IconButton(
-                          onPressed: (){
-                            Navigator.push(
-                              context,
-                              PageTransition(
-                                child: AddDev(
-                                  model: widget.model,
-                                ), 
-                                type: PageTransitionType.fade)
-                            );
-                          },
-                          icon: Icon(
-                            MdiIcons.pencilPlusOutline
-                          )
-                        ),
-
-                        IconButton(
-                          onPressed: ()async{
-                            await Share.share(
-                              widget.model.instruction != null && widget.model.instruction!.length>5?"A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
-                                  "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
-                                  "\n\n"+widget.model.body+
-                                  '\n\nInstruction\n'+widget.model.instruction!+
-                                  '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
-                                  '\n\nDoing the word\n'+widget.model.doingTheWord!+
-                                  '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!:
-
-                                  widget.model.confession != null && widget.model.confession!.length>5?"A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
-                                  "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
-                                  "\n\n"+widget.model.body+
-                                  '\n\nConfession\n'+widget.model.confession!+
-                                  '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
-                                  '\n\nDoing the word\n'+widget.model.doingTheWord!+
-                                  '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!:
-
-                                  "A Word in Due Season\nBy Apostle David Wale Feso\n\n${DateFormat('EEE d, MMM y').format(widget.model.date)}\n\n\""+widget.model.title+
-                                  "\"\n\n\""+widget.model.openingScriptureText+"\" - "+widget.model.openingScriptureReference+
-                                  "\n\n"+widget.model.body+
-                                  '\n\nPrayer\n'+widget.model.prayer!+
-                                  '\n\nFurther Scriptures\n'+widget.model.furtherScriptures!+
-                                  '\n\nDoing the word\n'+widget.model.doingTheWord!+
-                                  '\n\nDaily Scriptural reading\n'+widget.model.dailyScriptureReading!
-                            );
-                          },
-                          icon: Icon(
-                            MdiIcons.shareVariantOutline
-                          )
-                        ),
                       ],
                     ),
-                    ),
                   ),
-                )),
-          ],
+                  ),
+            ],
+          ),
         ),
       ),
     );

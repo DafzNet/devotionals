@@ -205,7 +205,10 @@ class _DevotionalCardState extends State<DevotionalCard> {
                               ),
 
                               Text(
-                                reactions.isNotEmpty? reactions.length.toString():''
+                                reactions.isNotEmpty? reactions.length.toString():'',
+                                style: TextStyle(
+                                  fontSize: 16
+                                ),
                               )
                             ],
                           )
@@ -213,35 +216,55 @@ class _DevotionalCardState extends State<DevotionalCard> {
 
                         IconButton(
                           onPressed: (){
-                            Navigator.push(
-                              context,
-                              PageTransition(
-                                child: NoteTaker(
-                                  devotional: widget.model,
-                                ), 
-                                type: PageTransitionType.fade)
-                            );
+                            
                           },
-                          icon: Icon(
-                            MdiIcons.notebookPlusOutline
+                          icon: Row(
+                            children: [
+                              Icon(
+                                MdiIcons.commentOutline
+                              ),
+
+                              Text(
+                                widget.model.numberOfComment>0?' '+widget.model.numberOfComment.toString():'',
+                                style: TextStyle(
+                                  fontSize: 16
+                                ),
+                              )
+                            ],
                           )
                         ),
 
-                        IconButton(
-                          onPressed: (){
-                            Navigator.push(
-                              context,
-                              PageTransition(
-                                child: AddDev(
-                                  model: widget.model,
-                                ), 
-                                type: PageTransitionType.fade)
-                            );
-                          },
-                          icon: Icon(
-                            MdiIcons.pencilPlusOutline
-                          )
-                        ),
+                        // IconButton(
+                        //   onPressed: (){
+                        //     Navigator.push(
+                        //       context,
+                        //       PageTransition(
+                        //         child: NoteTaker(
+                        //           devotional: widget.model,
+                        //         ), 
+                        //         type: PageTransitionType.fade)
+                        //     );
+                        //   },
+                        //   icon: Icon(
+                        //     MdiIcons.notebookPlusOutline
+                        //   )
+                        // ),
+
+                        // IconButton(
+                        //   onPressed: (){
+                        //     Navigator.push(
+                        //       context,
+                        //       PageTransition(
+                        //         child: AddDev(
+                        //           model: widget.model,
+                        //         ), 
+                        //         type: PageTransitionType.fade)
+                        //     );
+                        //   },
+                        //   icon: Icon(
+                        //     MdiIcons.pencilPlusOutline
+                        //   )
+                        // ),
 
                         IconButton(
                           onPressed: ()async{

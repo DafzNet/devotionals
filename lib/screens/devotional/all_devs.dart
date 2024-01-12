@@ -104,7 +104,11 @@ class _AllDevotionalsState extends State<AllDevotionals> {
           itemBuilder: (context, index) {
             if (index == devotionals.length) {
               // Show loading indicator at the end of the list while more data is being loaded
-              return CircularProgressIndicator();
+              return Column(
+                children: [
+                  Center(child: CircularProgressIndicator()),
+                ],
+              );
             } else {
               DevotionalModel devotional = devotionals[index];
               return DevotionalCard(model: devotional,uid: widget.uid,);

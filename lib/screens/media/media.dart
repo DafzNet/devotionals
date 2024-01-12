@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:devotionals/firebase/dbs/video.dart';
 import 'package:devotionals/screens/media/addvod.dart';
 import 'package:devotionals/screens/media/player.dart';
@@ -23,14 +25,21 @@ class _MediaScreenState extends State<MediaScreen> {
   // https://youtu.be/DEoQcmjY-ug
 
    List<VideoData> vids = [];
+   List<VideoData> equipVids = [];
+   List<VideoData> fohpVids = [];
+   List<VideoData> mohVids = [];
 
-  VideoService _vids = VideoService();
+  final VideoService _vids = VideoService();
 
   void getVids()async{
     List<VideoData> videos = await _vids.getAllVideoData();
 
-    if (vids != null || videos.isNotEmpty) {
+    if (videos.isNotEmpty) {
       vids = videos;
+      equipVids = vids.where((element) => element.category.toLowerCase()=='equip').toList();
+      fohpVids = vids.where((element) => element.category.toLowerCase()=='fohp' || element.category.toLowerCase()=='fragrance of his presence').toList();
+      mohVids= vids.where((element) => element.category.toLowerCase()=='moh' || element.category.toLowerCase()=='matters of the heart').toList();
+
     }
 
     setState(() {
@@ -38,15 +47,33 @@ class _MediaScreenState extends State<MediaScreen> {
     });
   }
 
+  final ScrollController _scrollController = ScrollController();
+  final Random _random = Random();
+
   @override
   void initState() {
     super.initState();
 
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        // Reach the bottom of the list, load more data
+        _loadMoreData();
+      }
+    });
+
     getVids();
   }
-  // var title = video.title; // "Scamazon Prime"
-  // var author = video.author; // "Jim Browning"
-  // var duration = video.duration; // Instance of Duration - 0:19:48.00000
+
+  void _loadMoreData() {
+    // Shuffle the existing video list
+    vids.shuffle(_random);
+
+    // Add the shuffled list to the end of the current list
+    setState(() {
+      vids.addAll(List.from(vids));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,15 +96,15 @@ class _MediaScreenState extends State<MediaScreen> {
                 pinned: true,
                 bottom: TabBar(
                   isScrollable: false,
-                  padding: EdgeInsets.all(2),
+                  padding: const EdgeInsets.all(2),
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicatorColor: cricColor,
-                  labelStyle: TextStyle(
+                  labelStyle: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16
                   ),
                   
-                  tabs: [
+                  tabs: const [
                     Tab(text: 'All'),
                     Tab(text: 'Equip'),
                     Tab(text: 'FoHP'),
@@ -93,29 +120,63 @@ class _MediaScreenState extends State<MediaScreen> {
                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: ListView.separated(
+                    controller: _scrollController,
                     itemCount: vids.length,
                     itemBuilder: (context, index) {
                       return VideoCard(videoId: vids[index].id, vids: vids,);
                     },
                 
                     separatorBuilder: (context, index) {
-                      return SizedBox(height: 8,);
+                      return const SizedBox(height: 5,);
                     },
                   ),
                 ),
 
               // Content for Tab 2
-              Center(
-                child: Text('Tab 2 Content'),
-              ),
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: ListView.separated(
+                    controller: _scrollController,
+                    itemCount: equipVids.length,
+                    itemBuilder: (context, index) {
+                      return VideoCard(videoId: equipVids[index].id, vids: vids,);
+                    },
+                
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(height: 5,);
+                    },
+                  ),
+                ),
 
-              Center(
-                child: Text('Tab 2 Content'),
-              ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: ListView.separated(
+                    controller: _scrollController,
+                    itemCount: fohpVids.length,
+                    itemBuilder: (context, index) {
+                      return VideoCard(videoId: fohpVids[index].id, vids: vids,);
+                    },
+                
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(height: 5,);
+                    },
+                  ),
+                ),
 
-              Center(
-                child: Text('Tab 2 Content'),
-              ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: ListView.separated(
+                    controller: _scrollController,
+                    itemCount: mohVids.length,
+                    itemBuilder: (context, index) {
+                      return VideoCard(videoId: mohVids[index].id, vids: vids,);
+                    },
+                
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(height: 5,);
+                    },
+                  ),
+                ),
 
               Center(
                 child: Text('Tab 2 Content'),
@@ -126,23 +187,6 @@ class _MediaScreenState extends State<MediaScreen> {
       ),
       
       
-      
-      
-      
-      // Padding(
-      //   padding: const EdgeInsets.symmetric(horizontal: 5),
-      //   child: ListView.separated(
-      //     itemCount: vids.length,
-      //     itemBuilder: (context, index) {
-      //       return VideoCard(videoId: vids[index].id, vids: vids,);
-      //     },
-      
-      //     separatorBuilder: (context, index) {
-      //       return SizedBox(height: 8,);
-      //     },
-      //   ),
-      // ),
-
 
       floatingActionButton: FloatingActionButton(
         backgroundColor: cricColor,

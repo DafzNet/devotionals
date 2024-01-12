@@ -143,11 +143,11 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
           /////Chat
           BottomNavigationBarItem(
             icon: Icon(
-              MdiIcons.music
+              MdiIcons.playBoxMultipleOutline
             ),
       
             activeIcon: Icon(
-              MdiIcons.music
+              MdiIcons.playBoxMultiple
             ),
       
             label: 'Messages'
@@ -155,11 +155,11 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
 
           BottomNavigationBarItem(
             icon: Icon(
-              MdiIcons.accountOutline
+              MdiIcons.accountCircleOutline
             ),
       
             activeIcon: Icon(
-              MdiIcons.account
+              MdiIcons.accountCircle
             ),
       
             label: 'More'

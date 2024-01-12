@@ -83,124 +83,121 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-
-                SizedBox(
-                  height: 10,
-                ),
+          child: ListView(
+            children: [
+              SizedBox(
+                height: 10,
+              ),
           
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Latest Video'),
-                    TextButton(
-                      onPressed: (){
-                        Navigator.push(
-                          context,
-                          PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
-                        );
-                      },
-                      child: Text('See all')
-                    ),
-                  ],
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Latest Video'),
+                  TextButton(
+                    onPressed: (){
+                      Navigator.push(
+                        context,
+                        PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
+                      );
+                    },
+                    child: Text('See all')
+                  ),
+                ],
+              ),
      
 
-                FutureBuilder(
-                  future: VideoService().getMostRecentVideos(1),
-                  builder: (context, snapshot){
-                    if (snapshot.hasError || snapshot.connectionState == ConnectionState.waiting) {
-                      return CardLoading(
-                        height: 200);
-                    }
+              FutureBuilder(
+                future: VideoService().getMostRecentVideos(1),
+                builder: (context, snapshot){
+                  if (snapshot.hasError || snapshot.connectionState == ConnectionState.waiting) {
+                    return CardLoading(
+                      height: 200);
+                  }
 
-                    return VideoCard(videoId: snapshot.data!.first.id, vids: []);
-                  }),
+                  return VideoCard(videoId: snapshot.data!.first.id, vids: []);
+                }),
 
-              if(_model != null)...
-                [
+            if(_model != null)...
+              [
           
-                SizedBox(
-                  height: 10,
-                ),
+              SizedBox(
+                height: 10,
+              ),
           
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('A Word in Due Season'),
-                    TextButton(
-                      onPressed: (){
-                        Navigator.push(
-                          context,
-                          PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
-                        );
-                      },
-                      child: Text('See all')
-                    ),
-                  ],
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('A Word in Due Season'),
+                  TextButton(
+                    onPressed: (){
+                      Navigator.push(
+                        context,
+                        PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
+                      );
+                    },
+                    child: Text('See all')
+                  ),
+                ],
+              ),
           
-                SizedBox(
-                  height: 10,
-                ),
+              SizedBox(
+                height: 10,
+              ),
           
-                DevotionalCard(
-                  model: _model!,
-                  uid: widget.uid,
-                ),],
+              DevotionalCard(
+                model: _model!,
+                uid: widget.uid,
+              ),],
           
-                
-                SizedBox(
-                  height: 15,
-                ),
+              
+              SizedBox(
+                height: 15,
+              ),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Next Meetings'),
-                    TextButton(
-                      onPressed: (){
-                        /// `Navigator.push()` is a method in Flutter that allows you to navigate to a
-                        /// new screen or page in your app. It takes two parameters: `context` and
-                        /// `route`.
-                        // Navigator.push(
-                        //   context,
-                        //   PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
-                        // );
-                      },
-                      child: Text('See all')
-                    ),
-                  ],
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Next Meetings'),
+                  TextButton(
+                    onPressed: (){
+                      /// `Navigator.push()` is a method in Flutter that allows you to navigate to a
+                      /// new screen or page in your app. It takes two parameters: `context` and
+                      /// `route`.
+                      // Navigator.push(
+                      //   context,
+                      //   PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
+                      // );
+                    },
+                    child: Text('See all')
+                  ),
+                ],
+              ),
 
-                SizedBox(height: 10,),
+              SizedBox(height: 10,),
 
-                NextEventDate(
+              NextEventDate(
           
-                ),
+              ),
 
 
-                SizedBox(
-                  height: 10,
-                ),
+              SizedBox(
+                height: 10,
+              ),
           
-                // NextMoHDate(
+              // NextMoHDate(
           
-                // ),
+              // ),
 
-                // SizedBox(
-                //   height: 10,
-                // ),
+              // SizedBox(
+              //   height: 10,
+              // ),
           
-                // NextEquipDate(
+              // NextEquipDate(
           
-                // )
+              // )
           
           
-              ],
-            ),
+            ],
           ),
         ),
       ),
