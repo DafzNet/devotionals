@@ -1,6 +1,7 @@
 import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/wrapper.dart';
+import 'package:devotionals/utils/constants/db_consts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,9 @@ import 'utils/theme/theme.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  await Hive.openBox('users');
+  await Hive.openBox(videoIdsBox);
+  await Hive.openBox('buddies');
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

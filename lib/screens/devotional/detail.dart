@@ -185,26 +185,30 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
   @override
   void initState() {
     super.initState();
-    devScrollController.addListener(() {
-      if (devScrollController.position.pixels ==
-          devScrollController.position.maxScrollExtent) {
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
         loadComments();
+        
       }
     });
     reactions = widget.model.reactions;
     
     initTts();
-    _scrollController.addListener(() {
-      setState(() {
-        _isTitleVisible = _scrollController.offset > 100; // Adjust the offset as needed
-      });
-    });
   }
 
   List<CommentModel> _comments = [];
 
   void loadComments()async{
-    _comments = await DevotionalService().getComments(widget.model.id);
+    final c = await DevotionalService().getComments(widget.model.id);
+
+    c.sort((a, b){
+      return b.date.compareTo(a.date);
+    });
+
+    _comments = c;
+    
+    print(_comments);
 
     setState(() {
       
@@ -213,9 +217,9 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
 
 
   double commentTextFieldHeight = 0;
-  bool _autoFocus = false;
+  bool autoFocus = false;
   final commentController = TextEditingController();
-  final devScrollController = ScrollController();
+  CommentModel? replyingComment;
 
 
   @override
@@ -442,9 +446,9 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                 child: Stack(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: SingleChildScrollView(
-                        controller: devScrollController,
+                        // controller: devScrollController,
                         physics: AlwaysScrollableScrollPhysics(),
                         child: Column(
                           children: [
@@ -860,10 +864,99 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
 
                               const SizedBox(height: 20,),
 
+                              Row(
+                                children: [
+                                  Text(
+                                    'User Insights',
+
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 20,),
+
                               ...List.generate(
                                 _comments.length,
                                 (index){
-                                  return CommentCard(comment: _comments[index]);
+                                  return CommentCard(
+                                    width: MediaQuery.sizeOf(context).width-20,
+                                    dev: widget.model,
+                                    comment: _comments[index], 
+                                    uid: widget.uid,
+                                    onReply: (){
+                                      commentTextFieldHeight = 70;
+                                      autoFocus = true;
+                                      replyingComment = _comments[index];
+
+                                      setState(() {
+                                        
+                                      });
+                                    },
+                                    onLike: () async{
+                                      List<String> _likes = _comments[index].likes;
+                                      List<String> _dislikes = _comments[index].dislikes;
+
+                                      if(!_likes.contains(widget.uid)) {
+                                        _likes.add(widget.uid);
+                                        _dislikes.remove(widget.uid);
+                                        await DevotionalService().updateComment(widget.model.id, 
+                                          _comments[index].copyWith(
+                                            dislikes: _dislikes
+                                          )
+                                        );
+                                      }else{
+                                        _likes.remove(widget.uid);
+                                        _dislikes.remove(widget.uid);
+                                        await DevotionalService().updateComment(widget.model.id, 
+                                          _comments[index].copyWith(
+                                            likes: _likes,
+                                            dislikes: _dislikes
+                                          )
+                                        );
+                                      }
+
+                                      setState(() {
+                                        
+                                      });
+                                    },
+
+                                    onDislike: () async{
+                                      List<String> _dislikes = _comments[index].dislikes;
+                                       List<String> _likes = _comments[index].likes;
+
+                                      if(!_dislikes.contains(widget.uid)) {
+
+                                        _dislikes.add(widget.uid);
+                                         _likes.remove(widget.uid);
+                                        
+
+                                        await DevotionalService().updateComment(widget.model.id, 
+                                          _comments[index].copyWith(
+                                            dislikes: _dislikes,
+                                            likes: _likes
+                                          )
+                                        );
+                                      }else{
+                                        _dislikes.remove(widget.uid);
+                                        _likes.remove(widget.uid);
+                                        
+                                        await DevotionalService().updateComment(widget.model.id, 
+                                          _comments[index].copyWith(
+                                            dislikes: _dislikes,
+                                            likes: _likes
+                                          )
+                                        );
+                                      }
+
+                                      setState(() {
+                                        
+                                      });
+                                    },
+                                  );
                                 }
                               ),
 
@@ -875,7 +968,8 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                       ),
                     ),
                     if(commentTextFieldHeight == 0)...
-                    [Positioned(
+                    [
+                      Positioned(
                         right: 0,
                         bottom: 2,
                         child: ClipRRect(
@@ -932,9 +1026,11 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                 IconButton(
                                   onPressed: ()async{
                                     commentTextFieldHeight = 70;
-                                    Future.delayed(Duration(milliseconds: 100), (){
-                                      _autoFocus = true;
-                                    });
+                                    
+
+                                    await Future.delayed(Duration(milliseconds: 500), (){});
+                                    autoFocus = true;
+
                                     setState(() {
                                       
                                     });
@@ -1023,94 +1119,108 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                             ),
                             ),
                           ),
-                        )),]
+                        )),
+                      ]
                   ],
                 ),
               ),
 
-
               Focus(
-                onFocusChange: (focus){
-                  if(focus){
-                     setState(() {
-                       commentTextFieldHeight = 70;
-                       _autoFocus = true;
-                     });
-                  }else{
-                    
-                    setState(() {
-                      commentTextFieldHeight = 0;
-                    });
-                  }
-                },
-                  child: AnimatedContainer(
-                    duration: Duration(milliseconds: 100),
-                    padding: const EdgeInsets.all(5),
-                    height: commentTextFieldHeight,
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 243, 247, 244)
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          MdiIcons.lightbulbOutline,
-                          color: Colors.amber,
-                          size: 25,
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(3.0),
-                            decoration: BoxDecoration(
-                              border: Border.all(width: .4),
-                              borderRadius: BorderRadius.circular(10)
-                            ),
-                            child: TextField(
-                                textCapitalization: TextCapitalization.sentences,
-                                maxLines: 5,
-                                minLines: 2,
-                                autofocus: _autoFocus,
-                                autocorrect: true,
-                                controller: commentController,
-                                
-                                decoration: InputDecoration.collapsed(
-                                  hintText: 'share your insight on ${widget.model.title}',
-                                  hintStyle: TextStyle(
-                                    
-                                  )
-                                  
-                                ),
-                              ),
+                  onFocusChange: (focus){
+                    if(focus){
+                      setState(() {
+                        commentTextFieldHeight = 70;
+                        autoFocus = true;
+                      });
+                    }else{
+                      
+                      setState(() {
+                        commentTextFieldHeight = 0;
+                      });
+                    }
+                  },
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      height: commentTextFieldHeight,
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 243, 247, 244)
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            MdiIcons.lightbulbOutline,
+                            color: Colors.amber,
+                            size: 25,
                           ),
-                        ),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(5.0),
+                              decoration: BoxDecoration(
+                                border: Border.all(width: .4),
+                                borderRadius: BorderRadius.circular(10)
+                              ),
+                              child: TextField(
+                                  textCapitalization: TextCapitalization.sentences,
+                                  maxLines: 3,
+                                  minLines: 2,
+                                  autofocus: autoFocus,
+                                  autocorrect: true,
+                                  controller: commentController,
+                                  
+                                  decoration: InputDecoration.collapsed(
+                                    hintText: replyingComment != null? 'reply @${replyingComment!.user.firstName} ${replyingComment!.user.lastName}' : 'share your insight on ${widget.model.title}',
+                                    hintStyle: TextStyle(
+                                      
+                                    )
+                                    
+                                  ),
+                                ),
+                            ),
+                          ),
 
-                        IconButton(
-                          onPressed:()async{
-                            commentTextFieldHeight = 0;
-                            _autoFocus = false;
-                            setState(() {
-                              
-                            });
+                          IconButton(
+                            onPressed:()async{
+                              commentTextFieldHeight = 0;
+                              autoFocus = false;
+                              setState(() {
+                                
+                              });
 
-                            
+                              if (commentController.text.isNotEmpty && commentController.text.trim().length>4 && replyingComment == null) {
+                                User? user = await UserService().getUser(widget.uid);
+                                final comment = CommentModel(id: DateTime.now().millisecondsSinceEpoch.toString()+widget.uid, comment: commentController.text, user: user!, date: DateTime.now());
+                                await DevotionalService().createComment(widget.model.id, comment);
+                                await DevotionalService().updateDevotional(widget.model.copyWith(
+                                  numberOfComments: widget.model.numberOfComment+1
+                                ));
+                              }
 
-                            if (commentController.text.isNotEmpty && commentController.text.trim().length>4) {
-                              User? user = await UserService().getUser(widget.uid);
-                              final comment = CommentModel(id: DateTime.now().millisecondsSinceEpoch.toString()+widget.uid, comment: commentController.text, user: user!, date: DateTime.now());
-                              await DevotionalService().createComment(widget.model.id, comment);
-                              await DevotionalService().updateDevotional(widget.model.copyWith(
-                                numberOfComments: widget.model.numberOfComment+1
-                              ));
-                            }
 
-                            commentController.text = '';
-                          } , 
-                          icon: Icon(
-                            MdiIcons.sendVariantOutline
-                          ))
+                              if (commentController.text.isNotEmpty && commentController.text.trim().length>4 && replyingComment != null) {
+                                User? user = await UserService().getUser(widget.uid);
+                                var _r = replyingComment!.replies;
+                                _r.add(CommentModel(id: DateTime.now().millisecondsSinceEpoch.toString()+widget.uid, comment: commentController.text, user: user!, repliedUser: replyingComment!.user, date: DateTime.now()));
+                                final comment = replyingComment!.copyWith(
+                                  replies: _r
+                                );
+                                await DevotionalService().updateComment(widget.model.id, comment);
+                                replyingComment = null;
 
-                      ],
+                                setState(() {
+                                  
+                                });
+                                
+                              }
+
+                              commentController.text = '';
+                            } , 
+                            icon: Icon(
+                              MdiIcons.sendVariantOutline
+                            ))
+
+                        ],
+                      ),
                     ),
-                  ),
                   ),
             ],
           ),

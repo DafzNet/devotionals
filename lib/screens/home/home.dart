@@ -322,14 +322,14 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Color(0xFFE0E5EC), // Background color
+                          color: cricColor, // Background color
                           borderRadius: BorderRadius.circular(100),
                           
                         ),
                         child: Center(
                           child: Icon(
-                            MdiIcons.lightFloodDown,
-                            color: Colors.amber,
+                            MdiIcons.lightbulbOn10,
+                            color: Colors.white,
                             size: 30,
                           ),
                         ),
@@ -340,14 +340,14 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Color(0xFFE0E5EC), // Background color
+                          color: cricColor, // Background color
                           borderRadius: BorderRadius.circular(100),
                           
                         ),
                         child: Center(
                           child: Icon(
-                            Icons.event_note,
-                            color: cricColor,
+                            MdiIcons.calendarMultiple,
+                            color: Colors.white,
                             size: 30,
                           ),
                         ),
@@ -357,15 +357,18 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Color(0xFFE0E5EC), // Background color
+                          color: cricColor, // Background color
                           borderRadius: BorderRadius.circular(100),
                           
                         ),
                         child: Center(
-                          child: Icon(
-                            Icons.event_note,
-                            color: cricColor,
-                            size: 30,
+                          child: InkWell(
+                            
+                            child: Icon(
+                              MdiIcons.emailNewsletter,
+                              color: Colors.white,
+                              size: 30,
+                            ),
                           ),
                         ),
                       ),

@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:devotionals/firebase/dbs/devs.dart';
-import 'package:devotionals/screens/devotional/detail.dart';
+import 'package:devotionals/dbs/sembast/generic.dart';
 import 'package:devotionals/utils/models/models.dart';
 import 'package:devotionals/utils/widgets/cards/devotional.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 
 class AllDevotionals extends StatefulWidget {
   final String uid;
@@ -17,6 +16,7 @@ class AllDevotionals extends StatefulWidget {
 }
 
 class _AllDevotionalsState extends State<AllDevotionals> {
+  final _store = DataStore('devotional');
 
   final DevotionalService _devotionalService = DevotionalService();
   late List<DevotionalModel> devotionals;

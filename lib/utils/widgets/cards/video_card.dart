@@ -42,17 +42,8 @@ class _VideoCardState extends State<VideoCard> {
   }
 
 
-  openHBox()async{
-    await Hive.openBox(videoIdsBox);
-
-    setState(() {
-      
-    });
-  }
-
   @override
   void initState() {
-   openHBox(); 
     super.initState();
   }
 
@@ -179,9 +170,11 @@ class _VideoCardState extends State<VideoCard> {
             children: [
               AspectRatio(
                 aspectRatio: 16/9,
-                child: Image.network(
-                  Hive.box(videoIdsBox).get(widget.videoId)['thumbNail'],
-                  fit: BoxFit.cover,
+                child: CachedNetworkImage(
+                  fit: BoxFit.cover
+                  
+                  ,
+                  imageUrl: Hive.box(videoIdsBox).get(widget.videoId)['thumbNail'],
                 ),
               ),
 

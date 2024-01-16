@@ -1,16 +1,20 @@
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:sembast/sembast.dart';
-import 'package:sembast/sembast_io.dart';
+import 'package:devotionals/dbs/sembast/cached_img.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class CachedNetworkImage extends StatefulWidget {
-  final String imageUrl;
 
-  const CachedNetworkImage({required this.imageUrl});
+class CachedNetworkImage extends StatefulWidget {
+  final String? imageUrl;
+  final BoxFit? fit;
+  final Widget? placeHolder;
+
+  const CachedNetworkImage({
+    this.fit,
+    this.placeHolder,
+    this.imageUrl});
 
   @override
   _CachedNetworkImageState createState() => _CachedNetworkImageState();
@@ -22,7 +26,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<int>?>(
-      future: _databaseHelper.getImage(widget.imageUrl),
+      future: _databaseHelper.getImage(widget.imageUrl.toString()),
       builder: (context, snapshot) {
       
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -46,73 +50,26 @@ class _CachedNetworkImageState extends State<CachedNetworkImage> {
   }
 
   Widget _fetchAndCacheImage() {
-    return FutureBuilder<http.Response>(
-      future: http.get(Uri.parse(widget.imageUrl)),
+    return widget.imageUrl!=null? FutureBuilder<http.Response>(
+      future: http.get(Uri.parse(widget.imageUrl!)),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return Center(child: SizedBox(
+            width: 30,
+            height: 30,
+            child: CircularProgressIndicator()));
         } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
+          return widget.placeHolder??Text('Error: ${snapshot.error}');
         } else {
           final imageData = snapshot.data!.bodyBytes;
-          _databaseHelper.saveImage(widget.imageUrl, imageData);
-          return Image.memory(Uint8List.fromList(imageData), fit: BoxFit.cover,);
+          _databaseHelper.saveImage(widget.imageUrl!, imageData, DateTime.now().add(Duration(days: 2)).millisecondsSinceEpoch);
+          return widget.fit != null? AspectRatio(
+            aspectRatio: 16/9,
+            child: Image.memory(Uint8List.fromList(imageData), fit: widget.fit,)):
+            Image.memory(Uint8List.fromList(imageData), fit: widget.fit,);
         }
       },
-    );
-  }
-}
-
-
-
-class DatabaseHelper {
-  Database? _database;
-
-  Future<Database> get database async {
-    if (_database != null) {
-      return _database!;
-    } else {
-      _database = await initDatabase();
-      return _database!;
-    }
-  }
-
-  Future<Database> initDatabase() async {
-    final appDocumentDir = await getApplicationDocumentsDirectory();
-    final dbPath = join(appDocumentDir.path, 'your_database_name.db');
-    final database = await databaseFactoryIo.openDatabase(dbPath);
-    return database;
-  }
-
-  String _getKeyFromUrl(String url) {
-    // You can use a hash function or any method to convert the URL to a unique integer key.
-    // For simplicity, we'll use a basic hash function here.
-    return url.hashCode.toString();
-  }
-
-  Future<void> saveImage(String url, List<int> imageData) async {
-    final store = intMapStoreFactory.store('images');
-    final key = _getKeyFromUrl(url);
-    final record = store.record(int.parse(key));
-
-    await (await database).transaction((txn) async {
-      await record.put(txn, {'data': imageData});
-    });
-  }
-
-  Future<List<int>?> getImage(String url) async {
-    final store = intMapStoreFactory.store('images');
-    final key = _getKeyFromUrl(url);
-    final record = store.record(int.parse(key));
-
-    final snapshot = await record.getSnapshot(await database);
-    final newSnapshot  = snapshot!.value;
-
-
-    if (newSnapshot.isNotEmpty) {
-      return List<int>.from(newSnapshot['data'] as List);
-    }
-
-    return null;
+    ):widget.placeHolder??
+    Icon(MdiIcons.account);
   }
 }

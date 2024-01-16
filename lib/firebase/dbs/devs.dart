@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:devotionals/utils/models/comment.dart';
-
 import '../../utils/models/models.dart';
 
 class DevotionalService {
@@ -60,8 +59,14 @@ class DevotionalService {
   Future<void> createComment(String devotionalId, CommentModel comment) async {
     CollectionReference commentsCollection =
         _devotionalCollection.doc(devotionalId).collection('comments');
+    await commentsCollection.doc(comment.id).set(comment.toMap());
+  }
 
-    await commentsCollection.add(comment.toMap());
+
+  Future<void> updateComment(String devotionalId, CommentModel comment) async {
+    CollectionReference commentsCollection =
+        _devotionalCollection.doc(devotionalId).collection('comments');
+    await commentsCollection.doc(comment.id).update(comment.toMap());
   }
 
   // Read Comments (Load on Demand)
@@ -74,28 +79,6 @@ class DevotionalService {
     List<CommentModel> comments = snapshot.docs
         .map((doc) => CommentModel.fromMap(doc.data() as Map<String, dynamic>))
         .toList();
-
     return comments;
-  }
-
-  // Reply to Comment
-  Future<void> replyToComment(String devotionalId, String commentId, CommentModel reply) async {
-    CollectionReference repliesCollection =
-        _devotionalCollection.doc(devotionalId).collection('comments').doc(commentId).collection('replies');
-    await repliesCollection.add(reply.toMap());
-  }
-
-  // Read Replies (Load on Demand)
-  Future<List<CommentModel>> getReplies(String devotionalId, String commentId) async {
-    CollectionReference repliesCollection =
-        _devotionalCollection.doc(devotionalId).collection('comments').doc(commentId).collection('replies');
-
-    QuerySnapshot snapshot = await repliesCollection.get();
-
-    List<CommentModel> replies = snapshot.docs
-        .map((doc) => CommentModel.fromMap(doc.data() as Map<String, dynamic>))
-        .toList();
-
-    return replies;
   }
 }

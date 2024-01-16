@@ -35,8 +35,6 @@ class UserService {
       return [];
     }
   } catch (e) {
-    print(e);
-    print('object33');
     // Handle the error as needed
     throw e;
   }
@@ -63,10 +61,7 @@ class UserService {
       }
     });
     }catch(e){
-      print(e);
-      print('object33');
     }
-    print('object33');
     return Stream.value([]);
   }
 

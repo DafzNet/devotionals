@@ -2,8 +2,10 @@
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/chat/screens/message_screen.dart';
 import 'package:devotionals/utils/constants/colors.dart';
+import 'package:devotionals/utils/widgets/images/cached_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +31,7 @@ class _BuddyListState extends State<BuddyList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Friends List'
+          'All Users'
         ),
 
         systemOverlayStyle: const SystemUiOverlayStyle(
@@ -54,7 +56,7 @@ class _BuddyListState extends State<BuddyList> {
               );
             } else if (snapshot.hasError) {
               // There was an error in retrieving the data
-              return Text('Error: ${snapshot.error}');
+              return Text('Something went wrong');
             } else {
               // Data has been successfully loaded
               List<User> allUsers = snapshot.data ?? [];
@@ -63,7 +65,7 @@ class _BuddyListState extends State<BuddyList> {
                 itemCount: allUsers.length,
                 itemBuilder: (context, index) {
                   User user = allUsers[index];
-                  // Display user information as needed
+                  Hive.box('users').put(user.userID, user.toMap());
                   return user.userID != widget.uid? ListTile(
                     title: Text(user.firstName + ' '+ user.lastName),
                     subtitle: StreamBuilder(
@@ -91,16 +93,19 @@ class _BuddyListState extends State<BuddyList> {
                     onTap: (){
                       Navigator.push(context,
                       PageTransition(
-                        child: MessageDisplayScreen(user: user, curUser: widget.uid), 
+                        child: MessageDisplayScreen(buddy: user, curUser: widget.uid), 
                         type: PageTransitionType.fade));
                     },
                     trailing: Icon(
                       MdiIcons.chatOutline
                     ),
-                    leading: CircleAvatar(
-                      backgroundColor: cricColor.shade100,
+                    leading: SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: ClipOval(
+                        child: FittedBox(child: CachedNetworkImage(imageUrl: user.photoUrl)),
+                      ),
                     ),
-                    // Add more details as needed
                   ):Container();
                 },
               );

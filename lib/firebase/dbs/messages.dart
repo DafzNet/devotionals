@@ -1,133 +1,9 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:devotionals/providers/chats.dart';
-// import 'package:devotionals/utils/models/chat.dart';
-
-// class ChatService {
-//   final CollectionReference _chatCollection = FirebaseFirestore.instance.collection('chats');
-
-//   void createChatDocument(String user1, String user2, Chat chat) async {
-//     // Check for an existing document with the provided user1 and user2
-//     List<String> mails = [user1, user2];
-//     mails.sort();
-//     QuerySnapshot querySnapshot = await _chatCollection
-//         .where('user1', isEqualTo: mails[0])
-//         .where('user2', isEqualTo: mails[1])
-//         .get();
-
-//     if (querySnapshot.docs.isNotEmpty) {
-//       // If a matching document is found, add the chat to its subcollection
-//       String documentId = querySnapshot.docs.first.id;
-//       await _chatCollection
-//           .doc(documentId)
-//           .collection('messages')
-//           .add({'text': chat.text, 'senderId':chat.senderId, 'timestamp': FieldValue.serverTimestamp()});
-//     } else {
-//       // If no matching document is found, create a new document and add the chat
-//       final docRef = await _chatCollection.add({
-//         'user1': mails[0],
-//         'user2': mails[1],
-//       });
-
-//       final subcollectionRef = docRef.collection('messages');
-//       await subcollectionRef.add({'text': chat.text, 'senderId':chat.senderId, 'timestamp': FieldValue.serverTimestamp()});
-//       print('Chat document created with ID: ${docRef.id}');
-//     }
-//   }
-
-
-//   Stream<List<Chat>> getChats(String user1, String user2) {
-//     List<String> mails = [user1, user2];
-//     mails.sort();  
-//     final query = _chatCollection
-//         .where('user1', isEqualTo: mails[0])
-//         .where('user2', isEqualTo: mails[1])  // Add orderBy clause for 'Timestamp'
-//         .limit(1);
-
-//     return query.snapshots().asyncMap<List<Chat>>((querySnapshot) async {
-//       if (querySnapshot.docs.isNotEmpty) {
-//         String documentId = querySnapshot.docs.first.id;
-//         final subcollectionRef = _chatCollection.doc(documentId).collection('messages');
-//         final snapshot = await subcollectionRef.get();  // Order by 'Timestamp' in the subcollection
-//         List<Chat> messages = snapshot.docs.map((doc) => Chat.fromMap(doc.data() as Map<String, dynamic>)).toList();
-//         ChatModelProvider().setChatMessages(messages);
-//         return messages;
-//       } else {
-//         return [];
-//       }
-//     });
-//   }
-
-//   Future<List<Chat>> getChatsFuture(String userId) async {
-//     final query = _chatCollection
-//         .where('user1', isEqualTo: userId)
-//         .orderBy('timestamp', descending: true)
-//         .limit(1);
-
-//     final query2 = _chatCollection
-//         .where('user2', isEqualTo: userId)
-//         .orderBy('timestamp', descending: true)
-//         .limit(1);
-
-//     final querySnapshot = await query.get();
-//     if (querySnapshot.docs.isNotEmpty) {
-//       String documentId = querySnapshot.docs.first.id;
-//       final subcollectionRef = _chatCollection.doc(documentId).collection('messages');
-//       final snapshot = await subcollectionRef.get();
-//       return snapshot.docs.map((doc) => Chat.fromMap(doc.data() as Map<String, dynamic>)).toList();
-//     } else {
-//       final querySnapshot2 = await query2.get();
-//       if (querySnapshot2.docs.isNotEmpty) {
-//         String documentId = querySnapshot2.docs.first.id;
-//         final subcollectionRef = _chatCollection.doc(documentId).collection('messages');
-//         final snapshot = await subcollectionRef.get();
-//         return snapshot.docs.map((doc) => Chat.fromMap(doc.data() as Map<String, dynamic>)).toList();
-//       } else {
-//         return [];
-//       }
-//     }
-//   }
-
-
-// Stream<List<String>> getChatsStream(String userId) {
-//   final query = _chatCollection
-//       .where('user1', isEqualTo: userId)
-//       .limit(1);
-
-//   final query2 = _chatCollection
-//       .where('user2', isEqualTo: userId)
-//       .limit(1);
-
-//   return query.snapshots().asyncMap<List<String>>((querySnapshot) async {
-//     if (querySnapshot.docs.isNotEmpty) {
-//       String documentId = querySnapshot.docs.first.get('user2');
-//       return [documentId];
-//     } else {
-//       final querySnapshot2 = await query2.get();
-//       if (querySnapshot2.docs.isNotEmpty) {
-//         String documentId = querySnapshot2.docs.first.get('user1');
-//         return [documentId];
-//       } else {
-//         return [];
-//       }
-//     }
-//   });
-// }
-// }
-
-
-
-
-
-
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:devotionals/providers/chats.dart';
 import 'package:devotionals/utils/models/chat.dart';
 
 class ChatService {
-  final DatabaseReference _chatReference =
-      FirebaseDatabase.instance.ref().child('chats');
-
+  final DatabaseReference _chatReference = FirebaseDatabase.instance.ref().child('chats');
   final DatabaseReference _buddiesRef = FirebaseDatabase.instance.ref().child('buddies');
 
   Future<void> updateBuddiesLastChat(String userId, String buddyId, Chat lastChat) async {
@@ -144,7 +20,7 @@ class ChatService {
   Stream<List<Map<String, dynamic>>> listenForNewBuddies(String userId) {
     final buddiesRef = _buddiesRef.child(userId);
 
-    return buddiesRef.onValue.map<List<Map<String, dynamic>>>((event) {
+    final buds = buddiesRef.onValue.map<List<Map<String, dynamic>>>((event) {
       DataSnapshot snapshot = event.snapshot;
 
       if (snapshot.value != null) {
@@ -152,23 +28,31 @@ class ChatService {
         Map _data = Map.from(__data);
         List<Map<String, dynamic>> data = [];
         
+        
         for (var l in _data.values.toList()) {
           data.add(
             Map<String, dynamic>.from(l),
           );
         }
         
-        return data.map((e) => {
+        final d = data.map((e) => {
           'buddyId': e['buddyId'],
           'chat':Chat.fromMap(
             {
               'timestamp': e['timestamp'],
               'text': e['text'],
-              'senderId': e['senderId']
+              'senderId': e['senderId'],
+              'isSeen':e['isSeen']??true,
+              'isReply': e.containsKey('isReply') && e['isReply'] != null?Map<String, dynamic>.from(e['isReply']):null,
+              'id':e['id']??e['timestamp'].toString()+e['senderId'],
+
             }
           )
         }
         ).toList();
+
+
+        return d;
 
       }
 
@@ -176,6 +60,8 @@ class ChatService {
    }
    
    );
+
+   return buds;
   }
 
 
@@ -195,6 +81,9 @@ class ChatService {
             'text': chat.text,
             'senderId': chat.senderId,
             'timestamp': ServerValue.timestamp,
+            'isReply':chat.isReply?.toMap(),
+            'isSeen':chat.isSeen,
+            'id':chat.id
           });
     } else {
       // If no matching document is found, create a new document and add the chat
@@ -209,10 +98,15 @@ class ChatService {
         'text': chat.text,
         'senderId': chat.senderId,
         'timestamp': ServerValue.timestamp,
+        'isReply':chat.isReply?.toMap(),
+        'isSeen':chat.isSeen,
+        'id':chat.id
       });
-
       print('Chat document created with ID: ${newChatRef.key}');
     }
+
+    await updateBuddiesLastChat(user1, user2, chat);
+    await updateBuddiesLastChat(user2, user1, chat);                                                  
   }
 
   Stream<List<Chat>> getChats(String user1, String user2) {
@@ -230,6 +124,8 @@ class ChatService {
         List<Map<String, dynamic>> data = [];
         
         for (var l in _data.values.toList()) {
+          final k = l.containsKey('isReply') && l['isReply'] != null? Map.from(l['isReply']):null;
+          l['isReply'] = k!=null? Map<String, dynamic>.from(k):null;
           data.add(
             Map<String, dynamic>.from(l),
           );

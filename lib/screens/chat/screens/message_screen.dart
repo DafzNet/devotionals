@@ -1,9 +1,14 @@
 // import 'package:chat_bubbles/bubbles/bubble_special_two.dart';
+import 'dart:async';
+import 'package:devotionals/dbs/sembast/userdb.dart';
+import 'package:swipe_to/swipe_to.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
+import 'package:devotionals/dbs/sembast/generic.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/firebase/dbs/messages.dart';
 import 'package:devotionals/utils/constants/colors.dart';
 import 'package:devotionals/utils/models/chat.dart';
+import 'package:devotionals/utils/widgets/images/cached_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -12,10 +17,10 @@ import '../../../utils/models/models.dart';
 
 class MessageDisplayScreen extends StatefulWidget {
 
-  final User user;
+  final User buddy;
   final String curUser;
   const MessageDisplayScreen({
-    required this.user,
+    required this.buddy,
     required this.curUser,
       super.key
     });
@@ -28,6 +33,8 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
 
   final ChatService _chatService = ChatService();
   final messageController = TextEditingController();
+  Chat? _replyingChat;
+  bool autoFocus = false;
 
 
 
@@ -57,6 +64,52 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
     return weekdayNames[dateTime.weekday - 1];
   }
 
+  final _store = DataStore('buddy_chats');
+  final _controller = StreamController<List<Chat>>.broadcast();
+  List<Chat>? _cahedChats = [];
+
+   void _cacheChats(List<Chat> chats)async{
+      final myChats = chats.map((e) => e.toMap()).toList();
+      await _store.insertList(widget.curUser+widget.buddy.userID, myChats);
+   }
+
+   void _getBuddyChat() async {
+    final _chats = await _store.getList(widget.curUser+widget.buddy.userID);
+    _cahedChats = _chats!.map((e) => Chat.fromMap(e)).toList();
+
+    // _controller.add(_cahedChats!); // Add the initial data to the stream
+  }
+
+  @override
+  void initState() {
+    _getBuddyChat();
+    _getUser();
+    _controller.addStream(ChatService().getChats(widget.curUser, widget.buddy.userID),);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.close();
+    super.dispose();
+  }
+
+
+  User? _me;
+
+  _getUser()async{
+    if (await UserRepo().containsKey(widget.curUser)){
+      _me = await UserRepo().get(widget.curUser);
+    }else{
+      _me = await UserService().getUser(widget.curUser);
+      await UserRepo().insert(_me!);
+    }
+    setState(() {
+      
+    });
+
+  }
+
 
 
   @override
@@ -67,20 +120,26 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 70,
+        leadingWidth: 28,
 
         systemOverlayStyle: const SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
             statusBarIconBrightness: Brightness.dark
           ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.user.firstName+' '+widget.user.lastName
+        title: ListTile(
+          leading: SizedBox(
+          width: 40,
+          height: 40,
+          child: ClipOval(
+            child: CachedNetworkImage(imageUrl: widget.buddy.photoUrl),
             ),
+          ),
+          title: Text(
+            widget.buddy.firstName+' '+widget.buddy.lastName
+          ),
 
-            StreamBuilder(
-              stream: UserService().getIsTyping(widget.curUser, widget.user.userID),
+          subtitle: StreamBuilder(
+              stream: UserService().getIsTyping(widget.curUser, widget.buddy.userID),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Container();
@@ -92,7 +151,7 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
                     color: cricColor,
                   )
                 ):Text(
-                  'department: '+widget.user.department.toString(),
+                  'department: '+widget.buddy.department.toString(),
                   style: TextStyle(
                     fontSize: 12,
                     color: cricColor,
@@ -100,12 +159,13 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
                 ) ;
               }
             ),
-          ],
+
+
         ),
 
         actions: [
           StreamBuilder(
-            stream: UserService().getPresence(widget.user.userID),
+            stream: UserService().getPresence(widget.buddy.userID),
             builder: (context, snapshot) {
               return snapshot.data ==true? Icon(
                 MdiIcons.circle,
@@ -131,7 +191,8 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 5, left: 1, right: 1),
                 child: StreamBuilder(
-                  stream: ChatService().getChats(widget.curUser, widget.user.userID),
+                  stream: _controller.stream,
+                  initialData: _cahedChats,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
@@ -145,6 +206,8 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
                         }
                       );
 
+                      _cacheChats(chatMessages);
+
                       return ListView.builder(
                         reverse: true,
                         itemCount: chatMessages.length,
@@ -157,11 +220,78 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
                           
                           return Column(
                             children: [
-                              BubbleSpecialTwo(
-                                text: chat.text,
-                                isSender: chat.senderId == widget.curUser,
-                                tail: chatP != chat && chatP.senderId == widget.curUser,
-                                color: chat.senderId == widget.curUser?cricColor.shade200:cricColor.shade100,
+                              SwipeTo(
+                                onRightSwipe: (details) {
+                                  if (chat.senderId == widget.buddy.userID) {
+                                    autoFocus = true;
+                                    _replyingChat = chat;
+
+                                    setState(() {
+                                      
+                                    });
+                                  }
+                                },
+
+                                onLeftSwipe: (details) {
+                                  if (chat.senderId == widget.curUser) {
+                                    autoFocus = true;
+                                    _replyingChat = chat;
+
+                                    setState(() {
+                                      
+                                    });
+                                  }
+                                },
+                                child: Column(
+
+                                  children: [
+                                    if(chat.isReply != null)...[
+                                      Container(
+                                        padding: EdgeInsets.all(2),
+                                        decoration: BoxDecoration(
+                                          color: Color.fromARGB(255, 255, 255, 255),
+                                          border: Border(
+                                            right: BorderSide(color: cricColor, width: 3)),
+                                          // borderRadius: BorderRadius.circular(10)
+                                        ),
+                                                          
+                                        child: Row(
+
+                                          children: [
+                                            
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  chat.isReply?.senderId == widget.curUser?'You':widget.buddy.firstName,
+                                                  maxLines: 3,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 70, 15, 182))
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                  chat.isReply!.text,
+                                                  maxLines: 3,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                    BubbleSpecialTwo(
+                                      text: chat.text,
+                                      isSender: chat.senderId == widget.curUser,
+                                      tail: chatP.senderId != chat.senderId,
+                                      color: chat.senderId == widget.curUser?cricColor.shade100:cricColor.shade50,
+                                      seen: chat.senderId == widget.curUser? chat.isSeen:false,
+                                      sent: chat.senderId == widget.curUser?true:false
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           );
@@ -174,94 +304,146 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
               ),
             ),
 
-      //////
-      ///Message Composer
-      ///
             Container(
               
-              color: cricColor.shade100,
-      
+              color: Color.fromARGB(17, 95, 94, 94),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Column(
                   children: [
-                    Flexible(
-                      flex: 1,
-                      fit: FlexFit.tight,
-                      child: IconButton(
+                    if(_replyingChat != null)...[
+                      Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            padding: EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              border: Border(
+                                right: BorderSide(color: cricColor, width: 3)),
+                              // borderRadius: BorderRadius.circular(10)
+                            ),
+                                              
+                            child: Row(
 
-                        onPressed: () {
-                          
-                        },
-                        icon: Icon(
-                          MdiIcons.plus
-                        ),
-                      ),
-                    ),
-                    
-                    Flexible(
-                      flex: 8,
-                      fit: FlexFit.tight,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(25)
-
-                        ),
-                        child: Focus(
-          
-                      onFocusChange: (focus){
-                        final _user = UserService();
-                        if(focus){
-                            _user.setIsTyping(widget.user.userID, widget.curUser,  true);
-                            
-                        }else{
-                          _user.setIsTyping(widget.user.userID, widget.curUser, false);
-                          
-                        }
-                      },
-                          child: TextField(
-                            textCapitalization: TextCapitalization.sentences,
-                            maxLines: 5,
-                            minLines: 1,
-                            controller: messageController,
-                            
-                            decoration: InputDecoration.collapsed(
-                              hintText: 'Type message',
-                              
+                              children: [
+                                
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _replyingChat!.senderId == widget.curUser?'You':widget.buddy.firstName,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 70, 15, 182))
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                      _replyingChat!.text,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      ),
-                    ),
-              
-                    Flexible(
-                      flex: 1,
-                      fit: FlexFit.tight,
-                      child: IconButton(
-                        onPressed: (){
-                          final chat = Chat( 
-                            senderId: widget.curUser, 
-                            text: messageController.text
-                          );
+                      )
+                    ],
+                    Row(
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          fit: FlexFit.tight,
+                          child: IconButton(
 
-                            _chatService.createChatDocument(widget.curUser, widget.user.userID, chat);
-                            _chatService.updateBuddiesLastChat(widget.curUser, widget.user.userID, chat);
-                            messageController.text = '';
-
-                            // setState(() {
+                            onPressed: () {
                               
-                            // });
-                          
-                        },
-
-                        icon: Icon(
-                          MdiIcons.sendOutline
+                            },
+                            icon: Icon(
+                              MdiIcons.plus
+                            ),
+                          ),
                         ),
-                      ),
+                        
+                        Flexible(
+                          flex: 8,
+                          fit: FlexFit.tight,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(25)
+
+                            ),
+                            child: Focus(
+          
+                          onFocusChange: (focus){
+                            final _user = UserService();
+                            if(focus){
+                                _user.setIsTyping(widget.buddy.userID, widget.curUser,  true);
+                                
+                            }else{
+                              _user.setIsTyping(widget.buddy.userID, widget.curUser, false);
+                              
+                            }
+                          },
+                              child: TextField(
+                                onChanged: (value) {
+                                  setState(() {
+                                    
+                                  });
+                                },
+                                textCapitalization: TextCapitalization.sentences,
+                                maxLines: 5,
+                                minLines: 1,
+                                autofocus: autoFocus,
+                                controller: messageController,
+                                
+                                decoration: InputDecoration.collapsed(
+                                  hintText: 'Type message',
+                                  
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+              
+                        Flexible(
+                          flex: 1,
+                          fit: FlexFit.tight,
+                          child: IconButton(
+                            onPressed: messageController.text.trim().isEmpty?()async{}:  (){
+                              final chat = Chat( 
+                                senderId: widget.curUser, 
+                                text: messageController.text,
+                                isReply: _replyingChat,
+                                id: DateTime.now().millisecondsSinceEpoch.toString()
+                              );
+
+                                _chatService.createChatDocument(widget.curUser, widget.buddy.userID, chat);
+                                _chatService.updateBuddiesLastChat(widget.curUser, widget.buddy.userID, chat);
+                                messageController.text = '';
+                                _replyingChat = null;
+
+                                setState(() {
+                                  
+                                });
+                              
+                            },
+
+                            icon: Icon(
+                              messageController.text.trim().isEmpty? MdiIcons.microphone: MdiIcons.sendOutline
+                            ),
+                          ),
+                        ),
+                      ]
                     ),
-                  ]
+                  ],
                 ),
               ),
             )

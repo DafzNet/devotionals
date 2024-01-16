@@ -1,4 +1,5 @@
 
+import 'package:devotionals/dbs/sembast/userdb.dart';
 import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/firebase/file_storage.dart';
@@ -9,7 +10,6 @@ import 'package:devotionals/utils/widgets/images/cached_image.dart';
 import 'package:devotionals/utils/widgets/images/selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
 import 'screens/edit.dart';
@@ -29,12 +29,20 @@ class _ProfileState extends State<Profile> {
 
   User? _user;
 
-  void getUser()async{
-    _user = await UserService().getUser(widget.user);
-    setState(() {
-      
-    });
-  }
+
+    void getUser()async{
+      if (await UserRepo().containsKey(widget.user)) {
+        _user = await UserRepo().get(widget.user);
+        print('yes');
+      } else {
+        _user = await UserService().getUser(widget.user);
+        await UserRepo().insert(_user!);
+        print('no');
+      }
+      setState(() {
+        
+      });
+    }
 
 
   void _showPopupMenu(BuildContext context, Offset position) async {
@@ -53,7 +61,7 @@ class _ProfileState extends State<Profile> {
 
             
               if (_file != null) {
-                String? dl = await uploadFileToFirebaseStorage(_file, 'profile');
+                String? dl = await uploadFileToFirebaseStorage(_file, 'profile/${widget.user}');
                  dlink = dl;
                 final u = _user!.copyWith(
                   photoUrl: dl
@@ -89,7 +97,7 @@ class _ProfileState extends State<Profile> {
               final _file = await _imagePickerCrop.imgFromGallery();
 
               if (_file != null) {
-                String? dl = await uploadFileToFirebaseStorage(_file, 'profile');
+                String? dl = await uploadFileToFirebaseStorage(_file, 'profile/${widget.user}');
                  dlink = dl;
                 final u = _user!.copyWith(
                   photoUrl: dl

@@ -44,6 +44,7 @@ dependencies:
   hive: ^2.2.3
   marquee: ^2.2.3
   dio: ^5.4.0
+  swipe_to: ^1.0.5
 
 
 dev_dependencies:

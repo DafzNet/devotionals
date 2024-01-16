@@ -90,7 +90,7 @@ class _MediaScreenState extends State<MediaScreen> {
           headerSliverBuilder: (context, innerBoxIsScrolled) {
             return [
               SliverAppBar(
-                expandedHeight: 80.0,
+                expandedHeight: 70.0,
                 toolbarHeight: 10,
                 floating: false,
                 pinned: true,
@@ -104,9 +104,9 @@ class _MediaScreenState extends State<MediaScreen> {
                     fontSize: 16
                   ),
                   
-                  tabs: const [
+                  tabs: [
                     Tab(text: 'All'),
-                    Tab(text: 'Equip'),
+                    Tab(text: 'Equip', icon: Icon(Icons.sledding),),
                     Tab(text: 'FoHP'),
                     Tab(text: 'MoH'),
                     Tab(text: 'Audio'),
