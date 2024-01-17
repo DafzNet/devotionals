@@ -1,5 +1,6 @@
 // import 'package:chat_bubbles/bubbles/bubble_special_two.dart';
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:devotionals/dbs/sembast/userdb.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
@@ -8,7 +9,6 @@ import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/firebase/dbs/messages.dart';
 import 'package:devotionals/utils/constants/colors.dart';
 import 'package:devotionals/utils/models/chat.dart';
-import 'package:devotionals/utils/widgets/images/cached_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -110,6 +110,8 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
 
   }
 
+  final _replyFocus= FocusNode();
+
 
 
   @override
@@ -131,7 +133,7 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
           width: 40,
           height: 40,
           child: ClipOval(
-            child: CachedNetworkImage(imageUrl: widget.buddy.photoUrl),
+            child: CachedNetworkImage(imageUrl: widget.buddy.photoUrl??'https://www.freepik.com/icon/user_1177568#fromView=keyword&term=User&page=1&position=9&uuid=694cc40b-b89d-4277-bad4-f630ee961d26'),
             ),
           ),
           title: Text(
@@ -214,17 +216,26 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
                         itemBuilder: (context, index) {
                           Chat chat = chatMessages[index];
                           Chat chatP = index>0? chatMessages[index-1]:chatMessages[index];
+                        
 
-                          //DateTime dateTime = chat.timestamp!.toDate();
+                          
 
                           
                           return Column(
                             children: [
+                              if (chat.timestamp!.day != chatP.timestamp!.day)... [
+                                  DateChip(
+                                    date: chat.timestamp!,
+                                  )
+                              ],
                               SwipeTo(
+                                animationDuration: Duration(milliseconds: 300),
                                 onRightSwipe: (details) {
                                   if (chat.senderId == widget.buddy.userID) {
                                     autoFocus = true;
                                     _replyingChat = chat;
+
+                                    FocusScope.of(context).requestFocus(_replyFocus);
 
                                     setState(() {
                                       
@@ -236,6 +247,8 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
                                   if (chat.senderId == widget.curUser) {
                                     autoFocus = true;
                                     _replyingChat = chat;
+
+                                    FocusScope.of(context).requestFocus(_replyFocus);
 
                                     setState(() {
                                       
@@ -282,7 +295,7 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
                                         ),
                                       ),
                                     ],
-                                    BubbleSpecialTwo(
+                                    BubbleNormal(
                                       text: chat.text,
                                       isSender: chat.senderId == widget.curUser,
                                       tail: chatP.senderId != chat.senderId,
@@ -314,42 +327,60 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
                     if(_replyingChat != null)...[
                       Padding(
                         padding: const EdgeInsets.all(6.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: Container(
-                            padding: EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              border: Border(
-                                right: BorderSide(color: cricColor, width: 3)),
-                              // borderRadius: BorderRadius.circular(10)
-                            ),
-                                              
-                            child: Row(
-
-                              children: [
-                                
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      _replyingChat!.senderId == widget.curUser?'You':widget.buddy.firstName,
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 70, 15, 182))
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                      _replyingChat!.text,
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
+                        child: Container(
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            border: Border(
+                              right: BorderSide(color: cricColor, width: 3)),
+                            // borderRadius: BorderRadius.circular(10)
+                          ),
+                                            
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                right: 5,
+                                top: 1,
+                                child: InkWell(
+                                  onTap: () {
+                                    _replyingChat = null;
+                                    setState(() {
+                                      
+                                    });
+                                  },
+                                  child: Icon(
+                                    MdiIcons.close,
+                                    color: Colors.red,
+                                    size: 18,
+                                  ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              Row(
+                                
+                                children: [
+                                  
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _replyingChat!.senderId == widget.curUser?'You':widget.buddy.firstName,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 70, 15, 182))
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                        _replyingChat!.text,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       )
@@ -403,6 +434,7 @@ class _MessageDisplayScreenState extends State<MessageDisplayScreen> {
                                 minLines: 1,
                                 autofocus: autoFocus,
                                 controller: messageController,
+                                focusNode: _replyFocus,
                                 
                                 decoration: InputDecoration.collapsed(
                                   hintText: 'Type message',

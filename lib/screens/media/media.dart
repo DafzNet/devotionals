@@ -2,8 +2,6 @@ import 'dart:math';
 
 import 'package:devotionals/firebase/dbs/video.dart';
 import 'package:devotionals/screens/media/addvod.dart';
-import 'package:devotionals/screens/media/player.dart';
-import 'package:devotionals/services/youtube_services.dart';
 import 'package:devotionals/utils/constants/colors.dart';
 import 'package:devotionals/utils/models/vid.dart';
 import 'package:devotionals/utils/widgets/cards/video_card.dart';
@@ -85,7 +83,7 @@ class _MediaScreenState extends State<MediaScreen> {
       ),
 
       body: DefaultTabController(
-        length: 5, // Specify the number of tabs
+        length: 4, // Specify the number of tabs
         child: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) {
             return [
@@ -109,7 +107,7 @@ class _MediaScreenState extends State<MediaScreen> {
                     Tab(text: 'Equip', icon: Icon(Icons.sledding),),
                     Tab(text: 'FoHP'),
                     Tab(text: 'MoH'),
-                    Tab(text: 'Audio'),
+                    // Tab(text: 'Audio'),
                   ],
                 ),
               ),
@@ -178,9 +176,9 @@ class _MediaScreenState extends State<MediaScreen> {
                   ),
                 ),
 
-              Center(
-                child: Text('Tab 2 Content'),
-              ),
+              // AudioScreen()
+
+
             ],
           ),
         ),

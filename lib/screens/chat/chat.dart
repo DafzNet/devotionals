@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:devotionals/dbs/sembast/generic.dart';
 import 'package:devotionals/firebase/dbs/messages.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/utils/models/chat.dart';
 import 'package:devotionals/utils/models/models.dart';
-import 'package:devotionals/utils/widgets/images/cached_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -233,7 +233,7 @@ class _ConverseTileState extends State<ConverseTile> {
         width: 40,
         height: 40,
         child: ClipOval(
-          child: CachedNetworkImage(imageUrl: _user!.photoUrl),
+          child: CachedNetworkImage(imageUrl: _user!.photoUrl??'https://www.freepik.com/icon/user_1177568#fromView=keyword&term=User&page=1&position=9&uuid=694cc40b-b89d-4277-bad4-f630ee961d26'),
         ),
       ),
 

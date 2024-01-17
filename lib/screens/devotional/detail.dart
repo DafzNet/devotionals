@@ -217,7 +217,7 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
 
 
   double commentTextFieldHeight = 0;
-  bool autoFocus = false;
+  final _commentFocus = FocusNode();
   final commentController = TextEditingController();
   CommentModel? replyingComment;
 
@@ -889,7 +889,6 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                     uid: widget.uid,
                                     onReply: (){
                                       commentTextFieldHeight = 70;
-                                      autoFocus = true;
                                       replyingComment = _comments[index];
 
                                       setState(() {
@@ -1028,8 +1027,7 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                     commentTextFieldHeight = 70;
                                     
 
-                                    await Future.delayed(Duration(milliseconds: 500), (){});
-                                    autoFocus = true;
+                                    FocusScope.of(context).requestFocus(_commentFocus);
 
                                     setState(() {
                                       
@@ -1130,7 +1128,6 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                     if(focus){
                       setState(() {
                         commentTextFieldHeight = 70;
-                        autoFocus = true;
                       });
                     }else{
                       
@@ -1163,7 +1160,7 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                   textCapitalization: TextCapitalization.sentences,
                                   maxLines: 3,
                                   minLines: 2,
-                                  autofocus: autoFocus,
+                                  focusNode: _commentFocus,
                                   autocorrect: true,
                                   controller: commentController,
                                   
@@ -1181,7 +1178,6 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                           IconButton(
                             onPressed:()async{
                               commentTextFieldHeight = 0;
-                              autoFocus = false;
                               setState(() {
                                 
                               });

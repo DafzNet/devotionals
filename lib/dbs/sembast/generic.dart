@@ -20,6 +20,8 @@ class DataStore {
     }
   }
 
+  void closeI()async{await initDatabase().then((value) => value.close());}
+
   Future<Database> initDatabase() async {
     final appDocumentDir = await getApplicationDocumentsDirectory();
     final dbPath = join(appDocumentDir.path, 'cric_sembast.db');

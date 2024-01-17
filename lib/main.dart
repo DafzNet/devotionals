@@ -1,5 +1,7 @@
 import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
+import 'package:devotionals/screens/media/audio/services/manager.dart';
+import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:devotionals/screens/wrapper.dart';
 import 'package:devotionals/utils/constants/db_consts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,14 +11,20 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'utils/theme/theme.dart';
+import 'package:get_it/get_it.dart'; // Replace with the actual file name
+
+final GetIt getIt = GetIt.instance;
+
+void setupLocator() {
+  getIt.registerLazySingleton<AudioManager>(() => AudioManager());
+  getIt.registerLazySingleton<Playing>(() => Playing());
+}
+
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  await Hive.openBox('users');
-  await Hive.openBox(videoIdsBox);
-  await Hive.openBox('buddies');
-
+  setupLocator();
+ 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
 );

@@ -1,32 +1,26 @@
-import 'package:devotionals/screens/media/player.dart';
-import 'package:devotionals/utils/constants/db_consts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:devotionals/dbs/sembast/generic.dart';
 import 'package:devotionals/utils/models/vid.dart';
-import 'package:devotionals/utils/widgets/images/cached_image.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
-import 'package:card_loading/card_loading.dart';
 
 class VideoCard extends StatefulWidget {
   final String videoId;
   final List<VideoData> vids;
+
   const VideoCard({
     required this.videoId,
-    required this.vids,
-    super.key});
+    required this.vids
+  });
 
   @override
   State<VideoCard> createState() => _VideoCardState();
 }
 
 class _VideoCardState extends State<VideoCard> {
-// https://www.youtube.com/watch?v=${vids[index]}
-
-
 
   var yt = YoutubeExplode();
+  final _store = DataStore('videos');
 
   String formatDuration(int seconds) {
     Duration duration = Duration(seconds: seconds);
@@ -41,213 +35,142 @@ class _VideoCardState extends State<VideoCard> {
     return '$hoursString:$minutesString:$secondsString';
   }
 
+  Map<String, dynamic>? _video;
+
+  void _getVideoFromBox()async{
+    if (await _store.containsKey(widget.videoId)) {
+      _video = await _store.get(widget.videoId);
+    } else {
+      _video = null;
+    }
+
+    setState(() {
+      
+    });
+  }
 
   @override
   void initState() {
+    _getVideoFromBox();
     super.initState();
   }
 
   @override
+  void dispose() {
+    _store.closeI();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    bool present = Hive.box(videoIdsBox).containsKey(widget.videoId);
-
-    return !present ? Container(
-      child: FutureBuilder(
-        future: yt.videos.get('https://www.youtube.com/watch?v=${widget.videoId}'), 
-        builder: (context, snapshot){
-          if (snapshot.hasError || snapshot.connectionState == ConnectionState.waiting) {
-            return CardLoading(
-              height: 200,
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              margin: EdgeInsets.only(bottom: 10),
-            );
+    return _video == null? FutureBuilder(
+      future: yt.videos.get('https://www.youtube.com/watch?v=${widget.videoId}'),
+      builder: (context, snapshot) {
+        if (snapshot.hasError || snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+        final data = snapshot.data;
+        _store.insert(widget.videoId,
+          {
+            'title': data!.title,
+            'thumbNail':data.thumbnails.mediumResUrl, 
+            'duration':data.duration!.inSeconds,
+            'author':data.author
           }
-
-          final data = snapshot.data;
-          Hive.box(videoIdsBox).put(widget.videoId, {'title': data!.title, 'thumbNail':data.thumbnails.mediumResUrl, 'duration':data.duration!.inSeconds
-          
-          
-          });
-
-          return GestureDetector(
-            onTap: () {
-                  Navigator.push(context,
-                  PageTransition(child: PlayerScreen(videoId: widget.videoId, vids: widget.vids, title: data.title,), type: PageTransitionType.fade));
-                },
-            child: Column(
-              children: [
-                Stack(
-                  children: [
-                    AspectRatio(
-                      aspectRatio: 16/9,
-                      child: SizedBox(width: MediaQuery.sizeOf(context).width, child: CachedNetworkImage(imageUrl: data.thumbnails.mediumResUrl)),
-                      // child: Image.network(
-                      //   data.thumbnails.mediumResUrl,
-                      //   fit: BoxFit.cover,
-                      // ),
-                    ),
-
-                    Positioned(
-                      bottom: 5,
-                      left: 8,
-
-                      child: Container(
-                        color: Color.fromARGB(110, 0, 0, 0),
-                        child: SizedBox(
-                          width: MediaQuery.sizeOf(context).width-26,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.all(Radius.circular(10))
-                              ),
-                              child: Icon(Icons.play_arrow_outlined)),
-                                              
-                            Container(
-                              width: 250,
-                              height: 5,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.all(Radius.circular(4))
-                              ),),
-                                              
-                              Container(
-                              padding: EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.all(Radius.circular(10))
-                              ),
-                              child: Text(formatDuration(data.duration!.inSeconds))),
-                          ],
-                                            ),
-                        ),
-                      ))
-                  ],
-                ),
-          
-                Row(
-                  children: [
-                    IconButton(
-                      iconSize: 15,
-                      padding: EdgeInsets.symmetric(vertical: 1),
-                      onPressed: (){
-
-                      }, 
-                      icon: Icon(MdiIcons.heart)),
-
-                    Expanded(child: Text(
-                      data.title,
-
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold
-                      ),
-                    ))
-                  ],
-                ),
-
-                SizedBox(height: 5,),
-              ]
-            ),
-          );
-        }),
-    )
-    :
-    GestureDetector(
-      onTap: () {
-            Navigator.push(context,
-            PageTransition(child: PlayerScreen(videoId: widget.videoId, vids: widget.vids, title: Hive.box(videoIdsBox).get(widget.videoId)['title'],), type: PageTransitionType.fade));
-          },
-      child: Column(
-        children: [
-          Stack(
+        );
+        return Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey[900],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 6,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AspectRatio(
-                aspectRatio: 16/9,
-                child: CachedNetworkImage(
-                  fit: BoxFit.cover
-                  
-                  ,
-                  imageUrl: Hive.box(videoIdsBox).get(widget.videoId)['thumbNail'],
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  image: DecorationImage(
+                    image: CachedNetworkImageProvider(data.thumbnails.mediumResUrl),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-
-              Positioned(
-                bottom: 5,
-                left: 8,
-
-                child: Container(
-                  color: Color.fromARGB(110, 0, 0, 0),
-                  child: SizedBox(
-                    width: MediaQuery.sizeOf(context).width-26,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                        ),
-                        child: Icon(Icons.play_arrow_outlined)),
-                                        
-                      Container(
-                        width: 250,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(4))
-                        ),),
-                                        
-                        Container(
-                        padding: EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                        ),
-                        child: Text(formatDuration(Hive.box(videoIdsBox).get(widget.videoId)['duration'],))),
-                    ],
-                                      ),
-                  ),
-                ))
-            ],
-          ),
-    
-          SizedBox(height: 2,),
-    
-          Row(
-            children: [
-              IconButton(
-                iconSize: 20,
-                padding: EdgeInsets.symmetric(vertical: 1),
-                onPressed: (){
-
-                }, 
-                icon: Icon(MdiIcons.heart)),
-
-              Expanded(child: Text(
-                Hive.box(videoIdsBox).get(widget.videoId)['title'],
-
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-
+              SizedBox(height: 16),
+              Text(
+                data.title,
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
-              ))
+              ),
+              SizedBox(height: 4),
+              Text(
+                'by ${data.author} • ${formatDuration(data.duration!.inSeconds)}',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                ),
+              ),
             ],
           ),
-
-          SizedBox(height: 5,),
-        ]
-      ),
-    );
+        );
+      }
+    ):Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey[900],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 6,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  image: DecorationImage(
+                    image: CachedNetworkImageProvider(_video!['thumbNail']),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                _video!['title'],
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                'by ${_video!['author']} • ${formatDuration(_video!['duration'])}',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        )
+    ;
   }
 }

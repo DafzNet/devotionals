@@ -11,7 +11,7 @@ dependencies:
   google_fonts: ^6.1.0
   csv: ^5.1.1
   page_transition: ^2.1.0
-  intl: ^0.19.0
+  intl: ^0.18.1
   material_design_icons_flutter: ^7.0.7296
   palette_generator: ^0.3.3+3
   faker: ^2.1.0
@@ -28,7 +28,7 @@ dependencies:
   shared_preferences: ^2.2.2
   step_progress_indicator: ^1.0.2
   loading_animation_widget: ^1.2.0+4
-  chat_bubbles: ^0.8.1
+  chat_bubbles: ^1.5.0
   sembast: ^3.5.0+1
   path_provider: ^2.1.1
   path: ^1.8.3
@@ -45,6 +45,11 @@ dependencies:
   marquee: ^2.2.3
   dio: ^5.4.0
   swipe_to: ^1.0.5
+  audio_service: ^0.18.12
+  just_audio: ^0.9.36
+  podcast_search: ^0.6.3
+  cached_network_image: ^3.3.1
+  get_it: ^7.6.6
 
 
 dev_dependencies:

@@ -1,8 +1,8 @@
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/chat/screens/message_screen.dart';
 import 'package:devotionals/utils/constants/colors.dart';
-import 'package:devotionals/utils/widgets/images/cached_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -103,7 +103,7 @@ class _BuddyListState extends State<BuddyList> {
                       width: 40,
                       height: 40,
                       child: ClipOval(
-                        child: FittedBox(child: CachedNetworkImage(imageUrl: user.photoUrl)),
+                        child: FittedBox(child: CachedNetworkImage(imageUrl: user.photoUrl??'https://www.freepik.com/icon/user_1177568#fromView=keyword&term=User&page=1&position=9&uuid=694cc40b-b89d-4277-bad4-f630ee961d26')),
                       ),
                     ),
                   ):Container();

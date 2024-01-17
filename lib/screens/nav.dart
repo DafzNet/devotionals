@@ -1,12 +1,19 @@
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/chat/chat.dart';
+import 'package:devotionals/screens/media/audio/miniplayer.dart';
+import 'package:devotionals/screens/media/audio/pods.dart';
+import 'package:devotionals/screens/media/audio/services/manager.dart';
+import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:devotionals/screens/media/media.dart';
 import 'package:devotionals/screens/profile/profile.dart';
-import 'package:devotionals/utils/models/models.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:podcast_search/podcast_search.dart';
 import '../utils/constants/constants.dart';
 import 'home/home.dart';
+
+final GetIt getIt = GetIt.instance;
 
 
 class AppBaseNavigation extends StatefulWidget {
@@ -60,31 +67,47 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
 
   final pageController = PageController();
 
+  final Playing _playing = getIt<Playing>();
+  final AudioManager audioManager = getIt<AudioManager>();
+
   @override
   void initState() {
     _pages = [
     HomeScreen(uid: widget.uid,),
     ChatScreen(uid: widget.uid,),
+    AudioScreen(),
     MediaScreen(),
     Profile(user: widget.uid),
   ];
     super.initState();
     WidgetsBinding.instance.addObserver(this);
   }
-  
+   Episode? _episode;
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
 
-      body: PageView(
-        controller: pageController,
-        onPageChanged: (int value){
-          setState(() {
-            _currentIndex = value;
-          });
-        },
-        children: _pages,
+      body: Column(
+        children: [
+          Expanded(
+            child: PageView(
+              controller: pageController,
+              onPageChanged: (int value){
+                setState(() {
+                  _currentIndex = value;
+                });
+              },
+              children: _pages,
+            ),
+          ),
+
+          if(_playing.currentEpisode != null && audioManager.isPlaying)...[
+            MiniAudioPlayer(episode: _playing.currentEpisode)
+          ]
+
+          
+        ],
       ),
 
       bottomNavigationBar: BottomNavigationBar(
@@ -140,6 +163,19 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
           ),
 
 
+          BottomNavigationBarItem(
+            icon: Icon(
+              MdiIcons.music
+            ),
+      
+            activeIcon: Icon(
+              MdiIcons.music
+            ),
+      
+            label: 'Audio'
+          ),
+
+
           /////Chat
           BottomNavigationBarItem(
             icon: Icon(
@@ -150,7 +186,7 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
               MdiIcons.playBoxMultiple
             ),
       
-            label: 'Messages'
+            label: 'Videos'
           ),
 
           BottomNavigationBarItem(

@@ -1,11 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:devotionals/dbs/sembast/userdb.dart';
 import 'package:devotionals/firebase/dbs/devs.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/utils/models/comment.dart';
 import 'package:devotionals/utils/models/devotional.dart';
 import 'package:devotionals/utils/models/user.dart';
-import 'package:devotionals/utils/widgets/images/cached_image.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -52,13 +52,15 @@ class _CommentCardState extends State<CommentCard> {
     }
   }
 
+  final _store = UserRepo();
+
   User? _user;
   void _getUser()async{
-    if (Hive.box('users').containsKey(widget.comment.user.userID)) {
-      _user = User.fromMap(Hive.box('users').get(widget.comment.user.userID));
+    if (await _store.containsKey(widget.comment.user.userID)) {
+      _user = await _store.get(widget.comment.user.userID);
     } else {
       _user = await UserService().getUser(widget.comment.user.userID);
-      Hive.box('users').put(_user!.userID, _user!.toMap());
+      _store.insert(_user!);
     }
 
     setState(() {
@@ -93,7 +95,7 @@ class _CommentCardState extends State<CommentCard> {
                   child: SizedBox(
                     height: 30,
                     width: 30,
-                    child: CachedNetworkImage(imageUrl: _user!=null ?_user!.photoUrl! : widget.comment.user.photoUrl!),
+                    child: CachedNetworkImage(imageUrl: _user!.photoUrl??''),
                   ),
                 ),
               ),
