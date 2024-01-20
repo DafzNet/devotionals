@@ -13,7 +13,7 @@ import 'package:podcast_search/podcast_search.dart';
 import '../utils/constants/constants.dart';
 import 'home/home.dart';
 
-final GetIt getIt = GetIt.instance;
+
 
 
 class AppBaseNavigation extends StatefulWidget {
@@ -66,9 +66,7 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
   }
 
   final pageController = PageController();
-
-  final Playing _playing = getIt<Playing>();
-  final AudioManager audioManager = getIt<AudioManager>();
+  
 
   @override
   void initState() {
@@ -88,26 +86,14 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
 
     return Scaffold(
 
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView(
-              controller: pageController,
-              onPageChanged: (int value){
-                setState(() {
-                  _currentIndex = value;
-                });
-              },
-              children: _pages,
-            ),
-          ),
-
-          if(_playing.currentEpisode != null && audioManager.isPlaying)...[
-            MiniAudioPlayer(episode: _playing.currentEpisode)
-          ]
-
-          
-        ],
+      body: PageView(
+        controller: pageController,
+        onPageChanged: (int value){
+          setState(() {
+            _currentIndex = value;
+          });
+        },
+        children: _pages,
       ),
 
       bottomNavigationBar: BottomNavigationBar(

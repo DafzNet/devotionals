@@ -15,12 +15,10 @@ class ClickableText extends StatelessWidget {
 
   ClickableText({
     this.defaultTextStyle = const TextStyle(
-      fontSize: 15,
       height: 1.8,
       color: Colors.black
     ),
     this.matchTextStyle = const TextStyle(
-      fontSize: 15,
       height: 1.8,
       color: Colors.blue,
       decoration: TextDecoration.underline,

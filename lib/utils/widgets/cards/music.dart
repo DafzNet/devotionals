@@ -3,15 +3,15 @@ import 'package:devotionals/screens/media/audio/services/manager.dart';
 import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:marquee/marquee.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:podcast_search/podcast_search.dart';
-
 
 final GetIt getIt = GetIt.instance;
 class MusicPlayerTile extends StatefulWidget {
-// final Episode episode;
+final bool play;
   const MusicPlayerTile(
-    // required this.episode
+    this.play
   );
   @override
   State<MusicPlayerTile> createState() => _MusicPlayerTileState();
@@ -22,7 +22,8 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
   final Playing _playing = getIt<Playing>();
 
   void play()async{
-    await audioManager.play(_playing.currentEpisode!.contentUrl!);
+    if (widget.play){await audioManager.play(_playing.currentEpisode!);} 
+    
     setState(() {
       
     });
@@ -35,7 +36,8 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
     return '$twoDigitMinutes:$twoDigitSeconds';
   }
 
-  var _audioPlayer;
+  late AudioPlayer _audioPlayer;
+  bool _isBuffering = true;
 
   @override
   @override
@@ -43,12 +45,25 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
     play();
     _audioPlayer = audioManager.audioPlayer;
 
+    _audioPlayer.playerStateStream.listen((event) {
+      if (event.playing) {
+        _isBuffering = false;
+      } else {
+        switch (event.processingState) {
+          case ProcessingState.idle: _isBuffering = false;
+          case ProcessingState.loading: _isBuffering = true;
+          case ProcessingState.buffering: _isBuffering = true;
+          case ProcessingState.ready: _isBuffering = false;
+          case ProcessingState.completed: _isBuffering = false;
+        }
+      }
+    });
+
     _audioPlayer.positionStream.listen((Duration position) {
       setState(() {
         
       });
     });
-
 
     super.initState();
   }
@@ -58,6 +73,21 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: Icon(Icons.favorite_outline, color: Colors.white,),
+            onPressed: () {
+              // Handle add to playlist
+            },
+          ),
+
+          IconButton(
+            icon: Icon(MdiIcons.dotsVertical, color: Colors.white,),
+            onPressed: () {
+              // Handle add to playlist
+            },
+          ),
+        ],
         backgroundColor: Colors.black,
         automaticallyImplyLeading: false,
         leading: IconButton(
@@ -84,29 +114,68 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
           children: [
             
             Expanded(
-              child: Center(
-                child: ClipOval(
-                  child: Container(
-                    height: MediaQuery.sizeOf(context).width-100,
-                    width: MediaQuery.sizeOf(context).width-100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: DecorationImage(
-                        image: CachedNetworkImageProvider(_playing.currentEpisode!.imageUrl!),
-                        fit: BoxFit.cover,
+              child: Stack(
+                children: [
+
+                  Center(
+                    child: ClipOval(
+                      child: Container(
+                        height: MediaQuery.sizeOf(context).width-100,
+                        width: MediaQuery.sizeOf(context).width-100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          image: DecorationImage(
+                            image: CachedNetworkImageProvider(_playing.currentEpisode!.episodeImage!),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
-            Text(
-              _playing.currentEpisode!.title,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  width: MediaQuery.sizeOf(context).width-60,
+                  height: 30,
+                  child: Marquee(
+                      text: _playing.currentEpisode!.title,
+                      style: TextStyle(fontSize: 24.0),
+                      scrollAxis: Axis.horizontal,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      blankSpace: 20.0,
+                      velocity: 50.0,
+                      pauseAfterRound: Duration(seconds: 1),
+                      startPadding: 10.0,
+                      accelerationDuration: Duration(seconds: 1),
+                      accelerationCurve: Curves.linear,
+                      decelerationDuration: Duration(milliseconds: 500),
+                      decelerationCurve: Curves.easeOut,
+                    ),
+                ),
+                Expanded(
+                  child: Text(
+                    _playing.currentEpisode!.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                IconButton(
+                  icon: Icon(Icons.playlist_play_outlined, color: Colors.white,),
+                  onPressed: () {
+                    // Handle add to playlist
+                  },
+                ),
+              ],
             ),
             SizedBox(height: 8),
             Text(
@@ -156,6 +225,12 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
+                icon: Icon(Icons.repeat_one),
+                onPressed: () {
+                  // Handle repeat toggle
+                },
+              ),
+                IconButton(
                   onPressed: () {},
                   icon: Icon(
                     Icons.skip_previous,
@@ -188,8 +263,17 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
                     size: 36,
                   ),
                 ),
+
+                IconButton(
+                icon: Icon(Icons.loop),
+                onPressed: () {
+                  // Handle loop toggle
+                },
+              ),
               ],
             ),
+
+            SizedBox(height: 30,)
             
           ],
         ),

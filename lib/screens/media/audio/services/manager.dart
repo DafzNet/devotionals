@@ -1,3 +1,4 @@
+import 'package:devotionals/screens/media/audio/services/audio.dart';
 import 'package:just_audio/just_audio.dart';
 
 class AudioManager {
@@ -5,6 +6,7 @@ class AudioManager {
   bool isPlaying = false;
   bool isPaused = false;
 
+  List<Episode> _playList = [];
 
   late AudioPlayer _audioPlayer;
 
@@ -29,10 +31,35 @@ class AudioManager {
     });
   }
 
+  var myplaylist = ConcatenatingAudioSource(
+    useLazyPreparation: true,
+    shuffleOrder: DefaultShuffleOrder(),
+    children: []
+  );
 
 
-  Future<void> play(String url) async {
-    await _audioPlayer.setUrl(url);
+  List<Episode> get playlist => _playList;
+
+  set playlist(List<Episode> newPlaylist) {
+    _playList = newPlaylist;
+    myplaylist = ConcatenatingAudioSource(
+      useLazyPreparation: true,
+      shuffleOrder: DefaultShuffleOrder(),
+      children: _playList.map((e) => AudioSource.uri(Uri.parse(e.audioUrl))).toList(),
+    );
+  }
+
+
+
+  Future<void> play(Episode episode) async {
+    int? _init;
+    for (var element in _playList) {
+      if (element == episode) {
+       _init = _playList.indexOf(element);
+      }
+    }
+
+    _audioPlayer.setAudioSource(myplaylist, initialIndex: _init, initialPosition: Duration.zero);
     isPlaying = true;
     isPaused = false;
     await _audioPlayer.play();
@@ -63,17 +90,11 @@ class AudioManager {
   }
 
   Future<void> next() async {
-    // Implement logic to play the next song
-    // For simplicity, you can stop the current song and play a new one.
-    // You may want to implement a playlist or track index management based on your requirements.
-    await stop(); 
-    // Play the next song, replace 'https://example.com/next_song.mp3' with the actual URL.
-    await play('https://example.com/next_song.mp3');
+    await _audioPlayer.seekToNext();
   }
 
   Future<void> previous() async {
-    await stop();
-    await play('https://example.com/prev_song.mp3');
+    await _audioPlayer.seekToPrevious();
   }
 
   Duration get totalDuration => _audioPlayer.duration ?? Duration.zero;
@@ -82,7 +103,6 @@ class AudioManager {
 
   AudioPlayer get audioPlayer => _audioPlayer;
 
-  // Add a method to release resources when the AudioManager is no longer needed
   Future<void> dispose() async {
     await _audioPlayer.dispose();
   }

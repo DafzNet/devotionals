@@ -38,7 +38,6 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
 
   final  ScrollController _scrollController = ScrollController();
   bool _isTitleVisible = false;
-  double devotionalFontSize = 14;
   Color bgColor = Colors.white;
   Color fontColor = Colors.black;
 
@@ -252,188 +251,7 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                       color: _isPlaying? Colors.redAccent:cricColor
                     )
                   ),
-                  IconButton(
-                    onPressed: ()async{
-                      await showModalBottomSheet(
-                        context: context, 
-                        builder: (ctx){
-                          return Container(
-                            padding: const EdgeInsets.all(15),
-                            height: MediaQuery.of(context).size.height/2.5,
-                            decoration: const BoxDecoration(
-      
-                            ),
-      
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      'Font Size',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold
-                                      ),
-                                    ),
-      
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          onPressed: (){
-                                            if (devotionalFontSize > 10) {
-                                              devotionalFontSize -= 2;
-                                              setState(() {
-                                                
-                                              });
-                                            }
-                                          },
-                                          icon: Icon(
-                                            MdiIcons.minusCircleOutline
-                                          )),
-      
-                                        IconButton(
-                                          onPressed: (){
-                                            if (devotionalFontSize < 24) {
-                                              devotionalFontSize += 2;
-                                              setState(() {
-                                                
-                                              });
-                                            }
-                                          },
-                                          icon: Icon(
-                                            MdiIcons.plusCircleOutline
-                                          )),
-                                      ],
-                                    )
-                                  ],
-                                ),
-      
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        Text(
-                                          'Background Color',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-      
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 10),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          GestureDetector(
-                                            onTap: (){
-                                              bgColor = cricColor;
-      
-                                              setState(() {
-                                                
-                                              });
-                                            },
-                                            child: Container(
-                                              width: 50,
-                                              height: 50,
-                                              decoration: BoxDecoration(
-                                                color: cricColor,
-                                                borderRadius: BorderRadius.circular(5)
-                                              ),
-                                            )
-                                          ),
-                                                                      
-                                                                      
-                                          GestureDetector(
-                                            onTap: (){
-                                              bgColor = Colors.black;
-      
-                                              setState(() {
-                                                
-                                              });
-                                            },
-                                            child: Container(
-                                              width: 50,
-                                              height: 50,
-                                              decoration: BoxDecoration(
-                                                color: Colors.black,
-                                                borderRadius: BorderRadius.circular(5)
-                                              ),
-                                            )
-                                          ),
-                                                                      
-                                                                      
-                                          GestureDetector(
-                                            onTap: (){
-                                              bgColor = Colors.white;
-      
-                                              setState(() {
-                                                
-                                              });
-                                            },
-                                            child: Container(
-                                              width: 50,
-                                              height: 50,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                border: Border.all(width: .2),
-                                                borderRadius: BorderRadius.circular(5)
-                                              ),
-                                            )
-                                          ),
-                                                                      
-                                                                      
-                                          GestureDetector(
-                                            onTap: (){
-                                              bgColor = Colors.amber;
-      
-                                              setState(() {
-                                                
-                                              });
-                                            },
-                                            child: Container(
-                                              width: 50,
-                                              height: 50,
-                                              decoration: BoxDecoration(
-                                                color: Colors.amber,
-                                                borderRadius: BorderRadius.circular(5)
-                                              ),
-                                            )
-                                          ),
-                                                                      
-                                                                      
-                                          GestureDetector(
-                                            onTap: (){
-                                              bgColor = Colors.blue;
-      
-                                              setState(() {
-                                                
-                                              });
-                                            },
-                                            child: Container(
-                                              width: 50,
-                                              height: 50,
-                                              decoration: BoxDecoration(
-                                                color: Colors.blue,
-                                                borderRadius: BorderRadius.circular(5)
-                                              ),
-                                            )
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                )
-                              ],
-                            ),
-                          );
-                        });
-                    }, icon: const Icon(Icons.settings)
-                  )
+            
                 ],
                 
                 
@@ -460,7 +278,6 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                       widget.model.openingScriptureText,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        fontSize: devotionalFontSize+2
                                       ),
                                     ),
                                   ),
@@ -473,7 +290,6 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
-                                        fontSize: devotionalFontSize
                                       ),
                                     ),
                                   )
@@ -486,16 +302,14 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                 text: widget.model.body,
                     
                                 defaultTextStyle: TextStyle(
-                                  fontSize: devotionalFontSize,
                                   color: Colors.black,
                                   height: 1.5
                                 ),
                     
                                 matchTextStyle: TextStyle(
-                                  fontSize: devotionalFontSize,
                                   color: Colors.black,
-                                  decorationStyle: TextDecorationStyle.dotted,
-                                  decorationColor: Colors.black,
+                                  decorationStyle: TextDecorationStyle.wavy,
+                                  decorationColor: Color.fromARGB(255, 4, 54, 79),
                     
                                   height: 1.5
                                 ),
@@ -526,8 +340,7 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                         height: 1.5,
-                                        fontSize: devotionalFontSize*1.3,
-                                        fontWeight: FontWeight.bold
+                                        fontWeight: FontWeight.w800
                                       ),
                                     ),
                                   ],
@@ -543,16 +356,14 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                         text: widget.model.instruction!,
                                         context: context,
                                         defaultTextStyle: TextStyle(
-                                        fontSize: devotionalFontSize,
                                         color: Colors.black,
                                         height: 1.5
                                       ),
                                     
                                       matchTextStyle: TextStyle(
-                                        fontSize: devotionalFontSize,
                                         color: Colors.black,
-                                        decorationStyle: TextDecorationStyle.dotted,
-                                        decorationColor: Colors.black,
+                                        decorationStyle: TextDecorationStyle.wavy,
+                                        decorationColor: const Color.fromARGB(255, 6, 56, 82),
                                     
                                         height: 1.5
                                       ),
@@ -587,8 +398,7 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                         height: 1.5,
-                                        fontSize: devotionalFontSize*1.3,
-                                        fontWeight: FontWeight.bold
+                                        fontWeight: FontWeight.w800
                                       ),
                                     ),
                                   ],
@@ -605,13 +415,11 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                         context: context,
                                     
                                         defaultTextStyle: TextStyle(
-                                        fontSize: devotionalFontSize,
                                         color: Colors.black,
                                         height: 1.5
                                       ),
                                     
                                       matchTextStyle: TextStyle(
-                                        fontSize: devotionalFontSize,
                                         color: Colors.black,
                                         decorationStyle: TextDecorationStyle.dotted,
                                         decorationColor: Colors.black,
@@ -648,8 +456,7 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                         height: 1.5,
-                                        fontSize: devotionalFontSize*1.3,
-                                        fontWeight: FontWeight.bold
+                                        fontWeight: FontWeight.w800
                                       ),
                                     ),
                                   ],
@@ -666,13 +473,11 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                         context: context,
                                     
                                         defaultTextStyle: TextStyle(
-                                        fontSize: devotionalFontSize,
                                         color: Colors.black,
                                         height: 1.5
                                       ),
                                     
                                       matchTextStyle: TextStyle(
-                                        fontSize: devotionalFontSize,
                                         color: Colors.black,
                                         decorationStyle: TextDecorationStyle.dotted,
                                         decorationColor: Colors.black,
@@ -708,8 +513,7 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                         height: 1.5,
-                                        fontSize: devotionalFontSize*1.3,
-                                        fontWeight: FontWeight.bold
+                                        fontWeight: FontWeight.w800
                                       ),
                                     ),
                                   ],
@@ -726,13 +530,11 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                         context: context,
                                     
                                         defaultTextStyle: TextStyle(
-                                        fontSize: devotionalFontSize,
                                         color: Colors.black,
                                         height: 1.5
                                       ),
                                     
                                       matchTextStyle: TextStyle(
-                                        fontSize: devotionalFontSize,
                                         color: Colors.black,
                                         decorationStyle: TextDecorationStyle.dotted,
                                         decorationColor: Colors.black,
@@ -767,7 +569,6 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                         height: 1.5,
-                                        fontSize: devotionalFontSize*1.3,
                                         fontWeight: FontWeight.bold
                                       ),
                                     ),
@@ -785,13 +586,11 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                         context: context,
                     
                                         defaultTextStyle: TextStyle(
-                                  fontSize: devotionalFontSize,
                                   color: Colors.black,
                                   height: 1.5
                                 ),
                     
                                 matchTextStyle: TextStyle(
-                                  fontSize: devotionalFontSize,
                                   color: Colors.black,
                                   decorationStyle: TextDecorationStyle.dotted,
                                   decorationColor: Colors.black,
@@ -825,8 +624,7 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                         height: 1.5,
-                                        fontSize: devotionalFontSize*1.3,
-                                        fontWeight: FontWeight.bold
+                                        fontWeight: FontWeight.w800
                                       ),
                                     ),
                                   ],
@@ -842,19 +640,17 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                         text: widget.model.dailyScriptureReading!,
                                         context: context,
                                         defaultTextStyle: TextStyle(
-                                                          fontSize: devotionalFontSize,
-                                                          color: Colors.black,
-                                                          height: 1.5
-                                                        ),
-                                    
-                                                        matchTextStyle: TextStyle(
-                                                          fontSize: devotionalFontSize,
-                                                          color: Colors.black,
-                                                          decorationStyle: TextDecorationStyle.dotted,
-                                                          decorationColor: Colors.black,
-                                    
-                                                          height: 1.5
-                                                        ),
+                                          color: Colors.black,
+                                          height: 1.5
+                                        ),
+                    
+                                        matchTextStyle: TextStyle(
+                                          color: Colors.black,
+                                          decorationStyle: TextDecorationStyle.dotted,
+                                          decorationColor: Colors.black,
+                    
+                                          height: 1.5
+                                        ),
                                         
                                       ),
                                     ),

@@ -102,10 +102,6 @@ class _DevotionalCardState extends State<DevotionalCard> {
                     widget.model.body,
                     maxLines: 4,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 14,
-              
-                    ),
                   ),
 
                   Text(
@@ -113,7 +109,7 @@ class _DevotionalCardState extends State<DevotionalCard> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.abel(
-                      fontSize: 13,
+                      fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
                       fontStyle: FontStyle.italic,
                       color: cricColor
               
@@ -127,35 +123,46 @@ class _DevotionalCardState extends State<DevotionalCard> {
               Positioned(
                 right: 10,
                 bottom: 10,
-                child: ClipOval(
-                  child: Container(
-                    height: 60,
-                    width: 60,
+                child: Container(
+                  height: 80,
+                  width: 60,
+                  decoration: BoxDecoration(
                     color: cricColor.shade600,
+                    borderRadius: BorderRadius.circular(10)
+                  ),
     
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            widget.model.date.day.toString(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              color: Colors.white,
-                            ),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          widget.model.date.day.toString(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white,
                           ),
+                        ),
     
-                          Text(
-                            DateFormat.MMM().format(widget.model.date),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                              color: Colors.white,
-                            ),
+                        Text(
+                          DateFormat.MMM().format(widget.model.date),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                            color: Colors.white,
                           ),
-                        ],
-                      ),
+                        ),
+
+                        if(DateTime.now().year != widget.model.date.year)
+                          Text(
+                          DateFormat.y().format(widget.model.date),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 )),

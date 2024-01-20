@@ -3,8 +3,10 @@ import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:devotionals/utils/widgets/cards/music.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:podcast_search/podcast_search.dart';
+
+import '../../../screens/media/audio/services/audio.dart';
 
 
 
@@ -12,8 +14,12 @@ final GetIt getIt = GetIt.instance;
 
 class PodcastTile extends StatefulWidget {
   final Episode podcast;
+  final Color? color;
+  final Function(TapUpDetails)? trailingAction;
   const PodcastTile({
-    required this.podcast
+    required this.podcast,
+    this.trailingAction,
+    this.color,
   });
 
   @override
@@ -34,7 +40,7 @@ class _PodcastTileState extends State<PodcastTile> {
       return '$hoursString:$minutesString:$secondsString';
     }
 
-    Playing playing = getIt<Playing>();
+  Playing playing = getIt<Playing>();
 
     
 
@@ -46,37 +52,31 @@ class _PodcastTileState extends State<PodcastTile> {
         playing.currentEpisode = widget.podcast;
         Navigator.push(
           context,
-          PageTransition(child: MusicPlayerTile(), type: PageTransitionType.bottomToTop)
+          PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
         );
       },
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 12,
-              offset:  Offset(0, 3),
-            ),
-          ],
+          color:widget.color??Colors.white,
+          
         ),
     
         child: Row(
           children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                image: DecorationImage(
-                  image: CachedNetworkImageProvider(widget.podcast.imageUrl??''),
-                  fit: BoxFit.cover,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                width: 60,
+                height: 60,
+            
+                child: CachedNetworkImage(
+                  imageUrl: widget.podcast.episodeImage??''
                 ),
               ),
             ),
-            SizedBox(width: 16),
+            SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +85,7 @@ class _PodcastTileState extends State<PodcastTile> {
                     widget.podcast.title,
                     style: TextStyle(
                       color: Colors.grey.shade800,
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -100,6 +100,12 @@ class _PodcastTileState extends State<PodcastTile> {
                 ],
               ),
             ),
+
+            if(widget.trailingAction!=null)
+              GestureDetector(
+                onTapUp: widget.trailingAction,
+                child: Icon(MdiIcons.dotsVertical)
+              )
           ],
         ),
       ),

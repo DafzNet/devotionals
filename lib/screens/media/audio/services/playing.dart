@@ -1,4 +1,6 @@
-import 'package:podcast_search/podcast_search.dart';
+// import 'package:podcast_search/podcast_search.dart';
+
+import 'package:devotionals/screens/media/audio/services/audio.dart';
 
 class Playing {
   static final Playing _instance = Playing._internal();

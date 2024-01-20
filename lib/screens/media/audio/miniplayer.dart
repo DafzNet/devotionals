@@ -1,9 +1,10 @@
+import 'package:devotionals/screens/media/audio/services/audio.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
 import 'package:devotionals/utils/widgets/cards/music.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:podcast_search/podcast_search.dart';
+// import 'package:podcast_search/podcast_search.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -38,7 +39,7 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
     return InkWell(
       onTap: () {
         Navigator.push(context,
-          PageTransition(child: MusicPlayerTile(), type: PageTransitionType.bottomToTop)
+          PageTransition(child: MusicPlayerTile(false), type: PageTransitionType.bottomToTop)
         );
       },
       child: Container(

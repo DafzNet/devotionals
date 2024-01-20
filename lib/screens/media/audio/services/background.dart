@@ -1,34 +1,29 @@
-// import 'package:audio_service/audio_service.dart';
+import 'package:audio_service/audio_service.dart';
 
-// import 'manager.dart';
+import 'manager.dart';
 
-// class AudioPlayerHandler extends BaseAudioHandler{
-//   final AudioManager _player = AudioManager();
+class AudioPlayerHandler extends BaseAudioHandler
+  with QueueHandler, SeekHandler{
+  final AudioManager _player = AudioManager();
 
-//   @override
-//   Future<void> onPlay() async {
-//     await _player.play();
-//   }
+  @override
+  Future<void> play() async {
+    await _player.resume();
+  }
 
-//   @override
-//   Future<void> onPause() async {
-//     await _player.pause();
-//   }
+  @override
+  Future<void> pause() async {
+    await _player.pause();
+  }
 
-//   @override
-//   Future<void> onSeek(Duration position) async {
-//     await _player.seek(position);
-//   }
+  @override
+  Future<void> seek(Duration position) async {
+    await _player.seek(position);
+  }
 
-//   @override
-//   Future<void> onStop() async {
-//     await _player.stop();
-//     await super.onStop();
-//   }
-
-//   @override
-//   Future<void> onUpdateNotification() async {
-//     // Implement notification updates here
-//     await super.onUpdateNotification();
-//   }
-// }
+  @override
+  Future<void> stop() async {
+    await _player.stop();
+    // await super.onStop();
+  }
+}

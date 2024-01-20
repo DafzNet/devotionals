@@ -1,13 +1,13 @@
+import 'dart:io';
+
 import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
 import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:devotionals/screens/wrapper.dart';
-import 'package:devotionals/utils/constants/db_consts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'utils/theme/theme.dart';
@@ -27,7 +27,17 @@ void main() async{
  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-);
+  );
+
+  HttpOverrides.global = MyHttpOverrides();
+  
+  // _audioHandler = await AudioService.init(
+  //   builder: () => MyAudioHandler(),
+  //   config: AudioServiceConfig(
+  //     androidNotificationChannelId: 'com.mycompany.myapp.channel.audio',
+  //     androidNotificationChannelName: 'Music playback',
+  //   ),
+  // );
   runApp(
     MultiProvider(
       providers: [
@@ -59,5 +69,14 @@ class _MyAppState extends State<MyApp> {
       theme: lightTheme,
       home: const Wrapper(),
     );
+  }
+}
+
+
+class MyHttpOverrides extends HttpOverrides{
+  @override
+  HttpClient createHttpClient(SecurityContext? context){
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
   }
 }
