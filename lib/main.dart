@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
+import 'package:devotionals/screens/media/audio/services/audio_handler.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
 import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:devotionals/screens/wrapper.dart';
@@ -15,10 +17,15 @@ import 'package:get_it/get_it.dart'; // Replace with the actual file name
 
 final GetIt getIt = GetIt.instance;
 
-void setupLocator() {
+void setupLocator() async{
+  final _audio = await initAudioService();
   getIt.registerLazySingleton<AudioManager>(() => AudioManager());
   getIt.registerLazySingleton<Playing>(() => Playing());
+  getIt.registerLazySingleton<AudioHandler>(() => _audio);
 }
+
+
+
 
 
 void main() async{

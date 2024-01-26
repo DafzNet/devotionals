@@ -461,6 +461,37 @@ class _ProfileState extends State<Profile> {
                           ),
 
 
+                          const Divider(),
+                          TextButton(
+                            onPressed: (){
+                              Navigator.push(
+                                context,
+                                PageTransition(
+                                  child: EditProfile(),
+                                  type: PageTransitionType.fade
+                                )
+                              );
+                            },
+                            style: TextButton.styleFrom(
+                              shape: const RoundedRectangleBorder(),
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5)
+                            ),
+                            child: Row(
+                              children:  [
+                                Image.asset(
+                                  logo,
+                                  width: 30,
+                                  height: 30,
+                                ),
+                                SizedBox(width: 10,),
+                                
+                                Expanded(child: Text('About us', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),)),
+                                
+                                Icon(MdiIcons.chevronRight)
+                              ],)
+                          ),
+
+
                           
                         ],
                       ),

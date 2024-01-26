@@ -1,6 +1,10 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:devotionals/dbs/sembast/generic.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
 import 'package:devotionals/screens/media/audio/services/playing.dart';
+import 'package:devotionals/utils/widgets/cards/musictile.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
@@ -9,6 +13,8 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 final GetIt getIt = GetIt.instance;
 class MusicPlayerTile extends StatefulWidget {
+  
+
 final bool play;
   const MusicPlayerTile(
     this.play
@@ -21,9 +27,18 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
   final AudioManager audioManager = getIt<AudioManager>();
   final Playing _playing = getIt<Playing>();
 
+  bool favorited = true;
+
+  void _inits()async{
+    favorited = await audioManager.isFavorited(_playing.currentEpisode!);
+
+    setState(() {
+      
+    });
+  }
+
   void play()async{
     if (widget.play){await audioManager.play(_playing.currentEpisode!);} 
-    
     setState(() {
       
     });
@@ -37,29 +52,16 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
   }
 
   late AudioPlayer _audioPlayer;
-  bool _isBuffering = true;
+  // bool _isBuffering = true;
 
   @override
-  @override
   void initState() { // Initialize currentPos
+    _inits();
     play();
     _audioPlayer = audioManager.audioPlayer;
 
-    _audioPlayer.playerStateStream.listen((event) {
-      if (event.playing) {
-        _isBuffering = false;
-      } else {
-        switch (event.processingState) {
-          case ProcessingState.idle: _isBuffering = false;
-          case ProcessingState.loading: _isBuffering = true;
-          case ProcessingState.buffering: _isBuffering = true;
-          case ProcessingState.ready: _isBuffering = false;
-          case ProcessingState.completed: _isBuffering = false;
-        }
-      }
-    });
-
     _audioPlayer.positionStream.listen((Duration position) {
+      
       setState(() {
         
       });
@@ -68,6 +70,8 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
     super.initState();
   }
 
+  bool _otherPlaylistEpisodesShown = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,9 +79,15 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: Icon(Icons.favorite_outline, color: Colors.white,),
-            onPressed: () {
-              // Handle add to playlist
+            icon: Icon(
+              favorited?Icons.favorite : Icons.favorite_outline,
+              color: favorited? Colors.red : Colors.white,),
+            onPressed: () async{
+              await audioManager.addOrRemoveFavorite(_playing.currentEpisode!);
+              favorited = await audioManager.isFavorited(_playing.currentEpisode!);
+              setState(() {
+                
+              });
             },
           ),
 
@@ -116,8 +126,8 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
             Expanded(
               child: Stack(
                 children: [
-
-                  Center(
+                  if(!_otherPlaylistEpisodesShown)...
+                  [Center(
                     child: ClipOval(
                       child: Container(
                         height: MediaQuery.sizeOf(context).width-100,
@@ -131,31 +141,47 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
                         ),
                       ),
                     ),
-                  ),
+                  )]else...[
+                    Stack(
+                      children: [
+                        Center(
+                        child: Container(
+                          height: MediaQuery.sizeOf(context).width,
+                          width: MediaQuery.sizeOf(context).width,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            image: DecorationImage(
+                              image: CachedNetworkImageProvider(_playing.currentEpisode!.episodeImage!),
+                              fit: BoxFit.cover,
+                              opacity: .4
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+                        child: Container(
+                          color: Color.fromARGB(150, 0, 0, 0),
+                        ),
+                      ),
+                    ],
+                    )
+                  ],
+                if(_otherPlaylistEpisodesShown)
+                  ListView.builder(
+                    itemCount: audioManager.playlist.length,
+                      itemBuilder: (context, i){
+                        return PodcastTile(tcolor: const Color.fromARGB(255, 246, 245, 245), podcast: audioManager.playlist[i], playlist: audioManager.playlist, color: Colors.transparent,);
+                      }
+                    ),
                 ],
               ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width-60,
-                  height: 30,
-                  child: Marquee(
-                      text: _playing.currentEpisode!.title,
-                      style: TextStyle(fontSize: 24.0),
-                      scrollAxis: Axis.horizontal,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      blankSpace: 20.0,
-                      velocity: 50.0,
-                      pauseAfterRound: Duration(seconds: 1),
-                      startPadding: 10.0,
-                      accelerationDuration: Duration(seconds: 1),
-                      accelerationCurve: Curves.linear,
-                      decelerationDuration: Duration(milliseconds: 500),
-                      decelerationCurve: Curves.easeOut,
-                    ),
-                ),
+                
                 Expanded(
                   child: Text(
                     _playing.currentEpisode!.title,
@@ -172,7 +198,9 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
                 IconButton(
                   icon: Icon(Icons.playlist_play_outlined, color: Colors.white,),
                   onPressed: () {
-                    // Handle add to playlist
+                    _otherPlaylistEpisodesShown = !_otherPlaylistEpisodesShown;
+
+                    setState((){});
                   },
                 ),
               ],
@@ -231,32 +259,56 @@ class _MusicPlayerTileState extends State<MusicPlayerTile> {
                 },
               ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: ()async{
+                    await audioManager.previous();
+                    setState(() {
+                      
+                    });
+                  },
                   icon: Icon(
                     Icons.skip_previous,
                     color: Colors.white,
                     size: 36,
                   ),
                 ),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        audioManager.isPlaying
+                            ? await audioManager.pause()
+                            : await audioManager.resume();
+                        setState(() {});
+                      },
+                      icon: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Icon(
+                            audioManager.isPlaying
+                                ? Icons.pause_circle_filled
+                                : Icons.play_circle_filled,
+                            color: Colors.green,
+                            size: 64,
+                          ),
+                          if (audioManager.isBuffering)
+                            CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                              strokeWidth: 6,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
                 IconButton(
-                  onPressed: () async{
-                    audioManager.isPlaying ?
-                      await audioManager.pause():
-                      await audioManager.resume();
+                  onPressed: ()async{
+                    await audioManager.next();
                     setState(() {
                       
                     });
                   },
-                  icon: Icon(
-                    audioManager.isPlaying ?
-                      Icons.pause_circle_filled : 
-                      Icons.play_circle_filled,
-                    color: Colors.green,
-                    size: 64,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {},
                   icon: Icon(
                     Icons.skip_next,
                     color: Colors.white,

@@ -55,11 +55,13 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
   ];
 
   int _currentIndex = 0;
+  Widget? _currentWidget;
 
 
 
   void getCurrentPage(index){
     _currentIndex = index;
+    _currentWidget = _pages[_currentIndex];
     setState(() {
       
     });
@@ -70,6 +72,7 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
 
   @override
   void initState() {
+    _currentWidget = HomeScreen(uid: widget.uid);
     _pages = [
     HomeScreen(uid: widget.uid,),
     ChatScreen(uid: widget.uid,),
@@ -86,15 +89,7 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
 
     return Scaffold(
 
-      body: PageView(
-        controller: pageController,
-        onPageChanged: (int value){
-          setState(() {
-            _currentIndex = value;
-          });
-        },
-        children: _pages,
-      ),
+      body: _currentWidget,
 
       bottomNavigationBar: BottomNavigationBar(
         unselectedItemColor: const Color.fromARGB(197, 39, 39, 39),
@@ -108,13 +103,6 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
         currentIndex: _currentIndex,
         onTap: (index){
           getCurrentPage(index);
-
-          pageController.animateToPage(
-            index,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.bounceIn
-          );
-
           setState(() {
             
           });

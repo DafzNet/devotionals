@@ -1,5 +1,6 @@
 
 import 'package:anim_search_bar/anim_search_bar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:devotionals/dbs/sembast/generic.dart';
 import 'package:devotionals/screens/media/audio/miniplayer.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
@@ -25,11 +26,23 @@ class AudioScreen  extends StatefulWidget {
 
 class _AudioScreenState extends State<AudioScreen> {
   final _audioService = AudioService();
+  final _pageController = PageController();
 
   final _store = DataStore('episodes');
   final Playing _playing = getIt<Playing>();
   final AudioManager audioManager = getIt<AudioManager>();
- 
+  List<Episode> episodes = [];
+
+  void getOfflineEpisodes()async{
+    final eps = await _store.getList('offline_episodes');
+    episodes = eps!.map((e) => Episode.fromMap(e)).toList(growable: false);
+
+    setState(() {
+      
+    });
+  }
+
+  
 
   void _showPopupMenu(BuildContext context, Offset position) async {
       double yOffset = position.dy - 20.0;
@@ -48,9 +61,9 @@ class _AudioScreenState extends State<AudioScreen> {
             value: '',
             child: Row(
               children: [
-                Icon(MdiIcons.cameraOutline, size: 18,),
+                Icon(MdiIcons.heartOutline, size: 18,),
                 SizedBox(width: 10,),
-                Text('Camera'),
+                Text('Favorite'),
               ],
             ),
           ),
@@ -63,9 +76,24 @@ class _AudioScreenState extends State<AudioScreen> {
             value: '',
             child: Row(
               children: [
-                Icon(MdiIcons.viewGalleryOutline, size: 18,),
+                Icon(MdiIcons.playlistPlus, size: 18,),
                 SizedBox(width: 10,),
-                Text('Gallery'),
+                Text('Add to Playlist'),
+              ],
+            ),
+          ),
+
+
+          PopupMenuItem<String>(
+            onTap: ()async {
+              
+            },
+            value: '',
+            child: Row(
+              children: [
+                Icon(MdiIcons.skipNextOutline, size: 18,),
+                SizedBox(width: 10,),
+                Text('Play next'),
               ],
             ),
           ),
@@ -78,6 +106,7 @@ class _AudioScreenState extends State<AudioScreen> {
 
   @override
   void initState() {
+    getOfflineEpisodes();
     super.initState();
   }
   
@@ -88,116 +117,184 @@ class _AudioScreenState extends State<AudioScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Column(
-          children: [
-            // SafeArea(child: SizedBox()),
-
-            AnimSearchBar(
-              width: MediaQuery.sizeOf(context).width-30, 
-              textController: _textController, 
-              onSuffixTap: (){
-                _textController.clear();
-              }, 
-              onSubmitted: (v){}
+      body: Column(
+        children: [
+          // SafeArea(child: SizedBox()),
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                fit: BoxFit.fitWidth,
+                alignment: Alignment.topCenter,
+                image: CachedNetworkImageProvider('https://d3t3ozftmdmh3i.cloudfront.net/production/podcast_uploaded_nologo/2584551/2584551-1615865658313-890f00870f672.jpg')
+              ),
+              
             ),
-
-
-            Row(
-              children: [
-                Wrap(
-                  spacing: 10,
-                  children: [
-                    GestureDetector(
-                      onTap: (){}, 
-                      child: Text('All')
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.transparent,
+                  Colors.transparent,
+                  Colors.transparent,
+                  Colors.white
+                ]
+              ),
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 10),
+                    child: AnimSearchBar(
+                      width: MediaQuery.sizeOf(context).width-30, 
+                      textController: _textController, 
+                      onSuffixTap: (){
+                        _textController.clear();
+                      }, 
+                      onSubmitted: (v){}
                     ),
-
-                    GestureDetector(
-                      onTap: (){}, 
-                      child: Text('Favorites')
-                    ),
-
-                     GestureDetector(
-                      onTap: (){}, 
-                      child: Text('Playlists')
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 5,),
-            Expanded(
-              child: FutureBuilder(
-                future: _audioService.searchPods(),
-                builder: (context, snapshot) {
-                  if ( //snapshot.data == null || 
-                  snapshot.hasError) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          MdiIcons.closeCircleOutline,
-                          size: 40,
-                          color: Colors.redAccent.shade100,
-                        ),
-                  
-                        Center(
-                          child: Text(
-                            // 'No Messages to stream'
-                            'Oops, ${snapshot.error}'
-                         ),
-                        )
-                      ],
-                    );
-                  }else if(snapshot.connectionState == ConnectionState.waiting){
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        
-                  
-                        Center(
-                          child: CircularProgressIndicator()
-                        )
-                      ],
-                    );
-                  }
-                  
-                  return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index){
-                      return InkWell(
-                        onTap: ()async{
-                          await Navigator.push(
-                            context,
-                            PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
-                          );
-                  
-                          setState(() {
-                            
-                          });
-                        },
-                        child: PodcastTile(
-                         podcast: snapshot.data![index],
-                         trailingAction: (t){
-                          _showPopupMenu(context, t.globalPosition);
-                         },
-
-
-                        ),
-                      );
-                    },
-                  );
-                }
+                  ),
+                      
+                      
+                  Row(
+                    children: [
+                      Wrap(
+                        spacing: 5,
+                        children: [
+                          TextButton(
+                            onPressed: (){
+                              _pageController.jumpToPage(0);
+                            }, 
+                            child: Text('All')
+                          ),
+                      
+                          TextButton(
+                            onPressed: (){
+                              _pageController.jumpToPage(1);
+                            }, 
+                            child: Text('Favorites')
+                          ),
+                      
+                           TextButton(
+                            onPressed: (){
+                              _pageController.jumpToPage(2);
+                            }, 
+                            child: Text('Playlists')
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
+          ),
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              physics: NeverScrollableScrollPhysics(),
+              children: [
+                FutureBuilder(
+              future: _audioService.searchPods(),
+              initialData: episodes,
+              builder: (context, snapshot) {
+                if ( snapshot.data == null || snapshot.connectionState == ConnectionState.waiting ||
+                snapshot.hasError) {
+                  return episodes.isNotEmpty?
+                  ListView.builder(
+                  itemCount: episodes.length,
+                  itemBuilder: (context, index){
+                    return InkWell(
+                      onTap: ()async{
+                        await Navigator.push(
+                          context,
+                          PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
+                        );
+                      },
+                      child: PodcastTile(
+                       podcast: episodes[index],
+                       playlist: episodes,
+                       trailingAction: (t){
+                        _showPopupMenu(context, t.globalPosition);
+                       },
 
-            if(_playing.currentEpisode != null && (audioManager.isPlaying || audioManager.isPaused))...[
-              MiniAudioPlayer(episode: _playing.currentEpisode)
-            ]
-          ],
-        ),
+
+                      ),
+                    );
+                  },
+                ):
+                  
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        MdiIcons.closeCircleOutline,
+                        size: 40,
+                        color: Colors.redAccent.shade100,
+                      ),
+                
+                      Center(
+                        child: Text(
+                          // 'No Messages to stream'
+                          'Oops, Something went wrong'
+                       ),
+                      )
+                    ],
+                  );
+                }
+
+                List<Map<String,dynamic>> _data = snapshot.data!.map((e) => e.toMap()).toList(growable: false);
+                // print(_data);
+                _store.insertList('offline_episodes', _data);
+                
+                return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index){
+                    return InkWell(
+                      onTap: ()async{
+                        await Navigator.push(
+                          context,
+                          PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
+                        );
+                      },
+                      child: PodcastTile(
+                       podcast: snapshot.data![index],
+                       playlist: snapshot.data!,
+                       trailingAction: (t){
+                        _showPopupMenu(context, t.globalPosition);
+                       },
+
+
+                      ),
+                    );
+                  },
+                );
+              }
+            ),
+
+
+                FutureBuilder(
+                  future: audioManager.getFavorites(),
+                  builder: (context, snapshot){
+                    return ListView.builder(
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index){
+                        return PodcastTile(podcast: snapshot.data![index], playlist: snapshot.data!);
+                      }
+                    );
+                  }
+                )
+
+              ],
+            )
+          ),
+
+          if(_playing.currentEpisode != null && (audioManager.isPlaying || audioManager.isPaused))...[
+            MiniAudioPlayer(episode: _playing.currentEpisode)
+          ]
+        ],
       ),
 
     );

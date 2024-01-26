@@ -55,11 +55,6 @@ class _VideoCardState extends State<VideoCard> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _store.closeI();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,17 +74,10 @@ class _VideoCardState extends State<VideoCard> {
           }
         );
         return Container(
-          padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Colors.grey[900],
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 6,
-                offset: Offset(0, 3),
-              ),
-            ],
+            color: Color.fromARGB(255, 255, 255, 255),
+            
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +96,7 @@ class _VideoCardState extends State<VideoCard> {
               Text(
                 data.title,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.grey.shade800,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -117,7 +105,7 @@ class _VideoCardState extends State<VideoCard> {
               Text(
                 'by ${data.author} • ${formatDuration(data.duration!.inSeconds)}',
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: Colors.grey.shade600,
                   fontSize: 14,
                 ),
               ),
@@ -126,17 +114,10 @@ class _VideoCardState extends State<VideoCard> {
         );
       }
     ):Container(
-          padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Colors.grey[900],
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 6,
-                offset: Offset(0, 3),
-              ),
-            ],
+            color: Color.fromARGB(255, 255, 255, 255),
+            
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +136,7 @@ class _VideoCardState extends State<VideoCard> {
               Text(
                 _video!['title'],
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.grey[800],
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -164,7 +145,7 @@ class _VideoCardState extends State<VideoCard> {
               Text(
                 'by ${_video!['author']} • ${formatDuration(_video!['duration'])}',
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: Colors.grey.shade600,
                   fontSize: 14,
                 ),
               ),

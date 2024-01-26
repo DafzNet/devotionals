@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:devotionals/dbs/sembast/generic.dart';
 import 'package:devotionals/firebase/dbs/video.dart';
 import 'package:devotionals/screens/media/addvod.dart';
 import 'package:devotionals/utils/constants/colors.dart';
@@ -71,6 +72,14 @@ class _MediaScreenState extends State<MediaScreen> {
     setState(() {
       vids.addAll(List.from(vids));
     });
+  }
+
+  final _store = DataStore('videos');
+
+  @override
+  void dispose() {
+    _store.closeI();
+    super.dispose();
   }
 
   @override

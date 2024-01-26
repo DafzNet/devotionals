@@ -73,4 +73,9 @@ class DataStore {
     final result = store.record(key.hashCode);
     return await result.get(await database);
   }
+
+  Future<List<Map<String, dynamic>?>> getAll() async {
+    final keys =await store.findKeys(await database);
+    return await store.records(keys).get(await database);
+  }
 }

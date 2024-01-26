@@ -36,7 +36,6 @@ class Podcast {
       var duration = episode.findElements('itunes:duration').first.text;
       var pubDate = episode.findElements('pubDate').first.text;
       var episodeImage = 'https://d3t3ozftmdmh3i.cloudfront.net/production/podcast_uploaded_nologo/2584551/2584551-1615865658313-890f00870f672.jpg' ;
-      print(episodeImage);
 
       return Episode(title, description, author, link, audioUrl, duration, pubDate, episodeImage);
     }).toList();
@@ -85,11 +84,12 @@ class Episode {
 
   // Helper method to parse duration from a string
   Duration _parseDuration(String durationString) {
+    
     List<String> parts = durationString.split(':');
     if (parts.length == 3) {
       int hours = int.parse(parts[0]);
       int minutes = int.parse(parts[1]);
-      int seconds = int.parse(parts[2]);
+      int seconds = int.parse(parts[2].split('.')[0]);
 
       return Duration(hours: hours, minutes: minutes, seconds: seconds);
     } else {
@@ -115,12 +115,13 @@ class Episode {
     return Episode(
       map['title'] ?? '',
       map['description'] ?? '',
+      map['author'] ?? '',
       map['link'] ?? '',
       map['audioUrl'] ?? '',
       map['duration'] ?? '',
       map['pubDate'] ?? '',
       map['episodeImage'] ?? '',
-      map['author'] ?? '',
+      
     );
   }
 

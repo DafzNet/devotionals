@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:devotionals/screens/media/audio/services/manager.dart';
 import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:devotionals/utils/widgets/cards/music.dart';
 import 'package:flutter/material.dart';
@@ -11,13 +12,19 @@ import '../../../screens/media/audio/services/audio.dart';
 
 
 final GetIt getIt = GetIt.instance;
+Playing playing = getIt<Playing>();
+AudioManager audioManager = getIt<AudioManager>();
 
 class PodcastTile extends StatefulWidget {
   final Episode podcast;
+  final List<Episode> playlist;
   final Color? color;
+  final Color? tcolor;
   final Function(TapUpDetails)? trailingAction;
   const PodcastTile({
     required this.podcast,
+    this.tcolor,
+    required this.playlist,
     this.trailingAction,
     this.color,
   });
@@ -40,7 +47,7 @@ class _PodcastTileState extends State<PodcastTile> {
       return '$hoursString:$minutesString:$secondsString';
     }
 
-  Playing playing = getIt<Playing>();
+  
 
     
 
@@ -50,6 +57,7 @@ class _PodcastTileState extends State<PodcastTile> {
     return InkWell(
       onTap: () async{
         playing.currentEpisode = widget.podcast;
+        audioManager.playlist = widget.playlist;
         Navigator.push(
           context,
           PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
@@ -84,7 +92,7 @@ class _PodcastTileState extends State<PodcastTile> {
                   Text(
                     widget.podcast.title,
                     style: TextStyle(
-                      color: Colors.grey.shade800,
+                      color: widget.tcolor?? Colors.grey.shade800,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -100,6 +108,9 @@ class _PodcastTileState extends State<PodcastTile> {
                 ],
               ),
             ),
+
+            if(playing.currentEpisode == widget.podcast)
+              Icon(Icons.music_note_sharp),
 
             if(widget.trailingAction!=null)
               GestureDetector(
