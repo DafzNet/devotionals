@@ -1,57 +1,126 @@
+import 'dart:io';
+
 import 'package:audio_service/audio_service.dart';
-import 'package:devotionals/screens/media/audio/services/manager.dart';
+import 'package:audio_session/audio_session.dart';
+import 'package:devotionals/utils/constants/colors.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:rxdart/rxdart.dart';
 
 GetIt getIt = GetIt.instance;
-final mplayer = getIt<AudioManager>();
+
+
 
 Future<AudioHandler> initAudioService() async {
   return await AudioService.init(
     builder: () => MyAudioHandler(),
     config: AudioServiceConfig(
-      androidNotificationChannelId: 'com.cric.app.audio',
-      androidNotificationChannelName: 'Cric Audio Messages',
-      androidNotificationOngoing: true,
+      androidNotificationChannelId: 'com.cric.app.channel.audio',
+      androidNotificationChannelName: 'Cric',
+      androidShowNotificationBadge: true,
+      androidNotificationIcon: 'drawable/ic_launcher_notif',
       androidStopForegroundOnPause: false,
+      notificationColor: cricColor.shade200,
     ),
   );
 }
 
-class MyAudioHandler extends BaseAudioHandler {
-  final _player = mplayer.audioPlayer;
-  final _playlist = mplayer.playlist;
+class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
+  final _player = AudioPlayer();
+  final _playlist = ConcatenatingAudioSource(children: []);
+  Expando<MediaItem> songsExpando = Expando<MediaItem>();
 
   MyAudioHandler() {
-    _loadEmptyPlaylist();
-    _notifyAudioHandlerAboutPlaybackEvents();
+    _init();
+    // _notifyAudioHandlerAboutPlaybackEvents();
     _listenForDurationChanges();
     _listenForCurrentSongIndexChanges();
     _listenForSequenceStateChanges();
   }
 
-  Future<void> _loadEmptyPlaylist() async {
-    try {
-      await mplayer.playlist;
-    } catch (e) {
-      print("Error: $e");
-    }
+   void _playbackError(err) {
   }
 
-  void _notifyAudioHandlerAboutPlaybackEvents() {
-    _player.playbackEventStream.listen((event) {
-      final playing = _player.playing;
-      playbackState.add(playbackState.value.copyWith(
+
+
+  void _init()async{
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration.music());
+
+    // Rx.combineLatest4<int?, List<MediaItem>, bool, List<int>?, MediaItem?>(
+    //     _player.currentIndexStream,
+    //     queue,
+    //     _player.shuffleModeEnabledStream,
+    //     _player.shuffleIndicesStream,
+    //     (index, queue, shuffleModeEnabled, shuffleIndices) {
+    //   final queueIndex = getQueueIndex(
+    //     index,
+    //     shuffleIndices,
+    //     shuffleModeEnabled: shuffleModeEnabled,
+    //   );
+    //   return (queueIndex != null && queueIndex < queue.length)
+    //       ? queue[queueIndex]
+    //       : null;
+    // }).whereType<MediaItem>().distinct().listen(mediaItem.add);
+
+    // // Propagate all events from the audio player to AudioService clients.
+    // _player.playbackEventStream
+    //     .listen(_broadcastState, onError: _playbackError);
+
+    // _player.shuffleModeEnabledStream
+    //     .listen((enabled) => _broadcastState(_player.playbackEvent));
+
+    // _player.loopModeStream
+    //     .listen((event) => _broadcastState(_player.playbackEvent));
+
+    // _player!.processingStateStream.listen((state) {
+    //   if (state == ProcessingState.completed) {
+    //     stop();
+    //     _player!.seek(Duration.zero, index: 0);
+    //   }
+    // });
+  }
+
+  int? getQueueIndex(
+    int? currentIndex,
+    List<int>? shuffleIndices, {
+    bool shuffleModeEnabled = false,
+  }) {
+    final effectiveIndices = _player.effectiveIndices ?? [];
+    final shuffleIndicesInv = List.filled(effectiveIndices.length, 0);
+    for (var i = 0; i < effectiveIndices.length; i++) {
+      shuffleIndicesInv[effectiveIndices[i]] = i;
+    }
+    return (shuffleModeEnabled &&
+            ((currentIndex ?? 0) < shuffleIndicesInv.length))
+        ? shuffleIndicesInv[currentIndex ?? 0]
+        : currentIndex;
+  }
+
+  void _broadcastState(PlaybackEvent event) {
+    final playing = _player.playing;
+    late List<int> preferredCompactNotificationButtons = [1, 2, 3];
+
+    final queueIndex = getQueueIndex(
+      event.currentIndex,
+      _player.shuffleIndices,
+      shuffleModeEnabled: _player.shuffleModeEnabled,
+    );
+    playbackState.add(
+      playbackState.value.copyWith(
         controls: [
+          // workaround to add like button
           MediaControl.skipToPrevious,
           if (playing) MediaControl.pause else MediaControl.play,
-          
           MediaControl.skipToNext,
+          if (!Platform.isIOS) MediaControl.stop,
         ],
         systemActions: const {
           MediaAction.seek,
+          MediaAction.seekForward,
+          MediaAction.seekBackward,
         },
-        androidCompactActionIndices: const [0, 1, 3],
+        androidCompactActionIndices: preferredCompactNotificationButtons,
         processingState: const {
           ProcessingState.idle: AudioProcessingState.idle,
           ProcessingState.loading: AudioProcessingState.loading,
@@ -59,22 +128,52 @@ class MyAudioHandler extends BaseAudioHandler {
           ProcessingState.ready: AudioProcessingState.ready,
           ProcessingState.completed: AudioProcessingState.completed,
         }[_player.processingState]!,
-        repeatMode: const {
-          LoopMode.off: AudioServiceRepeatMode.none,
-          LoopMode.one: AudioServiceRepeatMode.one,
-          LoopMode.all: AudioServiceRepeatMode.all,
-        }[_player.loopMode]!,
-        shuffleMode: (_player.shuffleModeEnabled)
-            ? AudioServiceShuffleMode.all
-            : AudioServiceShuffleMode.none,
         playing: playing,
         updatePosition: _player.position,
         bufferedPosition: _player.bufferedPosition,
         speed: _player.speed,
-        queueIndex: event.currentIndex,
-      ));
-    });
+        queueIndex: queueIndex,
+      ),
+    );
   }
+
+  // void _notifyAudioHandlerAboutPlaybackEvents() {
+  //   _player.playbackEventStream.listen((event) {
+  //     final playing = _player.playing;
+  //     playbackState.add(playbackState.value.copyWith(
+  //       controls: [
+  //         MediaControl.skipToPrevious,
+  //         if (playing) MediaControl.pause else MediaControl.play,
+          
+  //         MediaControl.skipToNext,
+  //       ],
+  //       systemActions: const {
+  //         MediaAction.seek,
+  //       },
+  //       androidCompactActionIndices: const [0, 1, 3],
+  //       processingState: const {
+  //         ProcessingState.idle: AudioProcessingState.idle,
+  //         ProcessingState.loading: AudioProcessingState.loading,
+  //         ProcessingState.buffering: AudioProcessingState.buffering,
+  //         ProcessingState.ready: AudioProcessingState.ready,
+  //         ProcessingState.completed: AudioProcessingState.completed,
+  //       }[_player.processingState]!,
+  //       repeatMode: const {
+  //         LoopMode.off: AudioServiceRepeatMode.none,
+  //         LoopMode.one: AudioServiceRepeatMode.one,
+  //         LoopMode.all: AudioServiceRepeatMode.all,
+  //       }[_player.loopMode]!,
+  //       shuffleMode: (_player.shuffleModeEnabled)
+  //           ? AudioServiceShuffleMode.all
+  //           : AudioServiceShuffleMode.none,
+  //       playing: playing,
+  //       updatePosition: _player.position,
+  //       bufferedPosition: _player.bufferedPosition,
+  //       speed: _player.speed,
+  //       queueIndex: event.currentIndex,
+  //     ));
+  //   });
+  // }
 
   void _listenForDurationChanges() {
     _player.durationStream.listen((duration) {
@@ -108,37 +207,50 @@ class MyAudioHandler extends BaseAudioHandler {
       final sequence = sequenceState?.effectiveSequence;
       if (sequence == null || sequence.isEmpty) return;
       final items = sequence.map((source) => source.tag as MediaItem);
-      queue.add(items.toList());
+      queue.add(items.toList(growable: false));
     });
   }
 
+//   void _listenForSequenceStateChanges() {
+//   _player.sequenceStateStream.listen((SequenceState? sequenceState) {
+//     final sequence = sequenceState?.effectiveSequence;
+//     if (sequence == null || sequence.isEmpty) return;
+//     final items = sequence.map((source) => source.tag as MediaItem?);
+//     // Filter out null values
+//     final validItems = items.where((item) => item != null).cast<MediaItem>().toList();
+
+//     queue.add(validItems);
+//   });
+// }
+
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {
-    // manage Just Audio
-    final audioSource = mediaItems.map(_createAudioSource);
-    _playlist.addAll(audioSource.toList());
-
-    // notify system
     final newQueue = queue.value..addAll(mediaItems);
+    _playlist.addAll(_createAudioSources(mediaItems));
     queue.add(newQueue);
+
+    _player.setAudioSource(_playlist);
   }
 
   @override
   Future<void> addQueueItem(MediaItem mediaItem) async {
-    // manage Just Audio
     final audioSource = _createAudioSource(mediaItem);
     _playlist.add(audioSource);
-
-    // notify system
+    songsExpando[audioSource] = mediaItem;
     final newQueue = queue.value..add(mediaItem);
     queue.add(newQueue);
   }
 
-  UriAudioSource _createAudioSource(MediaItem mediaItem) {
-    return AudioSource.uri(
-      Uri.parse(mediaItem.extras!['url'] as String),
-      tag: mediaItem,
-    );
+  AudioSource _createAudioSource(MediaItem mediaItem) {
+    return AudioSource.uri(Uri.parse(mediaItem.extras!['url']));
+  }
+
+  List<AudioSource> _createAudioSources(List<MediaItem> mediaItems) {
+    return mediaItems.map(
+      (e){
+        final audioSource = _createAudioSource(e);
+        songsExpando[audioSource] = e;
+        return audioSource;}).toList();
   }
 
   @override

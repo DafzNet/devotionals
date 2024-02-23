@@ -1,28 +1,28 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
-import 'package:devotionals/screens/media/audio/services/playing.dart';
-import 'package:devotionals/utils/widgets/cards/music.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:page_transition/page_transition.dart';
 
-import '../../../screens/media/audio/services/audio.dart';
+import '../../../screens/media/audio/services/my_audio.dart';
 
 
 
 final GetIt getIt = GetIt.instance;
-Playing playing = getIt<Playing>();
 AudioManager audioManager = getIt<AudioManager>();
+final _audioHandler = getIt<AudioHandler>();
 
 class PodcastTile extends StatefulWidget {
   final Episode podcast;
   final List<Episode> playlist;
+  final int index;
   final Color? color;
   final Color? tcolor;
   final Function(TapUpDetails)? trailingAction;
   const PodcastTile({
     required this.podcast,
+    required this.index,
     this.tcolor,
     required this.playlist,
     this.trailingAction,
@@ -47,22 +47,14 @@ class _PodcastTileState extends State<PodcastTile> {
       return '$hoursString:$minutesString:$secondsString';
     }
 
-  
-
-    
-
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async{
-        playing.currentEpisode = widget.podcast;
-        audioManager.playlist = widget.playlist;
-        Navigator.push(
-          context,
-          PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
-        );
+        await audioManager.setPlaylist(Playlist(title: 'All Messages', songs: widget.playlist, initIndex: widget.index));
+        await _audioHandler.play();
       },
+
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
@@ -108,9 +100,6 @@ class _PodcastTileState extends State<PodcastTile> {
                 ],
               ),
             ),
-
-            if(playing.currentEpisode == widget.podcast)
-              Icon(Icons.music_note_sharp),
 
             if(widget.trailingAction!=null)
               GestureDetector(

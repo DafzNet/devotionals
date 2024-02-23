@@ -1,9 +1,19 @@
-import 'package:devotionals/dbs/sembast/generic.dart';
-import 'package:devotionals/screens/media/audio/services/audio.dart';
-import 'package:devotionals/screens/media/audio/services/playing.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
+import 'package:audio_service/audio_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:just_audio/just_audio.dart';
+
+import 'package:devotionals/dbs/sembast/generic.dart';
+import 'package:devotionals/screens/media/audio/services/my_audio.dart';
+
+
 final GetIt getIt = GetIt.instance;
+
+final _audioHandler = getIt<AudioHandler>();
+
+
 class AudioManager {
   static final AudioManager _instance = AudioManager._internal();
   bool isPlaying = false;
@@ -13,58 +23,14 @@ class AudioManager {
   final _storeFavorite = DataStore('favorites');
   final _storeSettings = DataStore('music_settings');
 
-  final Playing _playing = getIt<Playing>();
-
-  Episode? _next;
-  Episode? _prev;
-
-  List<Episode> _playList = [];
-  late AudioPlayer _audioPlayer;
 
   factory AudioManager() {
     return _instance;
   }
 
   AudioManager._internal() {
-    _audioPlayer = AudioPlayer();
-    _initListeners();
   }
 
-    void _initListeners() {
-
-    _audioPlayer.playerStateStream.listen((PlayerState state) async {
-      if (state.playing) {
-        isBuffering = false;
-        print('playing');
-      } else {
-        switch (state.processingState) {
-          case ProcessingState.idle:
-            isBuffering = false;
-            print('idle');
-            break;
-          case ProcessingState.loading:
-            isBuffering = true;
-            print('load');
-            break;
-          case ProcessingState.buffering:
-            isBuffering = true;
-            print('buff');
-            break;
-          case ProcessingState.ready:
-            isBuffering = false;
-            print('rewdy');
-            break;
-          case ProcessingState.completed:
-            isBuffering = false;
-            print('complete');
-            await next();
-            break;
-        }
-      }
-    });
-  }
-
-  //Handling favorites
 
   Future<void> addOrRemoveFavorite(Episode episode)async{
     if (await _storeFavorite.containsKey(episode.title+episode.audioUrl)) {
@@ -76,7 +42,6 @@ class AudioManager {
 
   Future<List<Episode>> getFavorites()async{
       final favs = await _storeFavorite.getAll();
-      print(favs);
       return favs.map((e) => Episode.fromMap(e!)).toList();
   }
 
@@ -95,93 +60,82 @@ class AudioManager {
   }
 
 
+  Future<void> setPlaylist(Playlist playlist) async{
+    List<MediaItem> mediaItems = playlist.songs.map((e) => MediaItem(
+        id: playlist.songs.indexOf(e).toString(), 
+        title: e.title,
+        album: playlist.title,
+        artist: 'Apostle David Wale Feso',
+        artUri: Uri.parse(e.episodeImage),
+        duration: e.duration,
+        displayTitle: e.title,
+        extras: {
+          'url':e.audioUrl
+        }
+      )
+    ).toList(growable: false);
+
+    await _audioHandler.addQueueItems(mediaItems);
+    
+  }
+}
 
 
+class Playlist {
+  String title;
+  int initIndex;
+  List<Episode> songs;
+  Playlist({
+    required this.title,
+    this.initIndex = 0,
+    required this.songs,
+  });
 
-  var myplaylist = ConcatenatingAudioSource(
-    useLazyPreparation: true,
-    shuffleOrder: DefaultShuffleOrder(),
-    children: []
-  );
-
-
-  List<Episode> get playlist => _playList;
-
-  set playlist(List<Episode> newPlaylist) {
-    _playList = newPlaylist;
-    myplaylist = ConcatenatingAudioSource(
-      useLazyPreparation: true,
-      children: _playList.map((e) => AudioSource.uri(Uri.parse(e.audioUrl))).toList(),
+  Playlist copyWith({
+    String? title,
+    int? initIndex,
+    List<Episode>? songs,
+  }) {
+    return Playlist(
+      title: title ?? this.title,
+      initIndex: initIndex ?? this.initIndex,
+      songs: songs ?? this.songs,
     );
   }
 
-
-
-  Future<void> play(Episode episode) async {
-    int? _init;
-    for (var element in _playList) {
-      if (element == episode) {
-       _init = _playList.indexOf(element);
-      }
-    }
-
-    _next = _playList[_init!+1];
-    _prev = _playList[_init-1];
-
-    _audioPlayer.setAudioSource(myplaylist, initialIndex: _init, initialPosition: Duration.zero);
-    isPlaying = true;
-    isPaused = false;
-    await _audioPlayer.play();
-    
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'title': title,
+      'initIndex': initIndex,
+      'songs': songs.map((x) => x.toMap()).toList(),
+    };
   }
 
-  Future<void> pause() async {
-    await _audioPlayer.pause();
-    isPlaying = false;
-    isPaused = true;
+  factory Playlist.fromMap(Map<String, dynamic> map) {
+    return Playlist(
+      title: map['title'] as String,
+      initIndex: map['initIndex'] as int,
+      songs: List<Episode>.from((map['songs'] as List).map<Episode>((x) => Episode.fromMap(x as Map<String,dynamic>),),),
+    );
   }
 
-  Future<void> resume() async {
-    isPlaying = true;
-    isPaused = false;
-    await _audioPlayer.play();
+  String toJson() => json.encode(toMap());
 
+  factory Playlist.fromJson(String source) => Playlist.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() => 'Playlist(title: $title, initIndex: $initIndex, songs: $songs)';
+
+  @override
+  bool operator ==(covariant Playlist other) {
+    if (identical(this, other)) return true;
+  
+    return 
+      other.title == title &&
+      other.initIndex == initIndex &&
+      listEquals(other.songs, songs);
   }
 
-  Future<void> stop() async {
-    await _audioPlayer.stop();
-    isPlaying = false;
-    isPaused = false;
-  }
-
-  Future<void> seek(Duration position) async {
-    await _audioPlayer.seek(position);
-  }
-
-  Future<void> next() async {
-    await _audioPlayer.seekToNext();
-    _playing.currentEpisode = _next;
-    _next = _playList[_playList.indexOf(_next!)+1];
-    _prev = _playList[_playList.indexOf(_prev!)+1];
-  }
-
-  Future<void> previous() async {
-    await _audioPlayer.seekToPrevious();
-     _playing.currentEpisode = _prev;
-    _prev = _playList[_playList.indexOf(_prev!)-1];
-    _next = _playList[_playList.indexOf(_next!)-1];
-  }
-
-
-
-  Duration get totalDuration => _audioPlayer.duration ?? Duration.zero;
-
-  Duration get currentPosition => _audioPlayer.position;
-
-  AudioPlayer get audioPlayer => _audioPlayer;
-
-  Future<void> dispose() async {
-    await _audioPlayer.dispose();
-  }
-
+  @override
+  int get hashCode => title.hashCode ^ initIndex.hashCode ^ songs.hashCode;
 }

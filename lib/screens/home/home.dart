@@ -1,15 +1,21 @@
 import 'package:card_loading/card_loading.dart';
+import 'package:devotionals/dbs/sembast/generic.dart';
 import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/devs.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/firebase/dbs/video.dart';
 import 'package:devotionals/screens/devotional/add_dev.dart';
 import 'package:devotionals/screens/devotional/all_devs.dart';
+import 'package:devotionals/screens/home/screens/events/event.dart';
+import 'package:devotionals/screens/home/screens/letters/letter.dart';
+import 'package:devotionals/screens/home/screens/wwa/wwa.dart';
 import 'package:devotionals/utils/models/models.dart';
+import 'package:devotionals/utils/models/vid.dart';
 import 'package:devotionals/utils/widgets/cards/devotional.dart';
 import 'package:devotionals/utils/widgets/cards/next_event.dart';
 import 'package:devotionals/utils/widgets/cards/video_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -27,12 +33,37 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
+  String _lvid = '';
+
+  void _getLatestVid()async{
+    if (await latestVidStore.containsKey('latestVidID')) {
+      final d = await latestVidStore.get('latestVidID');
+      final vd = VideoData.fromMap(d!);
+      _lvid = vd.id;
+
+      setState(() {
+        
+      });
+    }
+
+    final latest =await VideoService().getMostRecentVideos(1);
+    _lvid = latest.first.id;
+    latestVidStore.insert('latestVidID', latest.first.toMap());
+
+    setState(() {
+      
+    });
+  }
+
   final  ScrollController _scrollController = ScrollController();
   bool _isTitleVisible = false;
+
+  final latestVidStore = DataStore('latestVid');
 
   @override
   void initState() {
     super.initState();
+    _getLatestVid();
     _getDev();
 
     _scrollController.addListener(() {
@@ -67,15 +98,6 @@ class _HomeScreenState extends State<HomeScreen> {
               expandedHeight: 300.0,
               floating: true,
               pinned: true,
-
-              actions: [
-                IconButton(onPressed: (){
-
-                }, icon: Icon(
-                  MdiIcons.bell,
-                  color: Colors.white,
-                ))
-              ],
               
               flexibleSpace: HomeFlexiblebar(isTitleVisible: _isTitleVisible),
             ),
@@ -85,49 +107,44 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: ListView(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
-          
-              Row(
+
+              if(_lvid.isNotEmpty)
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Latest Video'),
-                  TextButton(
-                    onPressed: (){
-                      Navigator.push(
-                        context,
-                        PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
-                      );
-                    },
-                    child: Text('See all')
-                  ),
+                  // TextButton(
+                  //   onPressed: (){
+                  //     Navigator.push(
+                  //       context,
+                  //       PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
+                  //     );
+                  //   },
+                  //   child: Text('See all')
+                  // ),
                 ],
               ),
      
 
-              FutureBuilder(
-                future: VideoService().getMostRecentVideos(1),
-                builder: (context, snapshot){
-                  if (snapshot.hasError || snapshot.connectionState == ConnectionState.waiting) {
-                    return CardLoading(
-                      height: 200);
-                  }
-
-                  return VideoCard(videoId: snapshot.data!.first.id, vids: []);
-                }),
+              
+            if(_lvid.isNotEmpty)      
+              VideoCard(videoId: _lvid, vids: []),
+               
 
             if(_model != null)...
               [
           
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
           
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('A Word in Due Season'),
+                  const Text('A Word in Due Season'),
                   TextButton(
                     onPressed: (){
                       Navigator.push(
@@ -135,12 +152,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
                       );
                     },
-                    child: Text('See all')
+                    child: const Text('See all')
                   ),
                 ],
               ),
           
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
           
@@ -150,14 +167,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),],
           
               
-              SizedBox(
+              const SizedBox(
                 height: 15,
               ),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Next Meetings'),
+                  const Text('Next Meetings'),
                   TextButton(
                     onPressed: (){
                       /// `Navigator.push()` is a method in Flutter that allows you to navigate to a
@@ -168,19 +185,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       //   PageTransition(child: AllDevotionals(uid: widget.uid,), type: PageTransitionType.fade)
                       // );
                     },
-                    child: Text('See all')
+                    child: const Text('See all')
                   ),
                 ],
               ),
 
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
 
-              NextEventDate(
+              const NextEventDate(
           
               ),
 
 
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
           
@@ -204,11 +221,50 @@ class _HomeScreenState extends State<HomeScreen> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: ()async{
-        Navigator.push(
-          context,
-          PageTransition(child: 
-          AddDev(), type: PageTransitionType.bottomToTop)
-        );
+
+          await showModalBottomSheet(
+            backgroundColor: Color.fromARGB(73, 36, 15, 15),
+            shape: RoundedRectangleBorder(),
+            barrierColor: cricColor,
+            context: context, 
+            builder: (BuildContext context){
+              return Container(
+                padding: EdgeInsets.fromLTRB(2, 15, 2, 0),
+                height: 149,
+
+                child: ListView(
+                  children: [
+                    ListTile(
+                      title: Text('Daily Devtional'),
+                      onTap: () {
+                         Navigator.push(
+                          context,
+                          PageTransition(child: 
+                          const AddDev(), type: PageTransitionType.bottomToTop)
+                        );
+                      },
+                    ),
+
+
+                    ListTile(
+                      title: Text('Verse of the Day'),
+                      onTap: () {
+                         Navigator.push(
+                          context,
+                          PageTransition(child: 
+                          const AddDev(), type: PageTransitionType.bottomToTop)
+                        );
+                      },
+                    )
+                  ],
+                ),
+              );
+            }
+          );
+
+
+
+       
       }),
     );
   }
@@ -281,7 +337,7 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
   Widget build(BuildContext context) {
     return FlexibleSpaceBar(
       centerTitle: widget._isTitleVisible,
-      title: widget._isTitleVisible ? Text('CRIC') : null,
+      title: widget._isTitleVisible ? const Text('CRIC') : null,
       
       background: Stack(
         alignment: AlignmentDirectional.center,
@@ -291,6 +347,21 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
             'assets/images/welcome.png',
             fit: BoxFit.cover,
             
+          ),
+
+
+          SizedBox(
+            height: 100,
+            child: CardSwiper(
+              padding: EdgeInsets.zero,
+              cardBuilder: (context, index, x, y){
+                return Image.asset(
+                  'assets/images/welcome.png',
+                  fit: BoxFit.cover,
+                );
+              },
+              cardsCount: 5
+            ),
           ),
       
           Padding(
@@ -318,52 +389,76 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: cricColor, // Background color
-                          borderRadius: BorderRadius.circular(100),
-                          
-                        ),
-                        child: Center(
-                          child: Icon(
-                            MdiIcons.lightbulbOn10,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                        ),
-                      ),
-
-
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: cricColor, // Background color
-                          borderRadius: BorderRadius.circular(100),
-                          
-                        ),
-                        child: Center(
-                          child: Icon(
-                            MdiIcons.calendarMultiple,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                        ),
-                      ),
-
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: cricColor, // Background color
-                          borderRadius: BorderRadius.circular(100),
-                          
-                        ),
-                        child: Center(
-                          child: InkWell(
+                      InkWell(
+                        onTap: (){
+                          Navigator.push(
+                            context,
+                            PageTransition(
+                              child: const WWANavigation(), type: PageTransitionType.fade)
+                          );
+                        },
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: cricColor, // Background color
+                            borderRadius: BorderRadius.circular(100),
                             
+                          ),
+                          child: Center(
+                            child: Icon(
+                              MdiIcons.lightbulbOn10,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                        ),
+                      ),
+
+
+                      InkWell(
+                        onTap: (){
+                          Navigator.push(
+                            context,
+                            PageTransition(
+                              child: const EventNavigation(), type: PageTransitionType.fade)
+                          );
+                        },
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: cricColor, // Background color
+                            borderRadius: BorderRadius.circular(100),
+                            
+                          ),
+                          child: Center(
+                            child: Icon(
+                              MdiIcons.calendarMultiple,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      InkWell(
+                        onTap: (){
+                          Navigator.push(
+                            context,
+                            PageTransition(
+                              child: const Letters(), type: PageTransitionType.fade)
+                          );
+                        },
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: cricColor, // Background color
+                            borderRadius: BorderRadius.circular(100),
+                            
+                          ),
+                          child: Center(
                             child: Icon(
                               MdiIcons.emailNewsletter,
                               color: Colors.white,
@@ -379,7 +474,7 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
             ),
           ),
       
-          Center(
+          const Center(
             child: Text(
               'Welcome To CRIC',
 

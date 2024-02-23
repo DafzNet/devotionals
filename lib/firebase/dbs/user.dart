@@ -66,8 +66,8 @@ class UserService {
   }
 
   // Update
-  Future<void> updateUser(String userID, User updatedUser) async {
-    await _userRef.child(userID).update(updatedUser.toMap());
+  Future<void> updateUser(User updatedUser) async {
+    await _userRef.child(updatedUser.userID).update(updatedUser.toMap());
   }
 
   Future<User?> getUser(String userId) async {

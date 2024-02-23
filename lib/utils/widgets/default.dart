@@ -15,6 +15,7 @@ class DefaultButton extends StatelessWidget {
 
   final Color? textColor;
   final double? width;
+  final Color? color;
   final bool active;
 
   const DefaultButton({
@@ -24,6 +25,7 @@ class DefaultButton extends StatelessWidget {
     this.textOnly=true,
     this.width,
     this.textColor,
+    this.color,
     this.active = true,
     super.key});
 
@@ -50,7 +52,7 @@ class DefaultButton extends StatelessWidget {
 
       style: TextButton.styleFrom(
         fixedSize: Size(width??(MediaQuery.of(context).size.width), 50),
-        backgroundColor: active? cricColor.shade600:cricColor.shade200,
+        backgroundColor: active? color?? cricColor.shade600:cricColor.shade200,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24)
         )
@@ -65,7 +67,7 @@ class DefaultButton extends StatelessWidget {
 
       style: TextButton.styleFrom(
         fixedSize: Size(width??(MediaQuery.of(context).size.width), 50),
-        backgroundColor: active?cricColor.shade600:cricColor.shade200,
+        backgroundColor: active? color?? cricColor.shade600:cricColor.shade200,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24)
         )

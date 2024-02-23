@@ -158,3 +158,23 @@ class _PlayerScreenState extends State<PlayerScreen> {
     ));
   }
 }
+
+
+
+class PlayerScreenSingleton {
+  static PlayerScreen? _instance;
+
+  static PlayerScreen getInstance({
+    required String videoId,
+    required String title,
+    required List<VideoData> vids,
+  }) {
+    _instance ??= PlayerScreen(
+      videoId: videoId,
+      title: title,
+      vids: vids,
+    );
+
+    return _instance!;
+  }
+}

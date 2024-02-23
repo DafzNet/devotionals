@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:card_loading/card_loading.dart';
 import 'package:devotionals/dbs/sembast/generic.dart';
+import 'package:devotionals/screens/media/player.dart';
 import 'package:devotionals/utils/models/vid.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class VideoCard extends StatefulWidget {
@@ -62,7 +65,43 @@ class _VideoCardState extends State<VideoCard> {
       future: yt.videos.get('https://www.youtube.com/watch?v=${widget.videoId}'),
       builder: (context, snapshot) {
         if (snapshot.hasError || snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return SizedBox(
+            height: 200,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 160,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10)
+                  ),
+                ),
+
+                Container(
+                  margin: EdgeInsets.all(5),
+                  height: 10,
+                  width: 300,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10)
+                  ),
+                ),
+
+                Container(
+                  margin: EdgeInsets.all(5),
+                  height: 6,
+                  width: 250,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10)
+                  ),
+                )
+              ],
+            ),
+          );
+
+
         }
         final data = snapshot.data;
         _store.insert(widget.videoId,
@@ -73,85 +112,101 @@ class _VideoCardState extends State<VideoCard> {
             'author':data.author
           }
         );
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Color.fromARGB(255, 255, 255, 255),
-            
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  image: DecorationImage(
-                    image: CachedNetworkImageProvider(data.thumbnails.mediumResUrl),
-                    fit: BoxFit.cover,
+        return InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              PageTransition(child: PlayerScreenSingleton.getInstance(title: data.title, vids: widget.vids, videoId: widget.videoId), type: PageTransitionType.fade)
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Color.fromARGB(255, 255, 255, 255),
+              
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    image: DecorationImage(
+                      image: CachedNetworkImageProvider(data.thumbnails.mediumResUrl),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 16),
-              Text(
-                data.title,
-                style: TextStyle(
-                  color: Colors.grey.shade800,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                SizedBox(height: 16),
+                Text(
+                  data.title,
+                  style: TextStyle(
+                    color: Colors.grey.shade800,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                'by ${data.author} • ${formatDuration(data.duration!.inSeconds)}',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 14,
+                SizedBox(height: 4),
+                Text(
+                  'by ${data.author} • ${formatDuration(data.duration!.inSeconds)}',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       }
-    ):Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Color.fromARGB(255, 255, 255, 255),
-            
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  image: DecorationImage(
-                    image: CachedNetworkImageProvider(_video!['thumbNail']),
-                    fit: BoxFit.cover,
+    ):InkWell(
+      onTap: () {
+            Navigator.push(
+              context,
+              PageTransition(child:PlayerScreenSingleton.getInstance(title:_video!['title'], vids: widget.vids, videoId: widget.videoId), type: PageTransitionType.fade)
+            );
+          },
+      child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Color.fromARGB(255, 255, 255, 255),
+              
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    image: DecorationImage(
+                      image: CachedNetworkImageProvider(_video!['thumbNail']),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 16),
-              Text(
-                _video!['title'],
-                style: TextStyle(
-                  color: Colors.grey[800],
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                SizedBox(height: 16),
+                Text(
+                  _video!['title'],
+                  style: TextStyle(
+                    color: Colors.grey[800],
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                'by ${_video!['author']} • ${formatDuration(_video!['duration'])}',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 14,
+                SizedBox(height: 4),
+                Text(
+                  'by ${_video!['author']} • ${formatDuration(_video!['duration'])}',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        )
+    )
     ;
   }
 }

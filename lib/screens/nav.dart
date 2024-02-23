@@ -7,9 +7,7 @@ import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:devotionals/screens/media/media.dart';
 import 'package:devotionals/screens/profile/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:podcast_search/podcast_search.dart';
 import '../utils/constants/constants.dart';
 import 'home/home.dart';
 
@@ -83,7 +81,6 @@ class _AppBaseNavigationState extends State<AppBaseNavigation> with WidgetsBindi
     super.initState();
     WidgetsBinding.instance.addObserver(this);
   }
-   Episode? _episode;
   @override
   Widget build(BuildContext context) {
 

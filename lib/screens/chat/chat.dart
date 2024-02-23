@@ -11,13 +11,12 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../../../utils/constants/colors.dart';
 import '../../dbs/sembast/userdb.dart';
 import 'screens/buddies.dart';
 import 'screens/message_screen.dart';
-
-
 
 
 class ChatScreen extends StatefulWidget {
@@ -36,27 +35,39 @@ class _ChatScreenState extends State<ChatScreen> {
   List<Map<String, dynamic>> buddies = [];
 
   final _store = DataStore('buddies');
-  final _controller = StreamController<List<Map<String, dynamic>>>.broadcast();
   List<Map<String, dynamic>>? _myBudddies = [];
-
-   void _getBuddiesFromStore() async {
-    _myBudddies = await _store.getList(widget.uid);
-    _controller.add(_myBudddies!);
-
-  }
+  late BehaviorSubject<List<Map<String, dynamic>>> _buddiesSubject;
 
   @override
   void initState() {
-    _getBuddiesFromStore();
-    _controller.addStream(ChatService().listenForNewBuddies(widget.uid), cancelOnError: true);
     super.initState();
+    _buddiesSubject = BehaviorSubject<List<Map<String, dynamic>>>.seeded([]);
+    _getBuddiesFromStore();
+      
   }
 
   @override
   void dispose() {
-    _controller.close();
+    _buddiesSubject.close();
     super.dispose();
   }
+
+  void _getBuddiesFromStore() async {
+    List<Map<String, dynamic>>? myBuddies = await _store.getList(widget.uid);
+    List<Map<String, dynamic>>? buddys = myBuddies!.map(
+      (e){
+        return {
+          'buddyId':e['buddyId'],
+          'chat':Chat.fromMap(e['chat'])
+        };
+      }
+    ).toList(growable: false);
+
+    print(buddys);
+    _buddiesSubject.add(buddys??[]);
+    _buddiesSubject.addStream(ChatService().listenForNewBuddies(widget.uid));
+  }
+
 
 
   @override
@@ -65,19 +76,42 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
 
+        flexibleSpace: FlexibleSpaceBar(
+          background: Container(
+            decoration: BoxDecoration(
+              gradient: SweepGradient(
+                colors: [
+                  cricColor.shade300,
+                  cricColor.shade200,
+                  cricColor.shade300,
+                  cricColor.shade200,
+                  cricColor.shade300,
+                  cricColor.shade200,
+                  cricColor.shade300,
+                  cricColor.shade200,
+                  cricColor.shade300,
+                  cricColor.shade200,
+                  cricColor.shade300,
+                  cricColor.shade200
+                ]
+              )
+            ),
+          ),
+        ),
+
         systemOverlayStyle: const SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.dark
+            statusBarIconBrightness: Brightness.light
           ),
 
         toolbarHeight: 70,
         elevation: 0,
         
-        title: Text('Conversations'),
+        title: const Text('Conversations', style: TextStyle(color: Colors.white),),
       ),
 
       body:StreamBuilder(
-        stream: _controller.stream,
+        stream: _buddiesSubject.stream,
         // initialData: _myBudddies,
         // initialData: Hive.box('buddies').containsKey(widget.uid)?  List<Map<String, dynamic>>.from(Hive.box('buddies').get(widget.uid)) : <Map<String, dynamic>>[] ,
         builder: (context, snapshot) {
@@ -90,7 +124,9 @@ class _ChatScreenState extends State<ChatScreen> {
               return b['chat'].timestamp.compareTo(a['chat'].timestamp!);
             },);
 
-            _store.insertList(widget.uid, buddies);
+            //Prepare message to be saved offline
+            
+            _store.insertList(widget.uid, List<Map<String, dynamic>>.from(buddies.map((e) => {'buddyId':e['buddyId'], 'chat':e['chat'].toMap()}).toList()));
             return ListView.builder(
               itemCount: buddies.length,
               itemBuilder: (context, index){
@@ -102,11 +138,11 @@ class _ChatScreenState extends State<ChatScreen> {
               }
             );
           }
-          return Column(
+          return _myBudddies!.isEmpty?const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             
             children: [
-              const Center(
+              Center(
                 child: Text(
                   'No active conversations Yet',
       
@@ -116,7 +152,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
       
-              const Center(
+              Center(
                 child: Text(
                   'Reach out and start a conversation',
       
@@ -126,10 +162,18 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               )
             ],
-          );
-        }
-      ),
-
+          ):ListView.builder(
+              itemCount: _myBudddies!.length,
+              itemBuilder: (context, index){
+                return ConverseTile(
+                  buddies[index]['buddyId'],
+                  myId: widget.uid,
+                  chat: _myBudddies![index]['chat'],
+                );
+              }
+            );
+          }
+        ),
 
       floatingActionButton: FloatingActionButton(
         onPressed: (){
@@ -161,11 +205,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
-
-
-
-
-
 
 
 
@@ -207,10 +246,10 @@ class _ConverseTileState extends State<ConverseTile> {
       return '${now.difference(commentDate).inMinutes}m';
     } else if (commentDate.day == now.day) {
       return DateFormat('h:mm a').format(commentDate);
-    } else if (commentDate.isAfter(now.subtract(Duration(days: 1)))) {
-      return 'yesterday @ ${DateFormat('h:mm a').format(commentDate)}';
+    } else if (commentDate.isAfter(now.subtract(const Duration(days: 1)))) {
+      return 'yesterday';
     } else {
-      return DateFormat('d, MMM y | HH:mm').format(commentDate);
+      return now.year != commentDate.year?DateFormat('d, MMM y').format(commentDate):DateFormat('d, MMM').format(commentDate);
     }
   }
 
@@ -233,12 +272,26 @@ class _ConverseTileState extends State<ConverseTile> {
         width: 40,
         height: 40,
         child: ClipOval(
-          child: CachedNetworkImage(imageUrl: _user!.photoUrl??'https://www.freepik.com/icon/user_1177568#fromView=keyword&term=User&page=1&position=9&uuid=694cc40b-b89d-4277-bad4-f630ee961d26'),
+          child: CachedNetworkImage(imageUrl: _user!.photoUrl??''),
         ),
       ),
 
-      trailing: Text(
-        getFormattedDate()
+      trailing: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Text(
+            getFormattedDate()
+          ),
+
+          
+
+          if(widget.chat.senderId == widget.myId )...[
+            if (widget.chat.isSent && !widget.chat.isDelivered)... [Icon(Icons.done, size: 16, color: widget.chat.isDelivered ? Colors.blue : Colors.grey),]else...[
+            Icon(Icons.done_all, size: 16, color: widget.chat.isSeen ? Colors.blue : Colors.grey),]
+           
+          ]else...[Text('')]
+        ],
       ),
 
       subtitle: StreamBuilder(
@@ -256,7 +309,9 @@ class _ConverseTileState extends State<ConverseTile> {
           }
           return Text(
             widget.chat.text,
-            style: TextStyle(
+            maxLines:1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
               fontSize: 12
             ),
           );
@@ -266,7 +321,7 @@ class _ConverseTileState extends State<ConverseTile> {
       
 
       title: Text(
-        _user!.firstName +' '+_user!.lastName
+        '${_user!.firstName} ${_user!.lastName}'
       ),
     ):
     ListTile(

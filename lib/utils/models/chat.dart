@@ -1,21 +1,28 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
 
 class Chat {
   dynamic id;
   DateTime? timestamp;
   String senderId;
   bool isSeen;
-  Chat? isReply; // Represents another Chat object
+  bool isDelivered;
+  bool isSent;
+  Chat? isReply;
   String text;
+  String? image;
+  String? audio;
 
   Chat({
     this.id,
     this.timestamp,
     required this.senderId,
     this.isSeen = false,
-    this.isReply, // Include isReply in the constructor
+    this.isDelivered = false,
+    this.isSent = false,
+    this.isReply,
     required this.text,
+    this.image,
+    this.audio,
   });
 
   Chat copyWith({
@@ -23,77 +30,55 @@ class Chat {
     DateTime? timestamp,
     String? senderId,
     bool? isSeen,
-    Chat? isReply, // Include isReply in the copyWith method
+    bool? isDelivered,
+    bool? isSent,
+    Chat? isReply,
     String? text,
+    String? image,
+    String? audio,
   }) {
     return Chat(
       id: id ?? this.id,
       timestamp: timestamp ?? this.timestamp,
       senderId: senderId ?? this.senderId,
       isSeen: isSeen ?? this.isSeen,
-      isReply: isReply ?? this.isReply, // Update isReply in the copyWith method
+      isDelivered: isDelivered ?? this.isDelivered,
+      isSent: isSent ?? this.isSent,
+      isReply: isReply ?? this.isReply,
       text: text ?? this.text,
+      image: image ?? this.image,
+      audio: audio ?? this.audio,
     );
   }
 
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
+    return {
       'id': id,
       'timestamp': timestamp?.millisecondsSinceEpoch,
       'senderId': senderId,
       'isSeen': isSeen,
-      'isReply': isReply?.toMap(), // Serialize isReply if it exists
+      'isDelivered': isDelivered,
+      'isSent': isSent,
+      'isReply': isReply?.toMap(),
       'text': text,
+      'image': image,
+      'audio': audio,
     };
   }
 
-  factory Chat.fromMap(Map<String, dynamic> map) {
+  static Chat fromMap(Map<String, dynamic> map) {
     return Chat(
-      id: map.containsKey('id')? map['id']:DateTime.now().microsecondsSinceEpoch.toString(),
-      timestamp: map['timestamp'] != null ? DateTime.fromMillisecondsSinceEpoch(map['timestamp'] as int) : null,
-      senderId: map['senderId'].toString(),
-      isSeen: map.containsKey('isSeen')? map['isSeen'] as bool:false,
-      isReply: map.containsKey('isReply')? map['isReply'] != null ? Chat.fromMap(map['isReply'] as Map<String, dynamic>) : null:null, // Deserialize isReply
-      text: map['text'].toString(),
+      id: map['id'],
+      timestamp: map['timestamp'] != null? DateTime.fromMillisecondsSinceEpoch(map['timestamp']) : null,
+      senderId: map['senderId'],
+      isSeen:  map['isSeen']??false,
+      isDelivered: map.containsKey('isDelivered') ? map['isDelivered']:false,
+      isSent: map.containsKey('isSent') ? map['isSent']:true,
+      isReply: map['isReply'] != null ? Chat.fromMap(map['isReply']) : null,
+      text: map['text'],
+      image: map.containsKey('image') ? map['image']:null,
+      audio: map.containsKey('audio')? map['audio']:null,
     );
   }
-
-  String toJson() => json.encode(toMap());
-
-  factory Chat.fromJson(String source) {
-    final decodedJson = json.decode(source);
-    if (decodedJson is Map<String, dynamic>) {
-      return Chat.fromMap(decodedJson);
-    } else {
-      throw FormatException("Invalid JSON format");
-    }
-  }
-
-  @override
-  String toString() {
-    return 'Chat(id: $id, timestamp: $timestamp, senderId: $senderId, isSeen: $isSeen, isReply: $isReply, text: $text)';
-  }
-
-  @override
-  bool operator ==(covariant Chat other) {
-    if (identical(this, other)) return true;
-
-    return 
-      other.id == id &&
-      other.timestamp == timestamp &&
-      other.senderId == senderId &&
-      other.isSeen == isSeen &&
-      other.isReply == isReply && // Update isReply in the equality check
-      other.text == text;
-  }
-
-  @override
-  int get hashCode {
-    return id.hashCode ^
-      timestamp.hashCode ^
-      senderId.hashCode ^
-      isSeen.hashCode ^
-      isReply.hashCode ^ // Include isReply in the hashCode calculation
-      text.hashCode;
-  }
 }
+

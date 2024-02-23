@@ -13,6 +13,10 @@ class User {
   String? photoUrl;
   String email;
   String phone;
+  String bio;
+  bool hideEmail;
+  bool hidePhone;
+  bool hideDobYear;
 
   User({
     required this.userID,
@@ -26,6 +30,10 @@ class User {
     this.photoUrl,
     required this.email,
     required this.phone,
+    this.bio  = 'What do you say of Yourself',
+    this.hideEmail = true,
+    this.hidePhone = true,
+    this.hideDobYear = true,
   });
 
   
@@ -41,6 +49,10 @@ class User {
     String? photoUrl,
     String? email,
     String? phone,
+    String? bio,
+    bool? hideEmail,
+    bool? hidePhone,
+    bool? hideDobYear,
   }) {
     return User(
       userID: userID ?? this.userID,
@@ -54,6 +66,10 @@ class User {
       photoUrl: photoUrl ?? this.photoUrl,
       email: email ?? this.email,
       phone: phone ?? this.phone,
+      bio: bio ?? this.bio,
+      hideEmail: hideEmail ?? this.hideEmail,
+      hidePhone: hidePhone ?? this.hidePhone,
+      hideDobYear: hideDobYear ?? this.hideDobYear,
     );
   }
 
@@ -70,6 +86,10 @@ class User {
       'photoUrl': photoUrl,
       'email': email,
       'phone': phone,
+      'bio': bio,
+      'hideEmail': hideEmail,
+      'hidePhone': hidePhone,
+      'hideDobYear': hideDobYear,
     };
   }
 
@@ -86,6 +106,10 @@ class User {
       photoUrl: map['photoUrl'] != null ? map['photoUrl'] as String : null,
       email: map['email'] as String,
       phone: map['phone'] as String,
+      bio: map.containsKey('bio')?map['bio'] as String:'',
+      hideEmail: map.containsKey('hideEmail')? map['hideEmail'] as bool:true,
+      hidePhone: map.containsKey('hidePhone')? map['hidePhone'] as bool:true,
+      hideDobYear: map.containsKey('hideDobYear')? map['hideDobYear'] as bool:true,
     );
   }
 
@@ -95,7 +119,7 @@ class User {
 
   @override
   String toString() {
-    return 'User(userID: $userID, firstName: $firstName, lastName: $lastName, dateOfBirth: $dateOfBirth, department: $department, cell: $cell, gender: $gender, memberOfhurch: $memberOfhurch, photoUrl: $photoUrl, email: $email, phone: $phone)';
+    return 'User(userID: $userID, firstName: $firstName, lastName: $lastName, dateOfBirth: $dateOfBirth, department: $department, cell: $cell, gender: $gender, memberOfhurch: $memberOfhurch, photoUrl: $photoUrl, email: $email, phone: $phone, bio: $bio, hideEmail: $hideEmail, hidePhone: $hidePhone, hideDobYear: $hideDobYear)';
   }
 
   @override
@@ -113,7 +137,11 @@ class User {
       other.memberOfhurch == memberOfhurch &&
       other.photoUrl == photoUrl &&
       other.email == email &&
-      other.phone == phone;
+      other.phone == phone &&
+      other.bio == bio &&
+      other.hideEmail == hideEmail &&
+      other.hidePhone == hidePhone &&
+      other.hideDobYear == hideDobYear;
   }
 
   @override
@@ -128,6 +156,10 @@ class User {
       memberOfhurch.hashCode ^
       photoUrl.hashCode ^
       email.hashCode ^
-      phone.hashCode;
+      phone.hashCode ^
+      bio.hashCode ^
+      hideEmail.hashCode ^
+      hidePhone.hashCode ^
+      hideDobYear.hashCode;
   }
 }

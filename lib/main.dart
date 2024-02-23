@@ -5,6 +5,7 @@ import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/media/audio/services/audio_handler.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
+import 'package:devotionals/screens/media/audio/services/page_manage.dart';
 import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:devotionals/screens/wrapper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,34 +18,25 @@ import 'package:get_it/get_it.dart'; // Replace with the actual file name
 
 final GetIt getIt = GetIt.instance;
 
-void setupLocator() async{
-  final _audio = await initAudioService();
+Future setupLocator() async{
   getIt.registerLazySingleton<AudioManager>(() => AudioManager());
   getIt.registerLazySingleton<Playing>(() => Playing());
-  getIt.registerLazySingleton<AudioHandler>(() => _audio);
+  getIt.registerSingleton<AudioHandler>((await initAudioService()));
 }
-
-
-
 
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  setupLocator();
+  // getIt.registerLazySingleton<PageManager>(() => PageManager());
+  await setupLocator();
  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
   HttpOverrides.global = MyHttpOverrides();
+
   
-  // _audioHandler = await AudioService.init(
-  //   builder: () => MyAudioHandler(),
-  //   config: AudioServiceConfig(
-  //     androidNotificationChannelId: 'com.mycompany.myapp.channel.audio',
-  //     androidNotificationChannelName: 'Music playback',
-  //   ),
-  // );
   runApp(
     MultiProvider(
       providers: [
@@ -68,6 +60,19 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
+    @override
+  void initState() {
+    super.initState();
+    // getIt<PageManager>().init();
+  }
+
+  @override
+  void dispose() {
+    // getIt<PageManager>().dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

@@ -13,12 +13,12 @@ ThemeData lightTheme = ThemeData(
       scaffoldBackgroundColor: Colors.white,
 
       textTheme: TextTheme(
-        bodyLarge: GoogleFonts.aBeeZee(color: Colors.black, fontSize: 16),
-        bodyMedium: GoogleFonts.aBeeZee(color: Colors.black, fontSize: 16),
-        bodySmall: GoogleFonts.aBeeZee(color: Colors.black, fontSize: 14),
-        titleLarge: GoogleFonts.aBeeZee(color: Colors.black, fontSize: 20),
-        titleMedium: GoogleFonts.aBeeZee(color: Colors.black, fontSize: 18),
-        titleSmall:GoogleFonts.aBeeZee(color: Colors.black, fontSize: 16),
+        bodyLarge: GoogleFonts.merriweather(color: Colors.black, fontSize: 16),
+        bodyMedium: GoogleFonts.merriweather(color: Colors.black, fontSize: 16),
+        bodySmall: GoogleFonts.merriweather(color: Colors.black, fontSize: 14),
+        titleLarge: GoogleFonts.merriweather(color: Colors.black, fontSize: 20),
+        titleMedium: GoogleFonts.merriweather(color: Colors.black, fontSize: 18),
+        titleSmall:GoogleFonts.merriweather(color: Colors.black, fontSize: 16),
       ),
 
       appBarTheme: const AppBarTheme(

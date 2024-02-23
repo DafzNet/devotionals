@@ -6,6 +6,10 @@ import 'package:sembast/sembast_io.dart';
 
 class UserRepo {
   Database? _database;
+  final StoreRef<int, Map<String, dynamic>> _store =
+      intMapStoreFactory.store('users');
+
+  UserRepo();
 
   Future<Database> get database async {
     if (_database != null) {
@@ -23,13 +27,13 @@ class UserRepo {
     return database;
   }
 
-  final StoreRef<int, Map<String, dynamic>> _store =
-      intMapStoreFactory.store('users');
-
-  UserRepo();
-
   Future insert(User user) async {
-    await _store.add(await database, user.toMap());
+    final expiryTimestamp = DateTime.now().add(Duration(hours: 24)).millisecondsSinceEpoch;
+    final userWithExpiry = {
+      ...user.toMap(),
+      'expiryTimestamp': expiryTimestamp,
+    };
+    await _store.add(await database, userWithExpiry);
   }
 
   Future<void> update(User user) async {
@@ -44,16 +48,40 @@ class UserRepo {
 
   Future<User?> get(String id) async {
     final finder = Finder(filter: Filter.equals('userID', id));
-    final user = await _store.find(await database, finder: finder);
+    final userRecords = await _store.find(await database, finder: finder);
 
-    return user.isNotEmpty ? User.fromMap(user.first.value) : null;
+    if (userRecords.isNotEmpty) {
+      final userMap = userRecords.first.value;
+      final expiryTimestamp = userMap['expiryTimestamp'] as int?;
+
+      if (expiryTimestamp != null && expiryTimestamp < DateTime.now().millisecondsSinceEpoch) {
+        // User has expired, delete the user
+        await delete(User.fromMap(userMap));
+        return null;
+      }
+
+      return User.fromMap(userMap);
+    }
+
+    return null;
   }
+
 
   Future<bool> containsKey(String id) async {
     final finder = Finder(filter: Filter.equals('userID', id));
     final user = await _store.find(await database, finder: finder);
 
-    return user.isNotEmpty;
+    if (user.isNotEmpty) {
+      final expiryTimestamp = user.first['expiryTimestamp'] as int?;
+      if (expiryTimestamp != null && expiryTimestamp < DateTime.now().millisecondsSinceEpoch) {
+        // User has expired, delete the user
+        await delete(User.fromMap(user.first.value));
+        return false;
+      }
+      return true;
+    }
+
+    return false;
   }
 
   Future<List<User>> getAllUser() async {

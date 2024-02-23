@@ -1,5 +1,6 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:devotionals/dbs/sembast/userdb.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/chat/screens/message_screen.dart';
 import 'package:devotionals/utils/constants/colors.dart';
@@ -8,8 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:provider/provider.dart';
-
 import '../../../utils/models/models.dart';
 
 
@@ -65,7 +64,7 @@ class _BuddyListState extends State<BuddyList> {
                 itemCount: allUsers.length,
                 itemBuilder: (context, index) {
                   User user = allUsers[index];
-                  Hive.box('users').put(user.userID, user.toMap());
+                  UserRepo().insert(user);
                   return user.userID != widget.uid? ListTile(
                     title: Text(user.firstName + ' '+ user.lastName),
                     subtitle: StreamBuilder(

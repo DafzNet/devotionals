@@ -44,9 +44,13 @@ class ChatService {
               'senderId': e['senderId'],
               'isSeen':e['isSeen']??true,
               'isReply': e.containsKey('isReply') && e['isReply'] != null?Map<String, dynamic>.from(e['isReply']):null,
-              'id':e['id']??e['timestamp'].toString()+e['senderId'],
-
+              'id':e['id'],
+              'audio':e['audio'],
+              'image':e['image'],
+              'isDelivered':e['isDelivered']??false,
+              'isSent':e['isSent']??false
             }
+            
           )
         }
         ).toList();
@@ -76,14 +80,19 @@ class ChatService {
       await _chatReference
           .child(mails.join('_'))
           .child('messages')
-          .push()
+          .child(chat.id.toString())
           .set({
             'text': chat.text,
             'senderId': chat.senderId,
             'timestamp': ServerValue.timestamp,
             'isReply':chat.isReply?.toMap(),
             'isSeen':chat.isSeen,
-            'id':chat.id
+            'id':chat.id.toString(),
+            'audio':chat.audio,
+            'image':chat.image,
+            'isDelivered':chat.isDelivered,
+            'isSent':chat.isSent
+
           });
     } else {
       // If no matching document is found, create a new document and add the chat
@@ -94,15 +103,18 @@ class ChatService {
       });
 
       DatabaseReference subcollectionRef = newChatRef.child('messages');
-      subcollectionRef.push().set({
+      subcollectionRef.child(chat.id.toString()).set({
         'text': chat.text,
         'senderId': chat.senderId,
         'timestamp': ServerValue.timestamp,
         'isReply':chat.isReply?.toMap(),
         'isSeen':chat.isSeen,
-        'id':chat.id
+        'id':chat.id.toString(),
+        'audio':chat.audio,
+        'image':chat.image,
+        'isDelivered':chat.isDelivered,
+        'isSent':chat.isSent
       });
-      print('Chat document created with ID: ${newChatRef.key}');
     }
 
     await updateBuddiesLastChat(user1, user2, chat);
@@ -124,6 +136,7 @@ class ChatService {
         List<Map<String, dynamic>> data = [];
         
         for (var l in _data.values.toList()) {
+          
           final k = l.containsKey('isReply') && l['isReply'] != null? Map.from(l['isReply']):null;
           l['isReply'] = k!=null? Map<String, dynamic>.from(k):null;
           data.add(
@@ -131,11 +144,12 @@ class ChatService {
           );
         }
 
-        List<Chat> messages = data
-            .map((entry) =>
-                Chat.fromMap(entry as Map<String, dynamic>))
-            .toList();
-        ChatModelProvider().setChatMessages(messages);
+        List<Chat> messages = [];
+        
+        for (var e in data) {
+          messages.add(Chat.fromMap(e as Map<String, dynamic>));
+        }
+        
         return messages;
       } else {
         return [];
@@ -169,5 +183,32 @@ class ChatService {
         return [];
       }
     }
+  }
+
+
+  Future<void> updateChat(String user1, String user2, Chat updatedChat) async {
+    List<String> mails = [user1, user2];
+    mails.sort();
+    DatabaseReference chatRef = _chatReference.child(mails.join('_')).child('messages').child(updatedChat.id);
+
+    await chatRef.set({
+      'text': updatedChat.text,
+      'senderId' : updatedChat.senderId,
+      'timestamp': updatedChat.timestamp?.millisecondsSinceEpoch,
+      'isReply':updatedChat.isReply?.toMap(),
+      'isSeen':updatedChat.isSeen,
+      'id':updatedChat.id.toString(),
+      'audio':updatedChat.audio,
+      'image':updatedChat.image,
+      'isDelivered':updatedChat.isDelivered,
+      'isSent':updatedChat.isSent
+    });
+  }
+
+  Future<void> deleteChat(String user1, String user2, Chat chat) async {
+    List<String> mails = [user1, user2];
+    mails.sort();
+    DatabaseReference chatRef = _chatReference.child(mails.join('_')).child('messages').child(chat.id);
+    await chatRef.remove();
   }
 }

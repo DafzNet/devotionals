@@ -152,7 +152,7 @@ class Episode {
 }
 
 
-class AudioService{
+class AudService{
   Future<List<Episode>?> searchPods() async {
   var rssFeedUrl = 'https://anchor.fm/s/10004cbc/podcast/rss';
   var response = await http.get(Uri.parse(rssFeedUrl));

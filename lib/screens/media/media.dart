@@ -85,11 +85,7 @@ class _MediaScreenState extends State<MediaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // title: Text('Mesages'),
-        toolbarHeight: 5,
-
-      ),
+      
 
       body: DefaultTabController(
         length: 4, // Specify the number of tabs
@@ -101,19 +97,42 @@ class _MediaScreenState extends State<MediaScreen> {
                 toolbarHeight: 10,
                 floating: false,
                 pinned: true,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Container(
+                    decoration: BoxDecoration(
+                      gradient: SweepGradient(
+                        colors: [
+                          cricColor.shade300,
+                          cricColor.shade200,
+                          cricColor.shade300,
+                          cricColor.shade200,
+                          cricColor.shade300,
+                          cricColor.shade200,
+                          cricColor.shade300,
+                          cricColor.shade200,
+                          cricColor.shade300,
+                          cricColor.shade200,
+                          cricColor.shade300,
+                          cricColor.shade200
+                        ]
+                      )
+                    ),
+                  ),
+                ),
                 bottom: TabBar(
                   isScrollable: false,
                   padding: const EdgeInsets.all(2),
                   indicatorSize: TabBarIndicatorSize.tab,
-                  indicatorColor: cricColor,
-                  labelStyle: const TextStyle(
+                  indicatorColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: Colors.grey[100],
                     fontWeight: FontWeight.bold,
                     fontSize: 16
                   ),
                   
                   tabs: [
                     Tab(text: 'All'),
-                    Tab(text: 'Equip', icon: Icon(Icons.sledding),),
+                    Tab(text: 'Equip'),
                     Tab(text: 'FoHP'),
                     Tab(text: 'MoH'),
                     // Tab(text: 'Audio'),

@@ -5,6 +5,7 @@ import 'package:devotionals/dbs/sembast/generic.dart';
 import 'package:devotionals/screens/media/audio/miniplayer.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
 import 'package:devotionals/screens/media/audio/services/playing.dart';
+import 'package:devotionals/utils/constants/colors.dart';
 import 'package:devotionals/utils/widgets/cards/music.dart';
 import 'package:devotionals/utils/widgets/cards/musictile.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import 'package:get_it/get_it.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
 
-import 'services/audio.dart';
+import 'services/my_audio.dart';
 // import 'package:video_player/video_player.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -25,7 +26,7 @@ class AudioScreen  extends StatefulWidget {
 }
 
 class _AudioScreenState extends State<AudioScreen> {
-  final _audioService = AudioService();
+  final _audioService = AudService();
   final _pageController = PageController();
 
   final _store = DataStore('episodes');
@@ -44,8 +45,9 @@ class _AudioScreenState extends State<AudioScreen> {
 
   
 
-  void _showPopupMenu(BuildContext context, Offset position) async {
+  void _showPopupMenu(BuildContext context, Offset position, Episode episode) async {
       double yOffset = position.dy - 20.0;
+      bool favorite = await audioManager.isFavorited(episode);
 
   // Ensure the yOffset is non-negative
       yOffset = yOffset < 0 ? 0 : yOffset;
@@ -56,14 +58,20 @@ class _AudioScreenState extends State<AudioScreen> {
         items: [
           PopupMenuItem<String>(
             onTap: () async{
-             
+             await audioManager.addOrRemoveFavorite(episode);
+
+             setState(() {
+               
+             });
             },
             value: '',
             child: Row(
               children: [
-                Icon(MdiIcons.heartOutline, size: 18,),
+                Icon(favorite? MdiIcons.heart:MdiIcons.heartOutline, size: 18, color: favorite?Colors.red:null,),
                 SizedBox(width: 10,),
-                Text('Favorite'),
+                Text(
+                  favorite? 'Remove favorite':'Favorite',
+                ),
               ],
             ),
           ),
@@ -111,6 +119,8 @@ class _AudioScreenState extends State<AudioScreen> {
   }
   
   final _textController = TextEditingController();
+  Map<int, bool> clicked = {0:true, 1:false, 2:false};
+
 
   @override
   Widget build(BuildContext context) {
@@ -160,28 +170,74 @@ class _AudioScreenState extends State<AudioScreen> {
                       
                   Row(
                     children: [
+                      SizedBox(width: 10,),
                       Wrap(
                         spacing: 5,
                         children: [
                           TextButton(
                             onPressed: (){
                               _pageController.jumpToPage(0);
-                            }, 
-                            child: Text('All')
+                              clicked[0]=true;
+                              clicked[1]=clicked[2]=false;
+
+                              setState(() {
+                                
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: clicked[0]!? cricColor[400]: Color.fromARGB(125, 238, 238, 238)
+                            ),
+                            child: Text('All',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16
+                              ),
+                            )
                           ),
                       
                           TextButton(
                             onPressed: (){
                               _pageController.jumpToPage(1);
-                            }, 
-                            child: Text('Favorites')
+                              clicked[1]=true;
+                              clicked[0]=clicked[2]=false;
+
+                              setState(() {
+                                
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: clicked[1]!? cricColor[400]: Color.fromARGB(125, 238, 238, 238)
+                            ),
+                            child: Text('Favorites',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16
+                              ),)
                           ),
                       
                            TextButton(
                             onPressed: (){
                               _pageController.jumpToPage(2);
-                            }, 
-                            child: Text('Playlists')
+                              clicked[2]=true;
+                              clicked[1]=clicked[0]=false;
+
+                              setState(() {
+                                
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: clicked[2]!? cricColor[400]: Color.fromARGB(125, 238, 238, 238)
+                            ),
+                            child: Text(
+                              'Playlists',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16
+                              ),
+                            )
                           ),
                         ],
                       ),
@@ -208,16 +264,17 @@ class _AudioScreenState extends State<AudioScreen> {
                   itemBuilder: (context, index){
                     return InkWell(
                       onTap: ()async{
-                        await Navigator.push(
-                          context,
-                          PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
-                        );
+                        // await Navigator.push(
+                        //   context,
+                        //   PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
+                        // );
                       },
                       child: PodcastTile(
                        podcast: episodes[index],
+                       index: index,
                        playlist: episodes,
                        trailingAction: (t){
-                        _showPopupMenu(context, t.globalPosition);
+                        _showPopupMenu(context, t.globalPosition, episodes[index]);
                        },
 
 
@@ -254,16 +311,17 @@ class _AudioScreenState extends State<AudioScreen> {
                   itemBuilder: (context, index){
                     return InkWell(
                       onTap: ()async{
-                        await Navigator.push(
-                          context,
-                          PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
-                        );
+                        // await Navigator.push(
+                        //   context,
+                        //   PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
+                        // );
                       },
                       child: PodcastTile(
+                       index: index,
                        podcast: snapshot.data![index],
                        playlist: snapshot.data!,
                        trailingAction: (t){
-                        _showPopupMenu(context, t.globalPosition);
+                        _showPopupMenu(context, t.globalPosition, episodes[index]);
                        },
 
 
@@ -281,7 +339,7 @@ class _AudioScreenState extends State<AudioScreen> {
                     return ListView.builder(
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index){
-                        return PodcastTile(podcast: snapshot.data![index], playlist: snapshot.data!);
+                        return PodcastTile(index: index, podcast: snapshot.data![index], playlist: snapshot.data!);
                       }
                     );
                   }
@@ -291,9 +349,7 @@ class _AudioScreenState extends State<AudioScreen> {
             )
           ),
 
-          if(_playing.currentEpisode != null && (audioManager.isPlaying || audioManager.isPaused))...[
-            MiniAudioPlayer(episode: _playing.currentEpisode)
-          ]
+          MiniAudioPlayer()
         ],
       ),
 
