@@ -193,6 +193,7 @@ class _SingleLineFieldState extends State<SingleLineField> {
                           
                           validate(dd);
                         },
+                        
                         onSubmitted: saveLastValidInput,
                         obscureText: widget.password? showPassword:false,
                         

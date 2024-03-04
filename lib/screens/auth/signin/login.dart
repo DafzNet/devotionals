@@ -61,6 +61,8 @@ class _LoginScreenState extends State<LoginScreen> {
             statusBarColor: Colors.transparent,
             statusBarIconBrightness: Brightness.dark
           ),
+
+          toolbarHeight: 30,
       ),
 
 
@@ -97,10 +99,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
           
           
-          
-          
                 const SizedBox(
-                  height: 50,
+                  height: 80,
                 ),
           
           
@@ -193,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
           
                         child: Text(
-                          'Forgot your password?',
+                          'Forgot password?',
                           style: TextStyle(
                             color: cricColor,
                             fontSize: 14,

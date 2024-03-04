@@ -5,13 +5,14 @@ import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/media/audio/services/audio_handler.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
-import 'package:devotionals/screens/media/audio/services/page_manage.dart';
 import 'package:devotionals/screens/media/audio/services/playing.dart';
+import 'package:devotionals/screens/onboarding/onboarder.dart';
 import 'package:devotionals/screens/wrapper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'utils/theme/theme.dart';
 import 'package:get_it/get_it.dart'; // Replace with the actual file name
@@ -27,7 +28,6 @@ Future setupLocator() async{
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  // getIt.registerLazySingleton<PageManager>(() => PageManager());
   await setupLocator();
  
   await Firebase.initializeApp(
@@ -65,6 +65,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     // getIt<PageManager>().init();
+    _getFirstTimeStatus();
   }
 
   @override
@@ -73,13 +74,25 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
+
+  bool _firstTime = false;
+
+  Future _getFirstTimeStatus()async{
+    SharedPreferences pref = await  SharedPreferences.getInstance();
+    _firstTime = pref.getBool('is_first_time') ?? true;
+
+    setState(() {
+      
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'CRIC',
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
-      home: const Wrapper(),
+      home: _firstTime? Onboarder() : const Wrapper(),
     );
   }
 }

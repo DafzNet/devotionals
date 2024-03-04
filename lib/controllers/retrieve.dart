@@ -13,6 +13,5 @@ class BibleReader {
     ).convert(csvPath);
     return _bibleData;
   }
-
 }
 

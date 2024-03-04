@@ -4,10 +4,6 @@ import 'package:devotionals/utils/widgets/loading.dart';
 import 'package:devotionals/utils/widgets/textfields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:page_transition/page_transition.dart';
-
-//import '../../../components/general/options.dart';
-import 'createpassword.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -71,9 +67,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ],
                 ),
           
-          
-          
-          
                 const SizedBox(
                   height: 50,
                 ),
@@ -115,6 +108,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       loading = false;
                     });
 
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Recovery email sent to ${emailController.text}')
+                      )
+                    );
                     Navigator.pop(context);
                 },
           

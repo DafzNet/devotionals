@@ -1,23 +1,18 @@
 // import 'dart:ui';
 
 // import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:devotionals/dbs/sembast/generic.dart';
 // import 'package:devotionals/screens/media/audio/services/manager.dart';
 // import 'package:devotionals/screens/media/audio/services/playing.dart';
 // import 'package:devotionals/utils/widgets/cards/musictile.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get_it/get_it.dart';
-// import 'package:just_audio/just_audio.dart';
-// import 'package:marquee/marquee.dart';
 // import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 // final GetIt getIt = GetIt.instance;
 // class MusicPlayerTile extends StatefulWidget {
   
-
-// final bool play;
 //   const MusicPlayerTile(
-//     this.play
+    
 //   );
 //   @override
 //   State<MusicPlayerTile> createState() => _MusicPlayerTileState();
@@ -29,20 +24,6 @@
 
 //   bool favorited = true;
 
-//   void _inits()async{
-//     favorited = await audioManager.isFavorited(_playing.currentEpisode!);
-
-//     setState(() {
-      
-//     });
-//   }
-
-//   void play()async{
-//     // if (widget.play){await audioManager.play(_playing.currentEpisode!);} 
-//     setState(() {
-      
-//     });
-//   }
 
 //   String formatDuration(Duration duration) {
 //     String twoDigits(int n) => n.toString().padLeft(2, '0');
@@ -50,23 +31,10 @@
 //     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
 //     return '$twoDigitMinutes:$twoDigitSeconds';
 //   }
-
-//   late AudioPlayer _audioPlayer;
 //   // bool _isBuffering = true;
 
 //   @override
 //   void initState() { // Initialize currentPos
-//     _inits();
-//     play();
-//     _audioPlayer = audioManager.audioPlayer;
-
-//     _audioPlayer.positionStream.listen((Duration position) {
-      
-//       setState(() {
-        
-//       });
-//     });
-
 //     super.initState();
 //   }
 
@@ -135,7 +103,7 @@
 //                         decoration: BoxDecoration(
 //                           borderRadius: BorderRadius.circular(8),
 //                           image: DecorationImage(
-//                             image: CachedNetworkImageProvider(_playing.currentEpisode!.episodeImage!),
+//                             image: CachedNetworkImageProvider(_playing.currentEpisode!.episodeImage),
 //                             fit: BoxFit.cover,
 //                           ),
 //                         ),
@@ -170,7 +138,7 @@
 //                   ],
 //                 if(_otherPlaylistEpisodesShown)
 //                   ListView.builder(
-//                     itemCount: audioManager.playlist.songs.length,
+//                     itemCount: audioManager,
 //                       itemBuilder: (context, i){
 //                         return PodcastTile(tcolor: const Color.fromARGB(255, 246, 245, 245), podcast: audioManager.playlist.songs[i], playlist: audioManager.playlist.songs, color: Colors.transparent,);
 //                       }
@@ -315,7 +283,6 @@
 //                     size: 36,
 //                   ),
 //                 ),
-
 //                 IconButton(
 //                 icon: Icon(Icons.loop),
 //                 onPressed: () {

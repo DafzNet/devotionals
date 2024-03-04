@@ -23,7 +23,6 @@ class AudioManager {
   final _storeFavorite = DataStore('favorites');
   final _storeSettings = DataStore('music_settings');
 
-
   factory AudioManager() {
     return _instance;
   }

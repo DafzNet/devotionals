@@ -18,7 +18,7 @@ Future<AudioHandler> initAudioService() async {
       androidNotificationChannelId: 'com.cric.app.channel.audio',
       androidNotificationChannelName: 'Cric',
       androidShowNotificationBadge: true,
-      androidNotificationIcon: 'drawable/ic_launcher_notif',
+      androidNotificationIcon: 'mipmap/ic_launcher_notif',
       androidStopForegroundOnPause: false,
       notificationColor: cricColor.shade200,
     ),
@@ -47,38 +47,38 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.music());
 
-    // Rx.combineLatest4<int?, List<MediaItem>, bool, List<int>?, MediaItem?>(
-    //     _player.currentIndexStream,
-    //     queue,
-    //     _player.shuffleModeEnabledStream,
-    //     _player.shuffleIndicesStream,
-    //     (index, queue, shuffleModeEnabled, shuffleIndices) {
-    //   final queueIndex = getQueueIndex(
-    //     index,
-    //     shuffleIndices,
-    //     shuffleModeEnabled: shuffleModeEnabled,
-    //   );
-    //   return (queueIndex != null && queueIndex < queue.length)
-    //       ? queue[queueIndex]
-    //       : null;
-    // }).whereType<MediaItem>().distinct().listen(mediaItem.add);
+    Rx.combineLatest4<int?, List<MediaItem>, bool, List<int>?, MediaItem?>(
+        _player.currentIndexStream,
+        queue,
+        _player.shuffleModeEnabledStream,
+        _player.shuffleIndicesStream,
+        (index, queue, shuffleModeEnabled, shuffleIndices) {
+      final queueIndex = getQueueIndex(
+        index,
+        shuffleIndices,
+        shuffleModeEnabled: shuffleModeEnabled,
+      );
+      return (queueIndex != null && queueIndex < queue.length)
+          ? queue[queueIndex]
+          : null;
+    }).whereType<MediaItem>().distinct().listen(mediaItem.add);
 
-    // // Propagate all events from the audio player to AudioService clients.
-    // _player.playbackEventStream
-    //     .listen(_broadcastState, onError: _playbackError);
+    // Propagate all events from the audio player to AudioService clients.
+    _player.playbackEventStream
+        .listen(_broadcastState, onError: _playbackError);
 
-    // _player.shuffleModeEnabledStream
-    //     .listen((enabled) => _broadcastState(_player.playbackEvent));
+    _player.shuffleModeEnabledStream
+        .listen((enabled) => _broadcastState(_player.playbackEvent));
 
-    // _player.loopModeStream
-    //     .listen((event) => _broadcastState(_player.playbackEvent));
+    _player.loopModeStream
+        .listen((event) => _broadcastState(_player.playbackEvent));
 
-    // _player!.processingStateStream.listen((state) {
-    //   if (state == ProcessingState.completed) {
-    //     stop();
-    //     _player!.seek(Duration.zero, index: 0);
-    //   }
-    // });
+    _player.processingStateStream.listen((state) {
+      if (state == ProcessingState.completed) {
+        stop();
+        _player.seek(Duration.zero, index: 0);
+      }
+    });
   }
 
   int? getQueueIndex(
@@ -137,43 +137,6 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     );
   }
 
-  // void _notifyAudioHandlerAboutPlaybackEvents() {
-  //   _player.playbackEventStream.listen((event) {
-  //     final playing = _player.playing;
-  //     playbackState.add(playbackState.value.copyWith(
-  //       controls: [
-  //         MediaControl.skipToPrevious,
-  //         if (playing) MediaControl.pause else MediaControl.play,
-          
-  //         MediaControl.skipToNext,
-  //       ],
-  //       systemActions: const {
-  //         MediaAction.seek,
-  //       },
-  //       androidCompactActionIndices: const [0, 1, 3],
-  //       processingState: const {
-  //         ProcessingState.idle: AudioProcessingState.idle,
-  //         ProcessingState.loading: AudioProcessingState.loading,
-  //         ProcessingState.buffering: AudioProcessingState.buffering,
-  //         ProcessingState.ready: AudioProcessingState.ready,
-  //         ProcessingState.completed: AudioProcessingState.completed,
-  //       }[_player.processingState]!,
-  //       repeatMode: const {
-  //         LoopMode.off: AudioServiceRepeatMode.none,
-  //         LoopMode.one: AudioServiceRepeatMode.one,
-  //         LoopMode.all: AudioServiceRepeatMode.all,
-  //       }[_player.loopMode]!,
-  //       shuffleMode: (_player.shuffleModeEnabled)
-  //           ? AudioServiceShuffleMode.all
-  //           : AudioServiceShuffleMode.none,
-  //       playing: playing,
-  //       updatePosition: _player.position,
-  //       bufferedPosition: _player.bufferedPosition,
-  //       speed: _player.speed,
-  //       queueIndex: event.currentIndex,
-  //     ));
-  //   });
-  // }
 
   void _listenForDurationChanges() {
     _player.durationStream.listen((duration) {
@@ -191,37 +154,44 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     });
   }
 
+  // void _listenForCurrentSongIndexChanges() {
+  //   _player.currentIndexStream.listen((index) {
+  //     final playlist = queue.value;
+  //     if (index == null || playlist.isEmpty) return;
+  //     if (_player.shuffleModeEnabled) {
+  //       index = _player.shuffleIndices!.indexOf(index);
+  //     }
+  //     mediaItem.add(playlist[index]);
+  //   });
+  // }
+
   void _listenForCurrentSongIndexChanges() {
-    _player.currentIndexStream.listen((index) {
-      final playlist = queue.value;
-      if (index == null || playlist.isEmpty) return;
-      if (_player.shuffleModeEnabled) {
-        index = _player.shuffleIndices!.indexOf(index);
-      }
-      mediaItem.add(playlist[index]);
-    });
-  }
+  _player.currentIndexStream.listen((index) {
+    final playlist = queue.value;
+    if (index == null || playlist.isEmpty) return;
+    if (_player.shuffleModeEnabled) {
+      index = _player.shuffleIndices!.indexOf(index);
+    }
+    final currentMediaItem = playlist[index];
+    mediaItem.add(currentMediaItem); // Emit the new MediaItem through the stream
+    // Update the playback state with the new queue index and other details
+    _broadcastState(_player.playbackEvent);
+  });
+}
+
+
 
   void _listenForSequenceStateChanges() {
-    _player.sequenceStateStream.listen((SequenceState? sequenceState) {
-      final sequence = sequenceState?.effectiveSequence;
-      if (sequence == null || sequence.isEmpty) return;
-      final items = sequence.map((source) => source.tag as MediaItem);
-      queue.add(items.toList(growable: false));
+  _player.sequenceStateStream.listen((SequenceState? sequenceState) {
+    final sequence = sequenceState?.effectiveSequence;
+    if (sequence == null || sequence.isEmpty) return;
+    final items = sequence
+        .where((source) => source.tag is MediaItem)
+        .map((source) => source.tag as MediaItem);
+    queue.add(items.toList(growable: false));
     });
   }
 
-//   void _listenForSequenceStateChanges() {
-//   _player.sequenceStateStream.listen((SequenceState? sequenceState) {
-//     final sequence = sequenceState?.effectiveSequence;
-//     if (sequence == null || sequence.isEmpty) return;
-//     final items = sequence.map((source) => source.tag as MediaItem?);
-//     // Filter out null values
-//     final validItems = items.where((item) => item != null).cast<MediaItem>().toList();
-
-//     queue.add(validItems);
-//   });
-// }
 
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {

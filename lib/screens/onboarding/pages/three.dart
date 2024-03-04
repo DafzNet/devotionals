@@ -19,8 +19,12 @@ class _OnboarderThreeState extends State<OnboarderThree> {
           children: [
 
             Expanded(
-              child: Container(color: cricColor.shade600,)
+              child: Container(
+
+              )
             ),
+
+            SizedBox(height: 15,),
 
             Row(
               children: [
@@ -37,7 +41,9 @@ class _OnboarderThreeState extends State<OnboarderThree> {
               'Aliqua duis nulla qui amet fugiat irure nostrud. Minim nostrud elit id occaecat ea ea ex esse incididunt est Lorem. Elit labore velit est est minim commodo dolor culpa in non fugiat occaecat aliqua. Sunt id esse veniam nulla eiusmod culpa velit ut et. Qui exercitation voluptate esse excepteur in velit officia id sint cillum.',
               
               maxLines: 3,
-              style: TextStyle(),
+              style: TextStyle(
+                fontSize: 14
+              ),
             ),
 
           ],

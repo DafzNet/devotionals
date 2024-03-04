@@ -45,8 +45,12 @@ class _SignUpPage2aState extends State<SignUpPage2a> {
     if (memberController.text.toLowerCase() == 'yes') {
       if (departmentController.text.toLowerCase() == 'no' && cellController.text.toLowerCase() == 'no') {
         return true;
-      }else{
-        if (departmentBelongController.text.isNotEmpty && cellBelongController.text.isNotEmpty) {
+      }
+      else if ((departmentController.text.toLowerCase() == 'no' && cellBelongController.text.isNotEmpty) || (departmentController.text.isNotEmpty && cellBelongController.text.toLowerCase() == 'no')) {
+        return true;
+      }
+      else{
+        if (departmentBelongController.text.isNotEmpty && cellBelongController.text.isNotEmpty){
           return true;
         }
       }

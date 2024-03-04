@@ -401,7 +401,7 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
                           width: 60,
                           height: 60,
                           decoration: BoxDecoration(
-                            color: cricColor, // Background color
+                            color: Color.fromARGB(255, 146, 245, 179), // Background color
                             borderRadius: BorderRadius.circular(100),
                             
                           ),
@@ -428,7 +428,7 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
                           width: 60,
                           height: 60,
                           decoration: BoxDecoration(
-                            color: cricColor, // Background color
+                            color: Color.fromARGB(255, 146, 245, 179),// Background color
                             borderRadius: BorderRadius.circular(100),
                             
                           ),
@@ -454,7 +454,7 @@ class _HomeFlexiblebarState extends State<HomeFlexiblebar> {
                           width: 60,
                           height: 60,
                           decoration: BoxDecoration(
-                            color: cricColor, // Background color
+                            color: Color.fromARGB(255, 146, 245, 179), // Background color
                             borderRadius: BorderRadius.circular(100),
                             
                           ),

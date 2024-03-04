@@ -19,28 +19,44 @@ class _OnboarderOneState extends State<OnboarderOne> {
           children: [
 
             Expanded(
-              child: Container(color: cricColor.shade400,)
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(image: AssetImage('assets/images/plant-new-life.jpg'),
+                  fit: BoxFit.cover
+                  ),
+
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black,
+                      Colors.transparent
+                    ]
+                  )
+                )
+              )
             ),
+
+            SizedBox(height: 15,),
 
             Row(
               children: [
                 Text(
-                  'in velit officia',
+                  'Our Message',
                   textAlign: TextAlign.left,
 
                   style: TextStyle(
-                    fontWeight: FontWeight.bold 
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16
                   ),
                 ),
               ],
             ),
 
             Text(
-              'Aliqua duis nulla qui amet fugiat irure nostrud. Minim nostrud elit id occaecat ea ea ex esse incididunt est Lorem. Elit labore velit est est minim commodo dolor culpa in non fugiat occaecat aliqua. Sunt id esse veniam nulla eiusmod culpa velit ut et. Qui exercitation voluptate esse excepteur in velit officia id sint cillum.',
+              'Our mandate is to preach and teach the full message of the Gospel based on Acts 5:20 NIV',
               
               maxLines: 3,
               style: TextStyle(
-                
+                fontSize: 14
               ),
             ),
 

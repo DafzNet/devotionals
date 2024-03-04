@@ -53,14 +53,14 @@ class _OnboarderState extends State<Onboarder> {
             SizedBox(height: 20,),
 
             DefaultButton(
-              text: currentPage== 2? 'Get Started' : 'Continue',
+              text: currentPage== 2? 'Get Started' : 'Next',
 
               onTap: (){
                 currentPage < 2?_controller.nextPage(duration: Duration(milliseconds: 200), curve: Curves.bounceIn):
                 Navigator.pushReplacement(
                   context,
                   PageTransition(
-                    child: SignUp(), 
+                    child: SignUp(),
                     type: PageTransitionType.fade
                   )
                 );

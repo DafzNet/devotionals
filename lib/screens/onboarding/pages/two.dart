@@ -19,8 +19,12 @@ class _OnboarderTwoState extends State<OnboarderTwo> {
           children: [
 
             Expanded(
-              child: Container(color: cricColor,)
+              child: Container(
+
+              )
             ),
+
+            SizedBox(height: 15,),
 
             Row(
               children: [
@@ -28,7 +32,10 @@ class _OnboarderTwoState extends State<OnboarderTwo> {
                   'in velit officia',
                   textAlign: TextAlign.left,
 
-                  style: TextStyle(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16
+                  ),
                 ),
               ],
             ),
@@ -37,7 +44,9 @@ class _OnboarderTwoState extends State<OnboarderTwo> {
               'Aliqua duis nulla qui amet fugiat irure nostrud. Minim nostrud elit id occaecat ea ea ex esse incididunt est Lorem. Elit labore velit est est minim commodo dolor culpa in non fugiat occaecat aliqua. Sunt id esse veniam nulla eiusmod culpa velit ut et. Qui exercitation voluptate esse excepteur in velit officia id sint cillum.',
               
               maxLines: 3,
-              style: TextStyle(),
+              style: TextStyle(
+                fontSize: 14
+              ),
             ),
 
           ],
