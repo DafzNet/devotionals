@@ -189,12 +189,9 @@ class _ChatScreenState extends State<ChatScreen> {
           );
         },
 
-        backgroundColor: cricColor.shade600,
+        backgroundColor: cricColor,
         elevation: 3,
 
-        shape: const CircleBorder(
-
-        ),
 
          child: Icon(
           MdiIcons.plus,

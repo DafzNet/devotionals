@@ -29,18 +29,22 @@ class _OnboarderThreeState extends State<OnboarderThree> {
             Row(
               children: [
                 Text(
-                  'in velit officia',
+                  'Visit Us',
                   textAlign: TextAlign.left,
 
-                  style: TextStyle(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16
+                  ),
                 ),
               ],
             ),
 
             Text(
-              'Aliqua duis nulla qui amet fugiat irure nostrud. Minim nostrud elit id occaecat ea ea ex esse incididunt est Lorem. Elit labore velit est est minim commodo dolor culpa in non fugiat occaecat aliqua. Sunt id esse veniam nulla eiusmod culpa velit ut et. Qui exercitation voluptate esse excepteur in velit officia id sint cillum.',
+              'We will love to have you around. Worship with us at Charismatic Renaissance Int\'l church',
               
               maxLines: 3,
+              textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 14
               ),

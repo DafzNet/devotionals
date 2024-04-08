@@ -30,7 +30,7 @@ class DevotionalService {
   Future<List> getDevotionals({DocumentSnapshot? lastDocument}) async {
     Query query = _devotionalCollection
         .orderBy('date', descending: true)
-        .limit(30);
+        .limit(15);
 
     if (lastDocument != null) {
       query = query.startAfterDocument(lastDocument);

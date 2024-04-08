@@ -79,7 +79,7 @@ class _MyAppState extends State<MyApp> {
 
   Future _getFirstTimeStatus()async{
     SharedPreferences pref = await  SharedPreferences.getInstance();
-    _firstTime = pref.getBool('is_first_time') ?? true;
+    _firstTime = pref.getBool('firstTime') ?? true;
 
     setState(() {
       

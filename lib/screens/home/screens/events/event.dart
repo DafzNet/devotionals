@@ -1,8 +1,7 @@
-import 'package:devotionals/utils/constants/colors.dart';
+import 'package:devotionals/firebase/dbs/event_fs.dart';
 import 'package:devotionals/utils/constants/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class EventNavigation extends StatefulWidget {
   const EventNavigation({
@@ -14,47 +13,25 @@ class EventNavigation extends StatefulWidget {
 
 class _EventNavigationState extends State<EventNavigation> with WidgetsBindingObserver {
 
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  List<Widget> _pages = [
-
-  ];
-
-  int _currentIndex = 0;
-  Widget? _currentWidget;
-
-
-
-  void getCurrentPage(index){
-    _currentIndex = index;
-    _currentWidget = _pages[_currentIndex];
-    
-    setState(() {
-      
-    });
-  }
-
-  final pageController = PageController();
-  
 
   @override
   void initState() {
-    _currentWidget = Container();
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
   }
 
-  final _controller = PageController();
 
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
 
+      appBar: AppBar(
+        title: Text(''),
+
+        // actions: [
+        //   TextButton(onPressed: null, child: Text('Weekly'))
+        // ],
+      ),
 
       body: Container(
         decoration: const BoxDecoration(
@@ -64,68 +41,110 @@ class _EventNavigationState extends State<EventNavigation> with WidgetsBindingOb
             opacity: .3
           )
         ),
-        child: PageView.builder(
-          itemCount: _pages.length,
-          controller: _controller,
-          onPageChanged: (value) {
-            getCurrentPage(value);
-          },
-          itemBuilder: (context, index){
-            return _currentWidget;
-          }),
-      ),
+        child: FutureBuilder(
+          future: EventFirestoreService().getAllEvents(),
+          builder: (context, snapshot) {
 
-      bottomNavigationBar: BottomNavigationBar(
-        unselectedItemColor: const Color.fromARGB(197, 39, 39, 39),
-        selectedItemColor: cricColor.shade600,
-        showSelectedLabels: true,
-        showUnselectedLabels: false,
-        elevation: 0,
-        type: BottomNavigationBarType.fixed,
-
-        //backgroundColor: Color(0xffFAFAFF),
-        currentIndex: _currentIndex,
-        onTap: (index){
-          getCurrentPage(index);
-          _controller.animateToPage(index, duration: Duration(milliseconds: 100), curve: Curves.bounceIn);
-
-          setState(() {
+            if (snapshot.hasError || snapshot.connectionState == ConnectionState.waiting || snapshot.data == null) {
+             return SfCalendar(
+                  view: CalendarView.schedule,
+                  onTap: (det){
+                    if (det.appointments!.isNotEmpty) {
+                      print(det.appointments!.first);
+                    }
+                  },
+                  todayHighlightColor: Colors.transparent,
             
-          });
-        },
-      
-        items:  [
-          
-          BottomNavigationBarItem(
-            icon: Icon(
-              MdiIcons.lightbulbOutline
-            ),
-      
-            activeIcon: Icon(
-              MdiIcons.lightbulb
-            ),
-      
-            label: 'Events'
-          ),
+                  // backgroundColor: cricColor.shade100,
+                  monthViewSettings: MonthViewSettings(
+                    appointmentDisplayMode: MonthAppointmentDisplayMode.appointment
+                  ),
+                ); 
+            }
+
+            final List<Meeting> meetings = snapshot.data!.map((e) {
+              return Meeting(e.title, e.startDate, e.endDate??DateTime.now(), e.color??Colors.transparent, false, e.venue??'');
+            },).toList();
 
 
-          /////Chat
-          BottomNavigationBarItem(
-            icon: Icon(
-              MdiIcons.runFast
-            ),
-      
-            activeIcon: Icon(
-              MdiIcons.runFast
-            ),
-      
-            label: 'Meetings'
-          ),
-
-          
-        ]
+            return SfCalendar(
+                  view: CalendarView.schedule,
+                  onTap: (det){
+                    if (det.appointments!.isNotEmpty) {
+                      print(det.appointments!.first);
+                    }
+                  },
+                  
+                  todayHighlightColor: Colors.transparent,
+                  todayTextStyle: TextStyle(
+                  color: Colors.grey[600]),
+                  // backgroundColor: cricColor.shade100,
+                  dataSource: MeetingDataSource(meetings),
+                  monthViewSettings: MonthViewSettings(
+                      appointmentDisplayMode: MonthAppointmentDisplayMode.appointment
+                    ),
+                );
+          }
+        )
+        
       ),
+
+      
     );
 
   }
+}
+
+
+
+
+
+class MeetingDataSource extends CalendarDataSource {
+  MeetingDataSource(List<Meeting> source){
+    appointments = source;
+  }
+
+
+
+  @override
+  DateTime getStartTime(int index) {
+    return appointments![index].from;
+  }
+
+  @override
+  DateTime getEndTime(int index) {
+    return appointments![index].to;
+  }
+
+  @override
+  String getSubject(int index) {
+    return appointments![index].eventName;
+  }
+
+  @override
+  Color getColor(int index) {
+    return appointments![index].background;
+  }
+
+  @override
+  String? getLocation(int index){
+    return appointments![index].location;
+  }
+
+  @override
+  bool isAllDay(int index) {
+    return appointments![index].isAllDay;
+  }
+}
+
+class Meeting {
+  Meeting(this.eventName, this.from, this.to, this.background, this.isAllDay, this.location);
+
+  String eventName;
+  DateTime from;
+  DateTime to;
+  Color background;
+  bool isAllDay;
+  String location;
+
 }

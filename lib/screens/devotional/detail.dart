@@ -274,11 +274,11 @@ class _DevotionalDetailScreenState extends State<DevotionalDetailScreen> {
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.only(left: 10, right: 10),
-                                    child: Text(
-                                      widget.model.openingScriptureText,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                      ),
+                                    child: ClickableText(
+                                      text:  widget.model.openingScriptureText,
+                                      context: context,
+                                      
+                                      
                                     ),
                                   ),
                     

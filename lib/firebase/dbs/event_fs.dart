@@ -1,14 +1,12 @@
-import 'dart:html';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../utils/models/event.dart';
 
-class VerseofDayFirestoreService {
+class EventFirestoreService {
   final CollectionReference _eventCollection = FirebaseFirestore.instance.collection('events');
 
   // Create operation
-  Future<void> addDailyVerse(EventModel event) async {
+  Future<void> addEvent(EventModel event) async {
     try {
       await _eventCollection.doc(event.id.toString()).set(event.toMap());
     } catch (e) {
@@ -16,7 +14,7 @@ class VerseofDayFirestoreService {
     }
   }
 
-  Future<void> updateDailyVerse(EventModel event) async {
+  Future<void> updateEvent(EventModel event) async {
     try {
       await _eventCollection.doc(event.id.toString()).update(event.toMap());
     } catch (e) {
@@ -25,7 +23,7 @@ class VerseofDayFirestoreService {
   }
 
   // Delete operation
-  Future<void> deleteDailyVerse(EventModel event) async {
+  Future<void> deleteEvent(EventModel event) async {
     try {
       await _eventCollection.doc(event.id.toString()).delete();
     } catch (e) {
@@ -33,7 +31,7 @@ class VerseofDayFirestoreService {
     }
   }
 
-  Future<List<EventModel>> getAllDailyVerses() async {
+  Future<List<EventModel>> getAllEvents() async {
     try {
       final querySnapshot = await _eventCollection.get();
       return querySnapshot.docs.map((doc) => EventModel.fromMap(doc.data() as Map<String, dynamic>)).toList();

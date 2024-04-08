@@ -1,3 +1,4 @@
+import 'package:devotionals/utils/widgets/click_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class _NewCreationCreedState extends State<NewCreationCreed> {
 
 
 String beliefs = '''
-1. We are committed to teaching and preaching God’s word with Accuracy, Integrity and Authority so that unbelievers may find Christ and believers mature in Him (Acts 2:42, Eph. 4:11-16, Acts 6:2-4).
+1. We are committed to teaching and preaching God’s word with Accuracy, Integrity and Authority so that unbelievers may find Christ and believers mature in Him (Acts 2:42, Eph 4:11-16, Acts 6:2-4).
 
 2. We believe that prayer is vital to Christian ministry. Therefore, the ministry and activities of the church will be characterized by reliance on personal and corporate prayer (Ephesians 6:18-20; 1:6, Acts 6:2, 4:6. Romans 15:30-31, Colossians 4:2-4). we believe that every Christian is called to pray (1Timothy 2:8, Luke 18:1).
 
@@ -30,7 +31,7 @@ String beliefs = '''
 
 8. We believe in excellence in ministry because we are called to set forth a standard. Thus we will encourage all members to be worthy examples in society and give their best effort to the ministry’s vision and goals.
 
-9. We believe that all we do in the House of God as service to God should be done from the heart and reverence (Acts 2:43, Hebrews 12:28, Colossians 3:22-24, Ephesians 6:5-7, 2Corinthians 8:5).
+9. We believe that all we do in the House of God as service to God should be done from the heart and reverence (Acts 2:43, Hebrews 12:28, Colossians 3:22-24, Ephesians 6:5-7, 2 Corinthians 8:5).
 
 10. We believe that every member should be actively involved in Public Services (Sunday, Wednesday and Friday), the Cell System (caring networks and life groups) and functional in at least one service department. e.g. Choir, Protocol, Sound, Maintenance and Decoration etc. (Acts 2:46, 20:20, Romans 12:4-11, 1Corinthians 12:7-40). We believe that this is necessary for one’s spiritual health and maturity. It is also a measure of commitment in this ministry.
 
@@ -114,32 +115,26 @@ Amen
             child: TabBarView(
               children: [    
                 SingleChildScrollView(
-                  child: Text(
-                    beliefs,
+                  child: ClickableText(
+                    text:  beliefs,
+                    context: context,
                   
-                    style: TextStyle(
-                      height: 2,
-                    ),
+                    
                   ),
                 ),
 
                 SingleChildScrollView(
-                  child: Text(
-                    ncc,
+                  child: ClickableText(
+                    text:  ncc,
+                    context: context,
                   
-                    style: TextStyle(
-                      height: 2,
-                    ),
                   ),
                 ),
 
                 SingleChildScrollView(
-                  child: Text(
-                    declare2024,
-                  
-                    style: TextStyle(
-                      height: 2,
-                    ),
+                  child: ClickableText(
+                    text:  declare2024,
+                    context: context,
                   ),
                 )
               ],

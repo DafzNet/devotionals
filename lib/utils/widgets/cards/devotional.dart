@@ -52,7 +52,7 @@ class _DevotionalCardState extends State<DevotionalCard> {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            color: Color.fromARGB(149, 243, 243, 243)
+            color: Colors.white
           ),
     
           child: Stack(
@@ -80,7 +80,7 @@ class _DevotionalCardState extends State<DevotionalCard> {
                           overflow: TextOverflow.ellipsis,
                           
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: titleFontSmall,
                             fontWeight: FontWeight.bold
                           ),
                         ),
@@ -90,7 +90,7 @@ class _DevotionalCardState extends State<DevotionalCard> {
                         widget.model.openingScriptureReference,
     
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: bodyFontMedium,
                           fontWeight: FontWeight.bold
                         ),
                       ),                        

@@ -30,15 +30,17 @@ class VerseofDayFirestoreService {
     }
   }
 
-  Future<List<DailyVerse>> getAllDailyVerses() async {
-    try {
-      final querySnapshot = await _dailyVersesCollection.get();
-      return querySnapshot.docs.map((doc) => DailyVerse.fromMap(doc.data() as Map<String, dynamic>)).toList();
-    } catch (e) {
-      print('Error getting all daily verses: $e');
-      return [];
-    }
+Future<List<DailyVerse>> getAllDailyVerses() async {
+  try {
+    final currentDate = DateTime.now().millisecondsSinceEpoch;
+    final querySnapshot = await _dailyVersesCollection.where('date', isLessThanOrEqualTo: currentDate).orderBy('date', descending: true).get();
+    return querySnapshot.docs.map((doc) => DailyVerse.fromMap(doc.data() as Map<String, dynamic>)).toList();
+  } catch (e) {
+    print('Error getting all daily verses: $e');
+    return [];
   }
+}
+
 
   // Get latest daily verse
   Future<DailyVerse?> getLatestDailyVerse() async {

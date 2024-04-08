@@ -1,6 +1,7 @@
 import 'package:devotionals/screens/onboarding/pages/three.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../utils/widgets/default.dart';
 import '../auth/signin/login.dart';
@@ -19,6 +20,11 @@ class _OnboarderState extends State<Onboarder> {
 
   PageController _controller = PageController();
   int currentPage = 0;
+
+  void _firstTimer()async{
+    final SharedPreferences _pref = await SharedPreferences.getInstance();
+    await _pref.setBool('firstTime', false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +62,7 @@ class _OnboarderState extends State<Onboarder> {
               text: currentPage== 2? 'Get Started' : 'Next',
 
               onTap: (){
+                _firstTimer();
                 currentPage < 2?_controller.nextPage(duration: Duration(milliseconds: 200), curve: Curves.bounceIn):
                 Navigator.pushReplacement(
                   context,
@@ -75,14 +82,9 @@ class _OnboarderState extends State<Onboarder> {
               color: Colors.white,
 
               onTap: (){
-                currentPage < 2?
-                Navigator.pushReplacement(
-                  context,
-                  PageTransition(
-                    child: SignUp(), 
-                    type: PageTransitionType.fade
-                  )
-                ):
+
+                _firstTimer();
+                
                 Navigator.pushReplacement(
                   context,
                   PageTransition(

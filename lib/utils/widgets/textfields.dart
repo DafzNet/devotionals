@@ -33,6 +33,7 @@ class SingleLineField extends StatefulWidget {
   final String? bottomHint;
 
   final TextInputType? keyboardType;
+  final Color? suffixColor;
 
   const SingleLineField(
     this.hint,
@@ -53,7 +54,8 @@ class SingleLineField extends StatefulWidget {
     this.keyboardType,
     this.maxLines,
     this.minLines,
-    this.bottomHint
+    this.bottomHint,
+    this.suffixColor = Colors.black26
     }) : super(key: key);
 
   @override
@@ -215,7 +217,8 @@ class _SingleLineFieldState extends State<SingleLineField> {
                       Flexible(
                       flex: 1,
                       child: Icon(
-                       widget.suffixIcon?? MdiIcons.chevronDown
+                       widget.suffixIcon?? MdiIcons.chevronDown,
+                       color: widget.suffixColor!
                       )
                     
                   )

@@ -1,13 +1,17 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+import 'dart:typed_data';
+
+import 'cell.dart';
+import 'department.dart';
 
 class User {
   dynamic userID;
   String firstName;
   String lastName;
   DateTime dateOfBirth;
-  String? department;
-  String? cell;
+  DepartmentModel? department;
+  CellModel? cell;
   String? gender;
   bool? memberOfhurch;
   String? photoUrl;
@@ -38,12 +42,12 @@ class User {
 
   
   User copyWith({
-    dynamic? userID,
+    dynamic userID,
     String? firstName,
     String? lastName,
     DateTime? dateOfBirth,
-    String? department,
-    String? cell,
+    DepartmentModel? department,
+    CellModel? cell,
     String? gender,
     bool? memberOfhurch,
     String? photoUrl,
@@ -79,8 +83,8 @@ class User {
       'firstName': firstName,
       'lastName': lastName,
       'dateOfBirth': dateOfBirth.millisecondsSinceEpoch,
-      'department': department,
-      'cell': cell,
+      'department': department?.toMap(),
+      'cell': cell?.toMap(),
       'gender': gender,
       'memberOfhurch': memberOfhurch,
       'photoUrl': photoUrl,
@@ -99,17 +103,17 @@ class User {
       firstName: map['firstName'] as String,
       lastName: map['lastName'] as String,
       dateOfBirth: DateTime.fromMillisecondsSinceEpoch(map['dateOfBirth'] as int),
-      department: map['department'] != null ? map['department'] as String : null,
-      cell: map['cell'] != null ? map['cell'] as String : null,
+      department: map['department'] != null && map['department'].runtimeType != String? DepartmentModel.fromMap(map['department'] as Map<String,dynamic>) : null,
+      cell: map['cell'] != null && map['cell'].runtimeType != String ? CellModel.fromMap(map['cell'] as Map<String,dynamic>) : null,
       gender: map['gender'] != null ? map['gender'] as String : null,
       memberOfhurch: map['memberOfhurch'] != null ? map['memberOfhurch'] as bool : null,
       photoUrl: map['photoUrl'] != null ? map['photoUrl'] as String : null,
       email: map['email'] as String,
       phone: map['phone'] as String,
-      bio: map.containsKey('bio')?map['bio'] as String:'',
-      hideEmail: map.containsKey('hideEmail')? map['hideEmail'] as bool:true,
-      hidePhone: map.containsKey('hidePhone')? map['hidePhone'] as bool:true,
-      hideDobYear: map.containsKey('hideDobYear')? map['hideDobYear'] as bool:true,
+      bio: map['bio'] as String,
+      hideEmail: map['hideEmail'] as bool,
+      hidePhone: map['hidePhone'] as bool,
+      hideDobYear: map['hideDobYear'] as bool,
     );
   }
 

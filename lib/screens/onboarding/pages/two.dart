@@ -29,7 +29,7 @@ class _OnboarderTwoState extends State<OnboarderTwo> {
             Row(
               children: [
                 Text(
-                  'in velit officia',
+                  'Our Culture',
                   textAlign: TextAlign.left,
 
                   style: TextStyle(
@@ -41,9 +41,10 @@ class _OnboarderTwoState extends State<OnboarderTwo> {
             ),
 
             Text(
-              'Aliqua duis nulla qui amet fugiat irure nostrud. Minim nostrud elit id occaecat ea ea ex esse incididunt est Lorem. Elit labore velit est est minim commodo dolor culpa in non fugiat occaecat aliqua. Sunt id esse veniam nulla eiusmod culpa velit ut et. Qui exercitation voluptate esse excepteur in velit officia id sint cillum.',
+              'We care for all, we are out to make all lives count. We speak the language of love',
               
               maxLines: 3,
+              textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 14
               ),

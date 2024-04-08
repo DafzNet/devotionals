@@ -30,6 +30,7 @@ class _SignUpPage1State extends State<SignUpPage1> {
   final email = TextEditingController();
   final phone = TextEditingController();
   final sex = TextEditingController();
+
   RegExp emailPattern = RegExp(r'^[a-zA-Z0-9.a-zA-Z0-9_a-zA-Z0-9!_+=-~*£]+@[a-zA-Z0-9.a-zA-Z0-9_a-zA-Z0-9-a-zA-Z0-9]+\.[a-zA-Z0-9]+');
 
   User? user;

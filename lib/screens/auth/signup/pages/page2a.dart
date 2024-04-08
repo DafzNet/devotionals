@@ -1,11 +1,16 @@
 // ignore_for_file: prefer_const_constructors
 
 
+import 'package:devotionals/utils/models/cell.dart';
+import 'package:devotionals/utils/models/department.dart';
 import 'package:devotionals/utils/models/user.dart';
+import 'package:devotionals/utils/widgets/cells.dart';
 import 'package:devotionals/utils/widgets/default.dart';
+import 'package:devotionals/utils/widgets/deppicker.dart';
 import 'package:devotionals/utils/widgets/textfields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:page_transition/page_transition.dart';
 
 
 
@@ -32,8 +37,9 @@ class _SignUpPage2aState extends State<SignUpPage2a> {
   final cellController = TextEditingController();
   final cellBelongController = TextEditingController();
 
-  List<String> departments = ['Maintenance', 'New Sound', 'Welcomers', 'Ushers', 'Greeters', 'Protocol'];
-  List<String> cells = ['Custom', 'Azikoro', 'Agudama', 'Amarata', 'Benin'];
+  DepartmentModel? departmentModel;
+  CellModel? cellModel;
+
 
   User _user = User(userID: '', firstName:'', lastName: '', dateOfBirth: DateTime(1900), email: '', phone: '');
 
@@ -194,32 +200,20 @@ class _SignUpPage2aState extends State<SignUpPage2a> {
               makeButton: true,
       
               onTap: () async{
-                await showModalBottomSheet(
-                  context: context, 
-                  builder: (context){
-                    return SizedBox(
-                      height: 500,
-                      child: ListView(
-                        children: List.generate(departments.length, (index) =>
-                          ListTile(
-                            title: Text(
-                              departments[index]
-                            ),
-      
-                            onTap: () {
-                              Navigator.pop(context);
-                              departmentBelongController.text =departments[index];
-      
-                              setState(() {
-                                
-                              });
-                            },
-                          ),
-                        ).toList(),
-                      ),
-                    );
-                  }
+                var dept = await Navigator.push(
+                  context,
+                  PageTransition(child: DepartmentListScreen(), type: PageTransitionType.bottomToTop)
                 );
+
+                if (dept != null) {
+                  departmentController.text = dept.name;
+                  departmentModel = dept;
+                  
+                }
+
+                setState(() {
+                  
+                });
               },
             ),
             ],
@@ -287,32 +281,20 @@ class _SignUpPage2aState extends State<SignUpPage2a> {
               makeButton: true,
       
               onTap: () async{
-                await showModalBottomSheet(
-                  context: context, 
-                  builder: (context){
-                    return SizedBox(
-                      height: 500,
-                      child: ListView(
-                        children: List.generate(cells.length, (index) =>
-                          ListTile(
-                            title: Text(
-                              cells[index]
-                            ),
-      
-                            onTap: () {
-                              Navigator.pop(context);
-                              cellBelongController.text =cells[index];
-      
-                              setState(() {
-                                
-                              });
-                            },
-                          ),
-                        ).toList(),
-                      ),
-                    );
-                  }
+                 var cell = await Navigator.push(
+                  context,
+                  PageTransition(child: CellListScreen(), type: PageTransitionType.bottomToTop)
                 );
+
+                if (cell != null) {
+                  cellController.text = cell.name;
+                  cellModel = cell;
+                  
+                }
+
+                setState(() {
+                  
+                });
               },
             ),
             ]
@@ -329,8 +311,8 @@ class _SignUpPage2aState extends State<SignUpPage2a> {
 
                   widget.onTap!(
                     _user.copyWith(
-                      department: departmentBelongController.text,
-                      cell: cellBelongController.text,
+                      department: departmentModel,
+                      cell: cellModel,
                       memberOfhurch: memberController.text.toLowerCase() == 'no' ? false:true
                     )
                   );

@@ -1,10 +1,9 @@
-import 'dart:async';
 
 import 'package:devotionals/utils/constants/colors.dart';
+import 'package:devotionals/utils/constants/sizes.dart';
 import 'package:devotionals/utils/helpers/functions/dateformat.dart';
 import 'package:devotionals/utils/helpers/uis/timer.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class NextEventDate extends StatefulWidget {
@@ -108,7 +107,7 @@ DateTime? findFifthFriday(DateTime start, DateTime end) {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                 
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: titleFontSmall, fontWeight: FontWeight.bold),
                   ),
                 ),
       

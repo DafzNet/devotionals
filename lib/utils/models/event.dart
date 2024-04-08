@@ -1,110 +1,93 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
+import 'package:flutter/material.dart';
 
 class EventModel {
   dynamic id;
   String title;
   String? theme;
   String? scripture;
-  String? description;
+  String? venue; // Changed from description to venue
   String? image;
   DateTime startDate;
   DateTime? endDate;
-  
+  Color? color;
+
   EventModel({
     required this.id,
     required this.title,
     this.theme,
     this.scripture,
-    this.description,
+    this.venue, // Changed from description to venue
     this.image,
     required this.startDate,
     this.endDate,
+    this.color,
   });
 
-  
+  // Convert EventModel object to Map
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'theme': theme,
+      'scripture': scripture,
+      'venue': venue, // Changed from description to venue
+      'image': image,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+      'color': color != null ? colorToString(color!) : null,
+    };
+  }
 
+  // Factory method to create EventModel instance from Map
+  factory EventModel.fromMap(Map<String, dynamic> map) {
+    return EventModel(
+      id: map['id'],
+      title: map['title'],
+      theme: map['theme'],
+      scripture: map['scripture'],
+      venue: map['venue'], // Changed from description to venue
+      image: map['image'],
+      startDate: DateTime.parse(map['startDate']),
+      endDate: map['endDate'] != null ? DateTime.parse(map['endDate']) : null,
+      color: map['color'] != null ? stringToColor(map['color']) : null,
+    );
+  }
+
+  // Create a copy of EventModel with modified properties
   EventModel copyWith({
-    dynamic? id,
+    dynamic id,
     String? title,
     String? theme,
     String? scripture,
-    String? description,
+    String? venue,
     String? image,
     DateTime? startDate,
     DateTime? endDate,
+    Color? color,
   }) {
     return EventModel(
       id: id ?? this.id,
       title: title ?? this.title,
       theme: theme ?? this.theme,
       scripture: scripture ?? this.scripture,
-      description: description ?? this.description,
+      venue: venue ?? this.venue,
       image: image ?? this.image,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      color: color ?? this.color,
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'id': id,
-      'title': title,
-      'theme': theme,
-      'scripture': scripture,
-      'description': description,
-      'image': image,
-      'startDate': startDate.millisecondsSinceEpoch,
-      'endDate': endDate?.millisecondsSinceEpoch,
-    };
-  }
 
-  factory EventModel.fromMap(Map<String, dynamic> map) {
-    return EventModel(
-      id: map['id'] as dynamic,
-      title: map['title'] as String,
-      theme: map['theme'] != null ? map['theme'] as String : null,
-      scripture: map['scripture'] != null ? map['scripture'] as String : null,
-      description: map['description'] != null ? map['description'] as String : null,
-      image: map['image'] != null ? map['image'] as String : null,
-      startDate: DateTime.fromMillisecondsSinceEpoch(map['startDate'] as int),
-      endDate: map['endDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['endDate'] as int) : null,
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory EventModel.fromJson(String source) => EventModel.fromMap(json.decode(source) as Map<String, dynamic>);
-
-  @override
-  String toString() {
-    return 'EventModel(id: $id, title: $title, theme: $theme, scripture: $scripture, description: $description, image: $image, startDate: $startDate, endDate: $endDate)';
-  }
-
-  @override
-  bool operator ==(covariant EventModel other) {
-    if (identical(this, other)) return true;
-  
-    return 
-      other.id == id &&
-      other.title == title &&
-      other.theme == theme &&
-      other.scripture == scripture &&
-      other.description == description &&
-      other.image == image &&
-      other.startDate == startDate &&
-      other.endDate == endDate;
-  }
-
-  @override
-  int get hashCode {
-    return id.hashCode ^
-      title.hashCode ^
-      theme.hashCode ^
-      scripture.hashCode ^
-      description.hashCode ^
-      image.hashCode ^
-      startDate.hashCode ^
-      endDate.hashCode;
-  }
 }
+
+  String colorToString(Color color) {
+    return '0x${color.value.toRadixString(16).padLeft(8, '0')}';
+  }
+
+
+ Color stringToColor(String colorString) {
+    int value = int.parse(colorString.substring(2), radix: 16);
+    return Color(value).withAlpha((value >> 24) & 0xFF);
+  }
+

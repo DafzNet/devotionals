@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_loading/card_loading.dart';
 import 'package:devotionals/dbs/sembast/generic.dart';
 import 'package:devotionals/screens/media/player.dart';
+import 'package:devotionals/utils/constants/constants.dart';
 import 'package:devotionals/utils/models/vid.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
@@ -143,7 +144,7 @@ class _VideoCardState extends State<VideoCard> {
                   data.title,
                   style: TextStyle(
                     color: Colors.grey.shade800,
-                    fontSize: 18,
+                    fontSize: titleFontLarge,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -152,7 +153,7 @@ class _VideoCardState extends State<VideoCard> {
                   'by ${data.author} • ${formatDuration(data.duration!.inSeconds)}',
                   style: TextStyle(
                     color: Colors.grey.shade600,
-                    fontSize: 14,
+                    fontSize: bodyFontMedium,
                   ),
                 ),
               ],
@@ -191,7 +192,7 @@ class _VideoCardState extends State<VideoCard> {
                   _video!['title'],
                   style: TextStyle(
                     color: Colors.grey[800],
-                    fontSize: 18,
+                    fontSize: titleFontSmall,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -200,7 +201,7 @@ class _VideoCardState extends State<VideoCard> {
                   'by ${_video!['author']} • ${formatDuration(_video!['duration'])}',
                   style: TextStyle(
                     color: Colors.grey.shade600,
-                    fontSize: 14,
+                    fontSize: bodyFontMedium,
                   ),
                 ),
               ],

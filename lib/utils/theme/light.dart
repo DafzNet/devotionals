@@ -10,19 +10,19 @@ ThemeData lightTheme = ThemeData(
       primaryColor: Colors.white,
       primaryColorLight: Colors.black,
       primarySwatch: cricColor,
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: Colors.grey[100],
 
       textTheme: TextTheme(
-        bodyLarge: GoogleFonts.merriweather(color: Colors.black, fontSize: 16),
-        bodyMedium: GoogleFonts.merriweather(color: Colors.black, fontSize: 16),
-        bodySmall: GoogleFonts.merriweather(color: Colors.black, fontSize: 14),
-        titleLarge: GoogleFonts.merriweather(color: Colors.black, fontSize: 20),
-        titleMedium: GoogleFonts.merriweather(color: Colors.black, fontSize: 18),
-        titleSmall:GoogleFonts.merriweather(color: Colors.black, fontSize: 16),
+        bodyLarge: GoogleFonts.openSans (color: Colors.black, fontSize: bodyFontLarge),
+        bodyMedium: GoogleFonts.openSans(color: Colors.black, fontSize: bodyFontMedium),
+        bodySmall: GoogleFonts.openSans(color: Colors.black, fontSize: bodyFontSmall),
+        titleLarge: GoogleFonts.openSans(color: Colors.black, fontSize: titleFontLarge),
+        titleMedium: GoogleFonts.openSans(color: Colors.black, fontSize: titleFontMedium),
+        titleSmall:GoogleFonts.openSans(color: Colors.black, fontSize: titleFontSmall),
       ),
 
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.white,
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.grey.shade100,
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.black),
         scrolledUnderElevation: 0,

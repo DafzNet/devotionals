@@ -1,13 +1,19 @@
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/utils/constants/constants.dart';
+import 'package:devotionals/utils/models/cell.dart';
+import 'package:devotionals/utils/models/department.dart';
 import 'package:devotionals/utils/models/user.dart';
+import 'package:devotionals/utils/widgets/cells.dart';
 import 'package:devotionals/utils/widgets/default.dart';
+import 'package:devotionals/utils/widgets/deppicker.dart';
 import 'package:devotionals/utils/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:page_transition/page_transition.dart';
 
 import '../../../dbs/sembast/userdb.dart';
+import '../../../utils/widgets/allusers.dart';
 import '../../../utils/widgets/textfields.dart';
 
 
@@ -29,13 +35,17 @@ class _EditProfileState extends State<EditProfile> {
   final lastNameController = TextEditingController();
   final bioController = TextEditingController();
   final membershipController = TextEditingController();
+  final dobController = TextEditingController();
+
+  DepartmentModel? departmentModel;
+  CellModel? cellModel;
 
   bool loading = false;
    List<String> departments = ['Maintenance', 'New Sound', 'Welcomers', 'Ushers', 'Greeters', 'Protocol'];
   List<String> cells = ['Custom', 'Azikoro', 'Agudama', 'Amarata', 'Benin'];
 
 
-  final dobController = TextEditingController();
+
 
   DateTime? selected;
 
@@ -173,32 +183,21 @@ class _EditProfileState extends State<EditProfile> {
                         makeButton: true,
                   
                         onTap: () async{
-                          await showModalBottomSheet(
-                            context: context, 
-                            builder: (context){
-                              return SizedBox(
-                                height: 500,
-                                child: ListView(
-                                  children: List.generate(departments.length, (index) =>
-                                    ListTile(
-                                      title: Text(
-                                        departments[index]
-                                      ),
-                
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        departmentController.text =departments[index];
-                
-                                        setState(() {
-                                          
-                                        });
-                                      },
-                                    ),
-                                  ).toList(),
-                                ),
-                              );
-                            }
+                          
+                          var dept = await Navigator.push(
+                            context,
+                            PageTransition(child: DepartmentListScreen(), type: PageTransitionType.bottomToTop)
                           );
+
+                          if (dept != null) {
+                            departmentController.text = dept.name;
+                            departmentModel = dept;
+                            
+                          }
+
+                          setState(() {
+                            
+                          });
                         },
                       ),
                   
@@ -211,34 +210,22 @@ class _EditProfileState extends State<EditProfile> {
                   
                         makeButton: true,
                   
-                  onTap: () async{
-                    await showModalBottomSheet(
-                      context: context, 
-                      builder: (context){
-                        return SizedBox(
-                          height: 500,
-                          child: ListView(
-                            children: List.generate(cells.length, (index) =>
-                              ListTile(
-                                title: Text(
-                                  departments[index]
-                                ),
-                  
-                                onTap: () {
-                                  Navigator.pop(context);
-                                    cellController.text =cells[index];
-                  
-                                  setState(() {
-                                    
-                                  });
-                                },
-                              ),
-                            ).toList(),
-                          ),
-                        );
-                      }
-                    );
-                  },
+                        onTap: () async{
+                          var cell = await Navigator.push(
+                            context,
+                            PageTransition(child: CellListScreen(), type: PageTransitionType.bottomToTop)
+                          );
+
+                          if (cell != null) {
+                            cellController.text = cell.name;
+                            cellModel = cell;
+                            
+                          }
+
+                          setState(() {
+                            
+                          });
+                        },
                       ),
                   
                       SizedBox(height: 20,),
@@ -308,8 +295,8 @@ class _EditProfileState extends State<EditProfile> {
                             lastName: lastNameController.text.isNotEmpty ? lastNameController.text:widget.user.lastName,
                             bio: bioController.text.isNotEmpty ? bioController.text:widget.user.bio,
                             memberOfhurch: membershipController.text.isNotEmpty && membershipController.text.toLowerCase() == 'yes'?true:widget.user.memberOfhurch,
-                            department: departmentController.text.isNotEmpty ? departmentController.text:widget.user.department,
-                            cell: cellController.text.isNotEmpty ? cellController.text:widget.user.cell,
+                            department: departmentModel,
+                            cell: cellModel,
                             dateOfBirth: dobController.text.isNotEmpty ? selected : widget.user.dateOfBirth
                           );
       

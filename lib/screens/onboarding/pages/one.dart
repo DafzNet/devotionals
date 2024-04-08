@@ -55,6 +55,7 @@ class _OnboarderOneState extends State<OnboarderOne> {
               'Our mandate is to preach and teach the full message of the Gospel based on Acts 5:20 NIV',
               
               maxLines: 3,
+              textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 14
               ),

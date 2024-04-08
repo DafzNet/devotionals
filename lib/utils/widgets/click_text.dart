@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 
 import 'bible_view.dart';
@@ -14,22 +15,15 @@ class ClickableText extends StatelessWidget {
   final BuildContext context;
 
   ClickableText({
-    this.defaultTextStyle = const TextStyle(
-      height: 1.8,
-      color: Colors.black
-    ),
-    this.matchTextStyle = const TextStyle(
-      height: 1.8,
-      color: Colors.blue,
-      decoration: TextDecoration.underline,
-      decorationStyle: TextDecorationStyle.dotted
-    ),
+    this.defaultTextStyle,
+    this.matchTextStyle,
     this.plainTextStyle,
     required this.context,
     required this.text, this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    
     return RichText(
       text: _buildTextSpan(),
     );
@@ -54,14 +48,17 @@ class ClickableText extends StatelessWidget {
       if (matchStart > currentIndex) {
         spans.add(TextSpan(
           text: text.substring(currentIndex, matchStart),
-          style: plainTextStyle?? defaultTextStyle
+          style: plainTextStyle?? GoogleFonts.openSans(color: Colors.black, fontSize: 16, height: 1.8),
         ));
       }
 
       // Add the clickable reference
       spans.add(TextSpan(
         text: matchText,
-        style: matchTextStyle?? defaultTextStyle,
+        style: matchTextStyle?? GoogleFonts.openSans(
+          color: Colors.black, 
+          fontSize: 16, height: 1.8,
+        ),
         recognizer: TapGestureRecognizer()
           ..onTap = () {
             if(onTap != null){
@@ -83,10 +80,14 @@ class ClickableText extends StatelessWidget {
     if (currentIndex < text.length) {
       spans.add(TextSpan(
         text: text.substring(currentIndex),
-        style: plainTextStyle?? defaultTextStyle
+        style: plainTextStyle?? GoogleFonts.openSans(
+          color: Colors.black, 
+          fontSize: 16, height: 1.8,
+        )
       ));
     }
 
     return TextSpan(children: spans);
   }
 }
+
