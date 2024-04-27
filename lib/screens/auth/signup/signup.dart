@@ -2,7 +2,6 @@
 
 import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
-import 'package:devotionals/general_screens/success.dart';
 import 'package:devotionals/screens/nav.dart';
 import 'package:devotionals/utils/constants/colors.dart';
 import 'package:devotionals/utils/models/models.dart';
@@ -101,7 +100,7 @@ class _SignUpState extends State<SignUp> {
                         );
         
                         try {
-                          final u = await _authService.signUp(email: _user!.email, password:p);
+                          final u = await _authService.signUp(email: _user!.email!, password:p);
                           _user = _user!.copyWith(
                             userID: u!.uid
                           );

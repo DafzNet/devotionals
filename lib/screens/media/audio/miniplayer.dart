@@ -1,10 +1,8 @@
 
 import 'package:audio_service/audio_service.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
-import 'package:devotionals/utils/widgets/cards/music.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:page_transition/page_transition.dart';
 
 
 final GetIt getIt = GetIt.instance;

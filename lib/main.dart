@@ -5,7 +5,6 @@ import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/media/audio/services/audio_handler.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
-import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:devotionals/screens/onboarding/onboarder.dart';
 import 'package:devotionals/screens/wrapper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,7 +20,7 @@ final GetIt getIt = GetIt.instance;
 
 Future setupLocator() async{
   getIt.registerLazySingleton<AudioManager>(() => AudioManager());
-  getIt.registerLazySingleton<Playing>(() => Playing());
+  getIt.registerLazySingleton<Playlist>(() => Playlist(title: '', songs:[]));
   getIt.registerSingleton<AudioHandler>((await initAudioService()));
 }
 

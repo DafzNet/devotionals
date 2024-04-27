@@ -12,6 +12,7 @@ import '../../../screens/media/audio/services/my_audio.dart';
 final GetIt getIt = GetIt.instance;
 AudioManager audioManager = getIt<AudioManager>();
 final _audioHandler = getIt<AudioHandler>();
+// final _playlist = getIt<Playlist>();
 
 class PodcastTile extends StatefulWidget {
   final Episode podcast;
@@ -51,7 +52,7 @@ class _PodcastTileState extends State<PodcastTile> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async{
-        await audioManager.setPlaylist(Playlist(title: 'All Messages', songs: widget.playlist, initIndex: widget.index));
+        await audioManager.setPlaylist(Playlist(title: 'All Messages', songs: widget.playlist, initIndex: widget.index), );
         await _audioHandler.play();
       },
 

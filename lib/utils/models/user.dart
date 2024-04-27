@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'cell.dart';
 import 'department.dart';
@@ -15,12 +14,12 @@ class User {
   String? gender;
   bool? memberOfhurch;
   String? photoUrl;
-  String email;
-  String phone;
-  String bio;
-  bool hideEmail;
-  bool hidePhone;
-  bool hideDobYear;
+  String? email;
+  String? phone;
+  String? bio;
+  bool? hideEmail;
+  bool? hidePhone;
+  bool? hideDobYear;
 
   User({
     required this.userID,
@@ -110,10 +109,10 @@ class User {
       photoUrl: map['photoUrl'] != null ? map['photoUrl'] as String : null,
       email: map['email'] as String,
       phone: map['phone'] as String,
-      bio: map['bio'] as String,
-      hideEmail: map['hideEmail'] as bool,
-      hidePhone: map['hidePhone'] as bool,
-      hideDobYear: map['hideDobYear'] as bool,
+      bio: map['bio'].toString().trim(),
+      hideEmail: map.containsKey('hideEmail')?map['hideEmail']!=null? map['hideEmail'] as bool:null:null,
+      hidePhone: map.containsKey('hidePhone')?map['hidePhone']!=null? map['hidePhone'] as bool:null:null,
+      hideDobYear: map.containsKey('hideDobYear')?map['hideDobYear']!=null? map['hideDobYear'] as bool:null:null,
     );
   }
 

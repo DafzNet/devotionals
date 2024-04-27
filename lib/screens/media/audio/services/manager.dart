@@ -59,7 +59,7 @@ class AudioManager {
   }
 
 
-  Future<void> setPlaylist(Playlist playlist) async{
+  Future<void> setPlaylist(Playlist playlist, [int? initialIndex]) async{
     List<MediaItem> mediaItems = playlist.songs.map((e) => MediaItem(
         id: playlist.songs.indexOf(e).toString(), 
         title: e.title,
@@ -80,61 +80,100 @@ class AudioManager {
 }
 
 
+
+
+// class Playlist {
+//   String title;
+//   int initIndex;
+//   List<Episode> songs;
+//   Playlist({
+//     required this.title,
+//     this.initIndex = 0,
+//     required this.songs,
+//   });
+
+//   Playlist copyWith({
+//     String? title,
+//     int? initIndex,
+//     List<Episode>? songs,
+//   }) {
+//     return Playlist(
+//       title: title ?? this.title,
+//       initIndex: initIndex ?? this.initIndex,
+//       songs: songs ?? this.songs,
+//     );
+//   }
+
+//   Map<String, dynamic> toMap() {
+//     return <String, dynamic>{
+//       'title': title,
+//       'initIndex': initIndex,
+//       'songs': songs.map((x) => x.toMap()).toList(),
+//     };
+//   }
+
+//   factory Playlist.fromMap(Map<String, dynamic> map) {
+//     return Playlist(
+//       title: map['title'] as String,
+//       initIndex: map['initIndex'] as int,
+//       songs: List<Episode>.from((map['songs'] as List).map<Episode>((x) => Episode.fromMap(x as Map<String,dynamic>),),),
+//     );
+//   }
+
+//   String toJson() => json.encode(toMap());
+
+//   factory Playlist.fromJson(String source) => Playlist.fromMap(json.decode(source) as Map<String, dynamic>);
+
+//   @override
+//   String toString() => 'Playlist(title: $title, initIndex: $initIndex, songs: $songs)';
+
+//   @override
+//   bool operator ==(covariant Playlist other) {
+//     if (identical(this, other)) return true;
+  
+//     return 
+//       other.title == title &&
+//       other.initIndex == initIndex &&
+//       listEquals(other.songs, songs);
+//   }
+
+//   @override
+//   int get hashCode => title.hashCode ^ initIndex.hashCode ^ songs.hashCode;
+// }
+
+
+
+
+
+
+
 class Playlist {
   String title;
   int initIndex;
   List<Episode> songs;
-  Playlist({
+
+  // Private constructor
+  Playlist._internal({
     required this.title,
     this.initIndex = 0,
     required this.songs,
   });
 
-  Playlist copyWith({
-    String? title,
-    int? initIndex,
-    List<Episode>? songs,
-  }) {
-    return Playlist(
-      title: title ?? this.title,
-      initIndex: initIndex ?? this.initIndex,
-      songs: songs ?? this.songs,
-    );
+  // The single instance of Playlist
+  static final Playlist _instance = Playlist._internal(
+    title: 'Default Title',
+    songs: [],
+  );
+
+  // Factory constructor to return the instance
+  factory Playlist({String? title, int? initIndex, List<Episode>? songs}) {
+    return _instance;
   }
 
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'title': title,
-      'initIndex': initIndex,
-      'songs': songs.map((x) => x.toMap()).toList(),
-    };
+  // Existing methods and properties...
+
+  // Singleton method to access the instance
+  static Playlist getInstance() {
+    return _instance;
   }
-
-  factory Playlist.fromMap(Map<String, dynamic> map) {
-    return Playlist(
-      title: map['title'] as String,
-      initIndex: map['initIndex'] as int,
-      songs: List<Episode>.from((map['songs'] as List).map<Episode>((x) => Episode.fromMap(x as Map<String,dynamic>),),),
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory Playlist.fromJson(String source) => Playlist.fromMap(json.decode(source) as Map<String, dynamic>);
-
-  @override
-  String toString() => 'Playlist(title: $title, initIndex: $initIndex, songs: $songs)';
-
-  @override
-  bool operator ==(covariant Playlist other) {
-    if (identical(this, other)) return true;
-  
-    return 
-      other.title == title &&
-      other.initIndex == initIndex &&
-      listEquals(other.songs, songs);
-  }
-
-  @override
-  int get hashCode => title.hashCode ^ initIndex.hashCode ^ songs.hashCode;
 }

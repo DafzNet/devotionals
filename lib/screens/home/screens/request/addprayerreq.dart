@@ -76,8 +76,13 @@ class _AddPrayerRequestScreenState extends State<AddPrayerRequestScreen> {
                     User? _user;
 
                     if (await UserRepo().containsKey(widget.uid)) {
-                      _user = await UserRepo().get(widget.uid);
-                      print('yes');
+                      try{
+                        _user = await UserRepo().get(widget.uid);
+                      }catch(e){
+                        _user = await UserService().getUser(widget.uid);
+                        await UserRepo().insert(_user!);
+                      }
+                    
                     } else {
                       _user = await UserService().getUser(widget.uid);
                       await UserRepo().insert(_user!);

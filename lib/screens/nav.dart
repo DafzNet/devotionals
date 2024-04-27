@@ -2,8 +2,6 @@ import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/screens/chat/chat.dart';
 import 'package:devotionals/screens/media/audio/miniplayer.dart';
 import 'package:devotionals/screens/media/audio/pods.dart';
-import 'package:devotionals/screens/media/audio/services/manager.dart';
-import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:devotionals/screens/media/media.dart';
 import 'package:devotionals/screens/profile/profile.dart';
 import 'package:flutter/material.dart';

@@ -67,7 +67,7 @@ class _PendingPrayerRequestsState extends State<PendingPrayerRequests> {
           builder: (context, snapshot) {
         
             if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty || snapshot.connectionState == ConnectionState.waiting){
-              
+              print(snapshot);
               return Container();             
             }
         

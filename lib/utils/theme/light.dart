@@ -28,8 +28,9 @@ ThemeData lightTheme = ThemeData(
         scrolledUnderElevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark
-        )
+          statusBarIconBrightness: Brightness.light
+        ),
+        
       ),
 
       buttonTheme: const ButtonThemeData(

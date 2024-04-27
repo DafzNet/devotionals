@@ -1,20 +1,18 @@
 
+// ignore_for_file: prefer_const_constructors
+
 import 'package:anim_search_bar/anim_search_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:devotionals/dbs/sembast/generic.dart';
 import 'package:devotionals/screens/media/audio/miniplayer.dart';
 import 'package:devotionals/screens/media/audio/services/manager.dart';
-import 'package:devotionals/screens/media/audio/services/playing.dart';
 import 'package:devotionals/utils/constants/colors.dart';
-import 'package:devotionals/utils/widgets/cards/music.dart';
 import 'package:devotionals/utils/widgets/cards/musictile.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:page_transition/page_transition.dart';
 
 import 'services/my_audio.dart';
-// import 'package:video_player/video_player.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -30,7 +28,6 @@ class _AudioScreenState extends State<AudioScreen> {
   final _pageController = PageController();
 
   final _store = DataStore('episodes');
-  final Playing _playing = getIt<Playing>();
   final AudioManager audioManager = getIt<AudioManager>();
   List<Episode> episodes = [];
 
@@ -42,8 +39,6 @@ class _AudioScreenState extends State<AudioScreen> {
       
     });
   }
-
-  
 
   void _showPopupMenu(BuildContext context, Offset position, Episode episode) async {
       double yOffset = position.dy - 20.0;
@@ -264,10 +259,7 @@ class _AudioScreenState extends State<AudioScreen> {
                   itemBuilder: (context, index){
                     return InkWell(
                       onTap: ()async{
-                        // await Navigator.push(
-                        //   context,
-                        //   PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
-                        // );
+                        
                       },
                       child: PodcastTile(
                        podcast: episodes[index],
@@ -311,10 +303,6 @@ class _AudioScreenState extends State<AudioScreen> {
                   itemBuilder: (context, index){
                     return InkWell(
                       onTap: ()async{
-                        // await Navigator.push(
-                        //   context,
-                        //   PageTransition(child: MusicPlayerTile(true), type: PageTransitionType.bottomToTop)
-                        // );
                       },
                       child: PodcastTile(
                        index: index,
@@ -339,7 +327,11 @@ class _AudioScreenState extends State<AudioScreen> {
                     return ListView.builder(
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index){
-                        return PodcastTile(index: index, podcast: snapshot.data![index], playlist: snapshot.data!);
+                        return PodcastTile(
+                          index: index, 
+                          podcast: snapshot.data![index], 
+                          playlist: snapshot.data!
+                        );
                       }
                     );
                   }

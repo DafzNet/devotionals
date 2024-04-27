@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:devotionals/firebase/file_storage.dart';
 import 'package:devotionals/screens/profile/screens/edit.dart';
@@ -186,7 +188,7 @@ class _UserViewState extends State<UserView> {
                           ),
                           child: ClipOval(
                             child: Hero(
-                              tag: widget.user.email,
+                              tag: widget.user.email!,
                               child: CachedNetworkImage(
                                 imageUrl: widget.user.photoUrl??''),
                             ),
@@ -196,7 +198,7 @@ class _UserViewState extends State<UserView> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      widget.user.firstName +' '+ widget.user.lastName,
+                      '${widget.user.firstName} ${widget.user.lastName}',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -205,7 +207,7 @@ class _UserViewState extends State<UserView> {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      widget.user.email,
+                      widget.user.email!,
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white,
@@ -228,7 +230,7 @@ class _UserViewState extends State<UserView> {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      widget.user.bio,
+                      widget.user.bio!,
                       style: TextStyle(fontSize: 16),
                     ),
 
@@ -257,7 +259,7 @@ class _UserViewState extends State<UserView> {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      widget.user.phone,
+                      widget.user.phone!,
                       style: TextStyle(fontSize: 16),
                     ),
 

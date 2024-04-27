@@ -43,7 +43,7 @@ class PrayerFire {
     final oneWeekAgo = now.subtract(const Duration(days: 7)).millisecondsSinceEpoch;
 
     final querySnapshot = await _prayerRequestCollection.orderBy('date', descending: true)
-        .where('date', isGreaterThan: oneWeekAgo)
+        // // .where('date', isGreaterThan: oneWeekAgo)
         // .where('waiting', isEqualTo: true)
         .get();
 
@@ -55,11 +55,11 @@ class PrayerFire {
 
 
   Stream<List<PrayerRequest>> getPrayerRequestsAdminStream() {
-  final now = DateTime.now();
-  final oneWeekAgo = now.subtract(const Duration(days: 7)).millisecondsSinceEpoch;
+  // final now = DateTime.now();
+  // final oneWeekAgo = now.subtract(const Duration(days: 7)).millisecondsSinceEpoch;
 
   return _prayerRequestCollection.orderBy('date', descending: true)
-      .where('date', isGreaterThan: oneWeekAgo)
+      // .where('date', isGreaterThan: oneWeekAgo)
       // .where('waiting', isEqualTo: true)
       .snapshots()
       .map((querySnapshot) {

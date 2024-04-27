@@ -4,6 +4,7 @@ import 'package:devotionals/dbs/sembast/userdb.dart';
 import 'package:devotionals/firebase/auth.dart';
 import 'package:devotionals/firebase/dbs/user.dart';
 import 'package:devotionals/firebase/file_storage.dart';
+import 'package:devotionals/screens/profile/screens/giving.dart';
 import 'package:devotionals/screens/profile/screens/testimony/testimony.dart';
 import 'package:devotionals/screens/profile/screens/user_view.dart';
 import 'package:devotionals/utils/constants/constants.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:page_transition/page_transition.dart';
+import 'screens/about.dart';
 import 'screens/edit.dart';
 import 'screens/notes/note.dart';
 
@@ -239,7 +241,7 @@ class _ProfileState extends State<Profile> {
                                       ),
                           
                                       child: ClipOval(
-                                        child: Hero(tag: _user!.email, child: CachedNetworkImage(imageUrl: _user!.photoUrl??'https://www.freepik.com/icon/user_1177568#fromView=keyword&term=User&page=1&position=9&uuid=694cc40b-b89d-4277-bad4-f630ee961d26')),
+                                        child: Hero(tag: _user!.email!, child: CachedNetworkImage(imageUrl: _user!.photoUrl??'https://www.freepik.com/icon/user_1177568#fromView=keyword&term=User&page=1&position=9&uuid=694cc40b-b89d-4277-bad4-f630ee961d26')),
                                       ),
                                     ),
                                   ),
@@ -290,7 +292,7 @@ class _ProfileState extends State<Profile> {
                             left: 110,
                             bottom: 20,
                             child: Text(
-                              _user!.email,
+                              _user!.email!,
                                               
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -361,7 +363,7 @@ class _ProfileState extends State<Profile> {
                                 Navigator.push(
                                   context,
                                   PageTransition(
-                                    child: Container(),
+                                    child: Giving(),
                                     type: PageTransitionType.fade
                                   )
                                 );
@@ -507,7 +509,7 @@ class _ProfileState extends State<Profile> {
                                 Navigator.push(
                                   context,
                                   PageTransition(
-                                    child: Container(),
+                                    child: AboutWidget(),
                                     type: PageTransitionType.fade
                                   )
                                 );

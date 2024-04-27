@@ -78,7 +78,7 @@ class _UserListScreenState extends State<UserListScreen> {
                       User user = _filteredUsers[index];
                       return ListTile(
                         title: Text(user.firstName + ' ' + user.lastName),
-                        subtitle: Text(user.email),
+                        subtitle: Text(user.email!),
                         onTap: () {
                           Navigator.pop(context, user);
                         },

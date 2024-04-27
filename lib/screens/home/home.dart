@@ -12,6 +12,7 @@ import 'package:devotionals/screens/home/screens/letters/add.dart';
 import 'package:devotionals/screens/home/screens/letters/letter.dart';
 import 'package:devotionals/screens/home/screens/request/acceptreq.dart';
 import 'package:devotionals/screens/home/screens/request/allreq.dart';
+import 'package:devotionals/screens/home/screens/tv.dart';
 import 'package:devotionals/screens/home/screens/wwa/wwa.dart';
 import 'package:devotionals/utils/constants/constants.dart';
 import 'package:devotionals/utils/models/dailyverse.dart';
@@ -20,6 +21,7 @@ import 'package:devotionals/utils/models/prayerreq.dart';
 import 'package:devotionals/utils/widgets/cards/devotional.dart';
 import 'package:devotionals/utils/widgets/cards/next_event.dart';
 import 'package:devotionals/utils/widgets/cards/req.dart';
+import 'package:devotionals/utils/widgets/tvbutton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:intl/intl.dart';
@@ -91,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return [
             SliverAppBar(
-              expandedHeight: 300.0,
+              expandedHeight: 330.0,
               floating: true,
               pinned: true,
               leading: Image.asset(
@@ -101,6 +103,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 
               actions: [
+
+                LiveTVButton(
+                  onPressed: (){
+                    Navigator.push(
+                      context,
+                      PageTransition(
+                        child: LiveTv(),
+                        type: PageTransitionType.fade)
+                    );
+                  },
+                  buttonText: 'NVTv',
+                ),
+
                 TextButton(
                   onPressed: (){
                     Navigator.push(

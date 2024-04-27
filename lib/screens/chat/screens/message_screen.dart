@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../../../utils/models/models.dart';
+import '../../../utils/widgets/bubble.dart';
 import '../../profile/screens/user_view.dart';
 
 
@@ -178,7 +179,7 @@ Future<void> _playRecordedAudio() async {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 70,
-        automaticallyImplyLeading: false,
+        // automaticallyImplyLeading: false,
         flexibleSpace: FlexibleSpaceBar(
           background: Container(
             decoration: BoxDecoration(
@@ -219,7 +220,7 @@ Future<void> _playRecordedAudio() async {
           width: 40,
           height: 40,
           child: ClipOval(
-            child: Hero(tag: widget.buddy.email, child: CachedNetworkImage(imageUrl: widget.buddy.photoUrl??'https://www.freepik.com/icon/user_1177568#fromView=keyword&term=User&page=1&position=9&uuid=694cc40b-b89d-4277-bad4-f630ee961d26')),
+            child: Hero(tag: widget.buddy.email!, child: CachedNetworkImage(imageUrl: widget.buddy.photoUrl??'https://www.freepik.com/icon/user_1177568#fromView=keyword&term=User&page=1&position=9&uuid=694cc40b-b89d-4277-bad4-f630ee961d26')),
             ),
           ),
           title: Text(
@@ -313,11 +314,11 @@ Future<void> _playRecordedAudio() async {
                           itemCount: chatMessages.length,
                           itemBuilder: (context, index) {
                             Chat chat = chatMessages[index];
-                            Chat chatP = index>0? chatMessages[index-1]:chatMessages[index];
+                            Chat chatN = index < chatMessages.length-1?chatMessages[index+1]:chatMessages[index];
                             
                             return Column(
                               children: [
-                                if (chat.timestamp!.day != chatP.timestamp!.day)... [
+                                if (chat.timestamp!.day != chatN.timestamp!.day)... [
                                     DateChip(
                                       date: chat.timestamp!,
                                     )
@@ -404,16 +405,18 @@ Future<void> _playRecordedAudio() async {
                                       //     ],
                                       //   ),
                                       // ],
-                                      // BubbleNormal(
-                                      //   text: chat.text,
-                                      //   isSender: chat.senderId == widget.curUser,
-                                      //   tail: chatP.senderId != chat.senderId,
-                                      //   color: chat.senderId == widget.curUser?cricColor.shade100:cricColor.shade50,
-                                      //   seen: chat.senderId == widget.curUser? chat.isSeen:false,
-                                      //   sent: chat.senderId == widget.curUser?true:false
-                                      // ),
 
-                                      CustomChatBubble(chat: chat, curUser: widget.curUser,)
+                                      BubbleSpecialC(
+                                        text: chat.text,
+                                        reply: chat.isReply,
+                                        replyTo: chat.isReply?.senderId == widget.curUser?'You':widget.buddy.firstName,
+                                        isSender: chat.senderId == widget.curUser,
+                                        tail: chat.senderId != chatN.senderId,
+                                        color: chat.senderId == widget.curUser?cricColor.shade100:cricColor.shade50,
+                                        seen: chat.senderId == widget.curUser? chat.isSeen:false,
+                                        sent: chat.senderId == widget.curUser?true:false,
+                                        timestamp: chat.timestamp,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -429,7 +432,13 @@ Future<void> _playRecordedAudio() async {
         
               Container(
                 
-                // color: Color.fromARGB(17, 95, 94, 94),
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(37, 95, 94, 94),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    topRight: Radius.circular(12),
+                  )
+                ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
                   child: Column(
@@ -438,12 +447,13 @@ Future<void> _playRecordedAudio() async {
                         Padding(
                           padding: const EdgeInsets.all(6.0),
                           child: Container(
-                            padding: EdgeInsets.all(2),
+                            padding: EdgeInsets.all(5),
                             decoration: BoxDecoration(
-                              // color: Color.fromARGB(255, 255, 255, 255),
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              borderRadius: BorderRadius.circular(12),
                               border: Border(
                                 right: BorderSide(color: cricColor, width: 3)),
-                              // borderRadius: BorderRadius.circular(10)
+                              
                             ),
                                               
                             child: Stack(
@@ -480,8 +490,10 @@ Future<void> _playRecordedAudio() async {
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child: SizedBox(
-                                            width: MediaQuery.sizeOf(context).width-29,
+                                          child: Container(
+                                            constraints: BoxConstraints(
+                                              maxWidth: MediaQuery.sizeOf(context).width-50
+                                            ),
                                             child: Text(
                                             _replyingChat!.text,
                                             maxLines: 2,
@@ -503,22 +515,9 @@ Future<void> _playRecordedAudio() async {
                       ],
                       Row(
                         children: [
-                          Flexible(
-                            flex: 1,
-                            fit: FlexFit.tight,
-                            child: IconButton(
-        
-                              onPressed: () {
-                                
-                              },
-                              icon: Icon(
-                                MdiIcons.cameraOutline
-                              ),
-                            ),
-                          ),
                           
                           Flexible(
-                            flex: 8,
+                            flex: 9,
                             fit: FlexFit.tight,
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -564,22 +563,24 @@ Future<void> _playRecordedAudio() async {
                           Flexible(
                             flex: 1,
                             fit: FlexFit.tight,
-                            child:messageController.text.trim().isEmpty?
-                            IconButton(
-                              onPressed: () {
-                                if (!_isRecording) {
-                                  _startRecording();
-                                } else {
-                                  _stopRecording();
-                                }
-                              },
-                              icon: Icon(
-                                _isRecording ? Icons.stop : Icons.mic,
-                              ),
+                            child:
+                            // messageController.text.trim().isEmpty?
+                            // IconButton(
+                            //   onPressed: () {
+                            //     if (!_isRecording) {
+                            //       _startRecording();
+                            //     } else {
+                            //       _stopRecording();
+                            //     }
+                            //   },
+                            //   icon: Icon(
+                            //     _isRecording ? Icons.stop : Icons.mic,
+                            //   ),
                             
-                            ):
+                            // )
+                            // :
                           IconButton(
-                              onPressed:(){
+                              onPressed:messageController.text.trim().isEmpty?null:(){
                                 if (_replyingChat != null && _replyingChat!.isReply != null) {
                                   _replyingChat = _replyingChat!.copyWith(isReply: null);
                                 }
@@ -607,7 +608,8 @@ Future<void> _playRecordedAudio() async {
                               },
         
                               icon: Icon(
-                                messageController.text.trim().isEmpty? MdiIcons.microphone: MdiIcons.sendOutline
+                                // messageController.text.trim().isEmpty? MdiIcons.microphone: 
+                                MdiIcons.sendOutline
                               ),
                             ),
                           ),

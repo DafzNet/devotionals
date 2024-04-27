@@ -7,9 +7,9 @@ import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 
+import 'manager.dart';
+
 GetIt getIt = GetIt.instance;
-
-
 
 Future<AudioHandler> initAudioService() async {
   return await AudioService.init(
@@ -28,6 +28,7 @@ Future<AudioHandler> initAudioService() async {
 class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   final _player = AudioPlayer();
   final _playlist = ConcatenatingAudioSource(children: []);
+  final _epsodesList = getIt<Playlist>();
   Expando<MediaItem> songsExpando = Expando<MediaItem>();
 
   MyAudioHandler() {
@@ -198,8 +199,7 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     final newQueue = queue.value..addAll(mediaItems);
     _playlist.addAll(_createAudioSources(mediaItems));
     queue.add(newQueue);
-
-    _player.setAudioSource(_playlist);
+    _player.setAudioSource(_playlist,);
   }
 
   @override
